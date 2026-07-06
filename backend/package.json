@@ -1,0 +1,18 @@
+{
+  "name": "amara-lands-backend",
+  "version": "1.0.0",
+  "description": "Backend API for the Amara Lands property management starter application.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "property",
+    "land",
+    "security",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT"
+}
