@@ -1,9 +1,0 @@
-{
-  "name": "amara-lands-frontend",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ../backend/src/server.js",
-    "dev": "node ../backend/src/server.js"
-  }
-}

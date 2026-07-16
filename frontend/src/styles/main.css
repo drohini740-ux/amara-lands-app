@@ -1,0 +1,151 @@
+/* ===============================
+   Amara Lands Theme
+================================= */
+
+:root {
+  --primary-color: #D4AF37;
+  --primary-hover: #B89122;
+  --secondary-color: #1A1A1A;
+  --background-color: #F8F9FA;
+  --white: #FFFFFF;
+  --text-color: #212529;
+}
+
+/* ===============================
+   Body
+================================= */
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ===============================
+   Sidebar
+================================= */
+
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: var(--secondary-color);
+  color: white;
+}
+
+.sidebar .nav-link {
+  color: white !important;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: 0.3s;
+}
+
+.sidebar .nav-link:hover {
+  background: var(--primary-color);
+  color: #1A1A1A !important;
+}
+
+.active-menu {
+  background: var(--primary-color) !important;
+  color: #1A1A1A !important;
+  font-weight: bold;
+}
+
+/* ===============================
+   Header
+================================= */
+
+.navbar {
+  background: var(--secondary-color) !important;
+}
+
+.navbar-brand {
+  color: var(--primary-color) !important;
+  font-weight: bold;
+}
+
+.nav-link {
+  color: white !important;
+}
+
+/* ===============================
+   Cards
+================================= */
+
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+.card-header {
+  background: var(--primary-color) !important;
+  color: white;
+  font-weight: bold;
+}
+
+/* ===============================
+   Tables
+================================= */
+
+.table-dark,
+.table-dark th {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+.table tbody tr:hover {
+  background: #FFF8E1;
+}
+
+/* ===============================
+   Buttons
+================================= */
+
+.btn-primary {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+}
+
+.btn-secondary {
+  background: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+.btn-dark {
+  background: var(--secondary-color) !important;
+}
+
+.btn-info {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-warning {
+  color: white !important;
+}
+
+/* ===============================
+   Forms
+================================= */
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 .2rem rgba(212,175,55,.25);
+}
+
+/* ===============================
+   Links
+================================= */
+
+a {
+  text-decoration: none;
+}
