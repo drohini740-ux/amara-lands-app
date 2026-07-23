@@ -7,18 +7,18 @@ import {
   FaCreditCard,
   FaHeadset,
   FaUser,
-  FaSignOutAlt
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 export default function Sidebar() {
   return (
-    <div className="sidebar text-white p-3" style={{ width: "260px", minHeight: "100vh" }}>
-      <h2 className="text-center mb-4 fw-bold text-warning">
-        Amara Lands
-      </h2>
+    <div
+      className="sidebar text-white p-3"
+      style={{ width: "260px", minHeight: "100vh" }}
+    >
+      <h2 className="text-center mb-4 fw-bold text-warning">Amara Lands</h2>
 
       <ul className="nav flex-column">
-
         <li className="nav-item mb-2">
           <NavLink to="/dashboard" className="nav-link">
             <FaHome className="me-2" />
@@ -53,7 +53,12 @@ export default function Sidebar() {
             Payments
           </NavLink>
         </li>
-
+       <li className="nav-item mb-2">
+  <NavLink to="/payment-dashboard" className="nav-link">
+    <FaCreditCard className="me-2" />
+    Payment Dashboard
+  </NavLink>
+</li>
         <li className="nav-item mb-2">
           <NavLink to="/support" className="nav-link">
             <FaHeadset className="me-2" />
@@ -67,7 +72,6 @@ export default function Sidebar() {
             Profile
           </NavLink>
         </li>
-
       </ul>
 
       <button className="btn btn-primary w-100 mt-5">

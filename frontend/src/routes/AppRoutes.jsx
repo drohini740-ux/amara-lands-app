@@ -22,6 +22,12 @@ import EditLegalCase from "../pages/legal/EditLegalCase";
 import AddAppointment from "../pages/appointment/AddAppointment";
 import ViewAppointment from "../pages/appointment/ViewAppointment";
 import EditAppointment from "../pages/appointment/EditAppointment";
+import AddPayment from "../pages/payment/AddPayment";
+import ViewPayment from "../pages/payment/ViewPayment";
+import EditPayment from "../pages/payment/EditPayment";
+import NotificationList from "../pages/notification/NotificationList";
+import PaymentReceipt from "../pages/payment/PaymentReceipt";
+import PaymentDashboard from "../pages/payment/PaymentDashboard";
 
 export default function AppRoutes() {
   return (
@@ -56,7 +62,18 @@ export default function AppRoutes() {
         <Route path="/appointments/add" element={<AddAppointment />} />
         <Route path="/appointments/view/:id" element={<ViewAppointment />} />
         <Route path="/appointments/edit/:id" element={<EditAppointment />} />
-
+        <Route path="/payments/add" element={<AddPayment />} />
+        <Route path="/payments/view/:id" element={<ViewPayment />} />
+        <Route path="/payments/edit/:id" element={<EditPayment />} />
+        <Route
+    path="/notifications"
+    element={<NotificationList />}
+/>
+<Route path="/payments/receipt/:id" element={<PaymentReceipt />} />
+<Route
+  path="/payment-dashboard"
+  element={<PaymentDashboard />}
+/>
         {/* Profile */}
         {/* <Route path="/profile" element={<Profile />} /> */}
       </Route>

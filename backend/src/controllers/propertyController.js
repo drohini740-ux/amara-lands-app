@@ -74,6 +74,12 @@ console.log("Values:", [
   longitude,
 ]
         );
+        await createNotification(
+    user_id,
+    "Property Added",
+    "Your property has been added successfully.",
+    "Property"
+);
 
         res.status(201).json({
             success: true,

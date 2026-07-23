@@ -46,6 +46,12 @@ const addLegalCase = async (req, res) => {
         remarks,
       ]
     );
+    await createNotification(
+    user_id,
+    "Legal Case Added",
+    "Legal record has been created.",
+    "Legal"
+);
 
     res.status(201).json({
       success: true,

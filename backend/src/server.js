@@ -1,4 +1,6 @@
-require("dotenv").config();
+require("./config/db");
+const http = require("http");
+const { initSocket } = require("./socket");require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -7,7 +9,7 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 
-require("./config/db");
+
 
 const authRoutes = require("./routes/authRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
@@ -15,6 +17,8 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const propertyDocumentRoutes = require("./routes/propertyDocumentRoutes");
 const legalRoutes = require("./routes/legalRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -50,6 +54,9 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/property-documents", propertyDocumentRoutes);
 app.use("/api/v1/legal", legalRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
+app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
+
 
 /* ------------------------- 404 Handler ------------------------- */
 
@@ -75,6 +82,10 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server Running On http://localhost:${PORT}`);
+const server = http.createServer(app);
+
+initSocket(server);
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

@@ -149,3 +149,87 @@ body {
 a {
   text-decoration: none;
 }
+/* ===========================
+   Payment Dashboard
+=========================== */
+
+.payment-title{
+    font-size:32px;
+    font-weight:700;
+    margin-bottom:25px;
+    color:#222;
+}
+.payment-card{
+    background:#1f1f1f;
+    color:#fff;
+    border-top:5px solid #d4af37;
+    border-radius:15px;
+    min-height:170px;
+    padding:24px;
+    box-shadow:0 10px 20px rgba(0,0,0,.15);
+    transition:0.3s;
+}
+
+.payment-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 15px 25px rgba(0,0,0,.25);
+}
+
+.payment-card .icon{
+    font-size:36px;
+    color:#d4af37;
+    margin-bottom:15px;
+}
+
+.payment-card h6{
+    color:#d4af37;
+    font-size:24px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.payment-card h2{
+    color:#fff;
+    font-size:36px;
+    font-weight:700;
+    margin:0;
+}
+.payment-chart-card {
+  background: #1f1f1f;
+  border-top: 5px solid #d4af37;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.chart-title {
+  color: #d4af37;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.payment-table-card {
+  background: #1f1f1f;
+  border-top: 5px solid #d4af37;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.payment-table-card h4 {
+  color: #d4af37;
+  font-weight: 700;
+}
+
+.payment-table-card table {
+  color: white;
+}
+
+.payment-table-card thead {
+  background: #d4af37;
+  color: black;
+}
+
+.payment-table-card tbody tr:hover {
+  background: rgba(212, 175, 55, 0.12);
+}

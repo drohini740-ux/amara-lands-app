@@ -1,5 +1,7 @@
 const pool = require("../config/db");
-
+const {
+  createNotification,
+} = require("../services/notificationService");
 // =======================================
 // Add Appointment
 // =======================================
@@ -46,6 +48,12 @@ const addAppointment = async (req, res) => {
         remarks,
       ]
     );
+    await createNotification(
+    user_id,
+    "Appointment Confirmed",
+    "Your appointment has been booked successfully.",
+    "Appointment"
+);
 
     res.status(201).json({
       success: true,
