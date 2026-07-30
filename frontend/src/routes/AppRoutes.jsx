@@ -11,8 +11,7 @@ import EditProperty from "../pages/property/EditProperty";
 import Legal from "../pages/legal/Legal";
 import Appointments from "../pages/appointment/Appointments";
 import Payments from "../pages/payment/Payments";
-import Support from "../pages/support/Support";
-// import Profile from "../pages/profile/Profile"; // Uncomment if created
+import Profile from "../pages/profile/Profile";
 import ViewProperty from "../pages/property/ViewProperty";
 import PropertyDocuments from "../pages/property/PropertyDocuments";
 import MainLayout from "../layouts/MainLayout";
@@ -28,6 +27,38 @@ import EditPayment from "../pages/payment/EditPayment";
 import NotificationList from "../pages/notification/NotificationList";
 import PaymentReceipt from "../pages/payment/PaymentReceipt";
 import PaymentDashboard from "../pages/payment/PaymentDashboard";
+import PaymentHistory from "../pages/payment/PaymentHistory";
+import EditProfile from "../pages/profile/EditProfile";
+import SecurityReports from "../pages/security-monitoring/security-reports/SecurityReports";
+import AddSecurityReport from "../pages/security-monitoring/security-reports/AddSecurityReport";
+import ViewSecurityReport from "../pages/security-monitoring/security-reports/ViewSecurityReport";
+import EditSecurityReport from "../pages/security-monitoring/security-reports/EditSecurityReport";
+import FieldVisits from "../pages/security-monitoring/field-visits/FieldVisits";
+import AddFieldVisit from "../pages/security-monitoring/field-visits/AddFieldVisit";
+import ViewFieldVisit from "../pages/security-monitoring/field-visits/ViewFieldVisit";
+import EditFieldVisit from "../pages/security-monitoring/field-visits/EditFieldVisit";
+import SecurityMonitoring from "../pages/security-monitoring/SecurityMonitoring";
+import GeoTaggedReports from "../pages/security-monitoring/geo-tagged-reports/GeoTaggedReports";
+import AddGeoTaggedReport from "../pages/security-monitoring/geo-tagged-reports/AddGeoTaggedReport";
+import ViewGeoTaggedReport from "../pages/security-monitoring/geo-tagged-reports/ViewGeoTaggedReport";
+import EditGeoTaggedReport from "../pages/security-monitoring/geo-tagged-reports/EditGeoTaggedReport";
+import PatrolLogs from "../pages/security-monitoring/patrol-logs/PatrolLogs";
+import AddPatrolLog from "../pages/security-monitoring/patrol-logs/AddPatrolLog";
+import ViewPatrolLog from "../pages/security-monitoring/patrol-logs/ViewPatrolLog";
+import EditPatrolLog from "../pages/security-monitoring/patrol-logs/EditPatrolLog";
+import SurveillanceCameras from "../pages/security-monitoring/surveillance-cameras/SurveillanceCameras";
+import AddSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/AddSurveillanceCamera";
+import ViewSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/ViewSurveillanceCamera";
+import EditSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/EditSurveillanceCamera";
+import Tickets from "../pages/customer-support/tickets/Tickets";
+import AddTicket from "../pages/customer-support/tickets/AddTicket";
+import ViewTicket from "../pages/customer-support/tickets/ViewTicket";
+
+import CustomerSupport from "../pages/customer-support/CustomerSupport";
+import FAQs from "../pages/customer-support/faq/FAQs";
+import LiveChat from "../pages/customer-support/live-chat/LiveChat";
+import WhatsAppSupport from "../pages/customer-support/whatsapp/WhatsAppSupport";
+
 
 export default function AppRoutes() {
   return (
@@ -50,7 +81,6 @@ export default function AppRoutes() {
         <Route path="/legal" element={<Legal />} />
         <Route path="/appointments" element={<Appointments />} />
         <Route path="/payments" element={<Payments />} />
-        <Route path="/support" element={<Support />} />
         <Route path="/properties/view/:id" element={<ViewProperty />} />
         <Route
           path="/properties/:propertyId/documents"
@@ -65,17 +95,77 @@ export default function AppRoutes() {
         <Route path="/payments/add" element={<AddPayment />} />
         <Route path="/payments/view/:id" element={<ViewPayment />} />
         <Route path="/payments/edit/:id" element={<EditPayment />} />
-        <Route
-    path="/notifications"
-    element={<NotificationList />}
-/>
-<Route path="/payments/receipt/:id" element={<PaymentReceipt />} />
-<Route
-  path="/payment-dashboard"
-  element={<PaymentDashboard />}
-/>
+        <Route path="/notifications" element={<NotificationList />} />
+        <Route path="/payments/receipt/:id" element={<PaymentReceipt />} />
+        <Route path="/payment-dashboard" element={<PaymentDashboard />} />
+        <Route path="/payments/history" element={<PaymentHistory />} />
         {/* Profile */}
-        {/* <Route path="/profile" element={<Profile />} /> */}
+        {<Route path="/profile" element={<Profile />} />}
+        <Route path="/profile/edit" element={<EditProfile />} />
+        {/* Security Monitoring */}
+
+        <Route path="/security-reports" element={<SecurityReports />} />
+        <Route path="/security-monitoring" element={<SecurityMonitoring />} />
+        <Route path="/security-reports/add" element={<AddSecurityReport />} />
+        <Route
+          path="/security-reports/view/:id"
+          element={<ViewSecurityReport />}
+        />
+        <Route
+          path="/security-reports/edit/:id"
+          element={<EditSecurityReport />}
+        />
+
+        <Route path="/field-visits" element={<FieldVisits />} />
+        <Route path="/field-visits/add" element={<AddFieldVisit />} />
+        <Route path="/field-visits/view/:id" element={<ViewFieldVisit />} />
+        <Route path="/field-visits/edit/:id" element={<EditFieldVisit />} />
+        <Route path="/geo-tagged-reports" element={<GeoTaggedReports />} />
+
+        <Route
+          path="/geo-tagged-reports/add"
+          element={<AddGeoTaggedReport />}
+        />
+
+        <Route
+          path="/geo-tagged-reports/view/:id"
+          element={<ViewGeoTaggedReport />}
+        />
+
+        <Route
+          path="/geo-tagged-reports/edit/:id"
+          element={<EditGeoTaggedReport />}
+        />
+        <Route path="/patrol-logs" element={<PatrolLogs />} />
+        <Route path="/patrol-logs/add" element={<AddPatrolLog />} />
+        <Route path="/patrol-logs/view/:id" element={<ViewPatrolLog />} />
+        <Route path="/patrol-logs/edit/:id" element={<EditPatrolLog />} />
+        <Route path="/surveillance-cameras" element={<SurveillanceCameras />} />
+
+        <Route
+          path="/surveillance-cameras/add"
+          element={<AddSurveillanceCamera />}
+        />
+
+        <Route
+          path="/surveillance-cameras/view/:id"
+          element={<ViewSurveillanceCamera />}
+        />
+
+        <Route
+          path="/surveillance-cameras/edit/:id"
+          element={<EditSurveillanceCamera />}
+        />
+       <Route path="/support" element={<CustomerSupport />} />
+
+<Route path="/tickets" element={<Tickets />} />
+<Route path="/tickets/add" element={<AddTicket />} />
+<Route path="/tickets/view/:id" element={<ViewTicket />} />
+
+<Route path="/faq" element={<FAQs />} />
+<Route path="/whatsapp" element={<WhatsAppSupport />} />
+<Route path="/live-chat" element={<LiveChat />} />
+
       </Route>
     </Routes>
   );

@@ -8,6 +8,7 @@ import {
   FaHeadset,
   FaUser,
   FaSignOutAlt,
+  FaShieldAlt,
 } from "react-icons/fa";
 
 export default function Sidebar() {
@@ -57,6 +58,12 @@ export default function Sidebar() {
   <NavLink to="/payment-dashboard" className="nav-link">
     <FaCreditCard className="me-2" />
     Payment Dashboard
+  </NavLink>
+</li>
+<li className="nav-item mb-2">
+  <NavLink to="/security-reports" className="nav-link">
+    <FaShieldAlt className="me-2" />
+    Security Monitoring 
   </NavLink>
 </li>
         <li className="nav-item mb-2">

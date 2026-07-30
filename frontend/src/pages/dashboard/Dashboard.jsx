@@ -23,6 +23,7 @@ export default function Dashboard() {
     <div className="container-fluid p-4">
       <h2 className="mb-4">Dashboard</h2>
 
+      {/* Property Summary */}
       <div className="row g-4">
 
         <div className="col-md-4">
@@ -54,7 +55,42 @@ export default function Dashboard() {
 
       </div>
 
-      <div className="card shadow-sm mt-4">
+      {/* Payment Overview */}
+      <h3 className="mt-5 mb-3">Payment Overview</h3>
+
+      <div className="row g-4">
+
+        <div className="col-md-4">
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <h6>Total Payments</h6>
+              <h2>₹ {data?.totalPayments || 0}</h2>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <h6>Completed Payments</h6>
+              <h2>₹ {data?.completedPayments || 0}</h2>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <h6>Pending Payments</h6>
+              <h2>₹ {data?.pendingPayments || 0}</h2>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Recent Properties */}
+      <div className="card shadow-sm mt-5">
         <div className="card-header">
           <h5 className="mb-0">Recent Properties</h5>
         </div>
@@ -91,6 +127,7 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
     </div>
   );
 }

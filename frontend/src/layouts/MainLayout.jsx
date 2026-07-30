@@ -12,6 +12,7 @@ import {
   FaHeadset,
   FaUser,
   FaSignOutAlt,
+  FaShieldAlt,
 } from "react-icons/fa";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -91,6 +92,11 @@ export default function MainLayout() {
       name: "Payment Dashboard",
       icon: <FaCreditCard />,
     },
+   {
+  path: "/security-monitoring",
+  name: "Security Monitoring",
+  icon: <FaShieldAlt />,
+},
     {
       path: "/notifications",
       name: "Notifications",

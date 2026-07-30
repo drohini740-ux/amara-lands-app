@@ -6,7 +6,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import PaymentMethodChart from "./PaymentMethodChart";
-
+import { Link } from "react-router-dom";
 import {
   FaMoneyBillWave,
   FaCheckCircle,
@@ -30,7 +30,8 @@ export default function PaymentDashboard() {
 
   const [filter, setFilter] = useState("month");
   const [sortBy, setSortBy] = useState("latest");
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const paymentsPerPage = 5;
   useEffect(() => {
     fetchStats();
     fetchRecentPayments();
@@ -127,6 +128,38 @@ export default function PaymentDashboard() {
           return new Date(b.created_at) - new Date(a.created_at);
       }
     });
+  const indexOfLastPayment = currentPage * paymentsPerPage;
+  const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
+
+  const currentPayments = filteredPayments.slice(
+    indexOfFirstPayment,
+    indexOfLastPayment,
+  );
+
+  const totalPages = Math.ceil(filteredPayments.length / paymentsPerPage);
+  const downloadReceipt = async (id) => {
+  try {
+    const response = await api.get(`/payments/receipt/${id}`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.setAttribute("download", `Receipt-${id}.pdf`);
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+  } catch (error) {
+    console.log(error);
+    alert("Unable to download receipt.");
+  }
+};
 
   return (
     <div className="container-fluid">
@@ -165,6 +198,12 @@ export default function PaymentDashboard() {
             <option value="amountHigh">Amount High → Low</option>
             <option value="amountLow">Amount Low → High</option>
           </select>
+          <Link
+  to="/payments/history"
+  className="btn btn-dark"
+>
+  View All Payments
+</Link>
           <button
             className="btn"
             onClick={exportPDF}
@@ -268,18 +307,19 @@ export default function PaymentDashboard() {
         </div>
 
         <table className="table table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
+         <thead>
+  <tr>
+    <th>Property</th>
+    <th>Amount</th>
+    <th>Status</th>
+    <th>Date</th>
+    <th>Receipt</th>
+  </tr>
+</thead>
 
           <tbody>
             {filteredPayments.length > 0 ? (
-              filteredPayments.map((payment) => (
+              currentPayments.map((payment) => (
                 <tr
                   key={payment.id}
                   style={{ cursor: "pointer" }}
@@ -306,6 +346,23 @@ export default function PaymentDashboard() {
                   </td>
 
                   <td>{new Date(payment.created_at).toLocaleDateString()}</td>
+                  <td>
+  <button
+    className="btn btn-sm"
+    style={{
+      background: "#d4af37",
+      color: "#fff",
+      fontWeight: "600",
+      borderRadius: "8px",
+    }}
+    onClick={(e) => {
+      e.stopPropagation();
+      downloadReceipt(payment.id);
+    }}
+  >
+    📄 Download
+  </button>
+</td>
                 </tr>
               ))
             ) : (
@@ -317,6 +374,27 @@ export default function PaymentDashboard() {
             )}
           </tbody>
         </table>
+        <div className="d-flex justify-content-between align-items-center mt-3">
+          <button
+            className="btn btn-dark"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            ← Previous
+          </button>
+
+          <span className="fw-bold">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+
+          <button
+            className="btn btn-warning"
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next →
+          </button>
+        </div>
       </div>
       {/* Payment Details Modal */}
 

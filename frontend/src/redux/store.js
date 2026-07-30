@@ -8,16 +8,34 @@ import appointmentReducer from "./appointmentSlice";
 import paymentReducer from "./paymentSlice";
 import notificationReducer from "./notificationSlice";
 
+import securityReportReducer from "./securityReportSlice";
+import fieldVisitReducer from "./fieldVisitSlice";
+import geoTaggedReportReducer from "./geoTaggedReportSlice";
+import patrolLogReducer from "./patrolLogSlice";
+import surveillanceCameraReducer from "./surveillanceCameraSlice";
+
+import ticketReducer from "./ticketSlice";
+
+
 const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
-    //auth: authReducer,
+
     property: propertyReducer,
     documents: propertyDocumentReducer,
+
     legal: legalReducer,
-     appointments: appointmentReducer,
-     payment: paymentReducer,
-        notifications: notificationReducer,
+    appointments: appointmentReducer,
+    payment: paymentReducer,
+    notifications: notificationReducer,
+
+    securityReports: securityReportReducer,
+    fieldVisits: fieldVisitReducer,
+    geoReports: geoTaggedReportReducer,
+    patrolLogs: patrolLogReducer,
+    surveillanceCameras: surveillanceCameraReducer,
+
+    tickets: ticketReducer,
   },
 });
 
