@@ -19,13 +19,28 @@ const legalRoutes = require("./routes/legalRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
-
+const userRoutes = require("./routes/userRoutes");
+const securityReportRoutes = require("./routes/securityReportRoutes");
+const fieldVisitRoutes = require("./routes/fieldVisitRoutes");
+const geoTaggedReportRoutes = require("./routes/geoTaggedReportRoutes");
+const surveillanceCameraRoutes = require("./routes/surveillanceCameraRoutes");
+const ticketRoutes = require("./routes/ticketRoutes");
+const patrolLogRoutes = require("./routes/patrolLogRoutes");
+const faqRoutes = require("./routes/faqRoutes");
+const liveChatRoutes = require("./routes/liveChatRoutes");
 const app = express();
 
 /* ------------------------- Middleware ------------------------- */
 
-app.use(cors());
-app.use(helmet());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -37,7 +52,13 @@ app.use(
   "/uploads",
   express.static(path.join(__dirname, "uploads"))
 );
+console.log("Current directory:", __dirname);
 
+const uploadPath = path.join(__dirname, "uploads");
+
+console.log("Upload Path:", uploadPath);
+
+app.use("/uploads", express.static(uploadPath));
 /* --------------------------- Routes --------------------------- */
 
 app.get("/", (req, res) => {
@@ -56,6 +77,17 @@ app.use("/api/v1/legal", legalRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/users", userRoutes);
+//app.use("/api/security-reports", securityReportRoutes);
+app.use("/api/v1/field-visits", fieldVisitRoutes);
+app.use("/api/v1/security-reports", securityReportRoutes);
+app.use("/api/v1/geo-tagged-reports", geoTaggedReportRoutes);
+app.use("/api/v1/patrol-logs", patrolLogRoutes);
+app.use("/api/v1/surveillance-cameras", surveillanceCameraRoutes);
+app.use("/api/v1/support-tickets", ticketRoutes);
+app.use("/api/v1/faqs", faqRoutes);
+
+app.use("/api/v1/live-chat", liveChatRoutes);
 
 
 /* ------------------------- 404 Handler ------------------------- */

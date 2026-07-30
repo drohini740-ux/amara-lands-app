@@ -488,6 +488,34 @@ const getPaymentMethodStats = async (req, res) => {
     });
   }
 };
+const getMonthlyRevenue = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        TO_CHAR(created_at, 'Mon') AS month,
+        SUM(amount)::numeric AS revenue
+      FROM payments
+      WHERE payment_status = 'Success'
+      GROUP BY
+        EXTRACT(MONTH FROM created_at),
+        TO_CHAR(created_at, 'Mon')
+      ORDER BY
+        EXTRACT(MONTH FROM created_at)
+    `);
+
+    res.json({
+      success: true,
+      revenue: result.rows,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
 module.exports = {
   addPayment,
   getPayments,
@@ -500,4 +528,5 @@ module.exports = {
   getPaymentStats,
   getRecentPayments,
   getPaymentMethodStats,
+  getMonthlyRevenue
 };

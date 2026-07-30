@@ -14,7 +14,8 @@ const {
   downloadReceipt,
   getPaymentStats,
   getRecentPayments,
-    getPaymentMethodStats
+  getPaymentMethodStats,
+  getMonthlyRevenue,
 } = require("../controllers/paymentController");
 
 router.post("/create-order", authMiddleware, createOrder);
@@ -24,6 +25,7 @@ router.get("/receipt/:id", authMiddleware, downloadReceipt);
 
 // Dashboard routes (keep these BEFORE "/:id")
 router.get("/stats/dashboard", authMiddleware, getPaymentStats);
+router.get("/stats/monthly-revenue", authMiddleware, getMonthlyRevenue);
 router.get("/stats/methods", authMiddleware, getPaymentMethodStats);
 router.get("/recent", authMiddleware, getRecentPayments);
 

@@ -1,0 +1,14 @@
+const express = require("express");
+const router = express.Router();
+
+const auth = require("../middleware/authMiddleware");
+
+const {
+  getMessages,
+  sendMessage,
+} = require("../controllers/liveChatController");
+
+router.get("/", auth, getMessages);
+router.post("/", auth, sendMessage);
+
+module.exports = router;
