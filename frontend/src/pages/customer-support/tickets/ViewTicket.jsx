@@ -78,7 +78,7 @@ export default function ViewTicket() {
 
           <button
             className="btn btn-secondary"
-            onClick={() => navigate("/support-tickets")}
+            onClick={() => navigate("/tickets")}
           >
             Back
           </button>

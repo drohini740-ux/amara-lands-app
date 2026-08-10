@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-
+import adminUsersReducer from "./adminUserSlice";
 import dashboardReducer from "./dashboardSlice";
 import propertyReducer from "./propertySlice";
 import propertyDocumentReducer from "./propertyDocumentSlice";
@@ -7,7 +7,7 @@ import legalReducer from "./legalSlice";
 import appointmentReducer from "./appointmentSlice";
 import paymentReducer from "./paymentSlice";
 import notificationReducer from "./notificationSlice";
-
+import consultationReducer from "./consultationSlice";
 import securityReportReducer from "./securityReportSlice";
 import fieldVisitReducer from "./fieldVisitSlice";
 import geoTaggedReportReducer from "./geoTaggedReportSlice";
@@ -36,6 +36,8 @@ const store = configureStore({
     surveillanceCameras: surveillanceCameraReducer,
 
     tickets: ticketReducer,
+    consultations: consultationReducer,
+    adminUsers: adminUsersReducer,
   },
 });
 

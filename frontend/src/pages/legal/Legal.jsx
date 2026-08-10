@@ -23,12 +23,14 @@ export default function Legal() {
     if (!confirmDelete) return;
 
     try {
-      await deleteLegalCase(id);
+     await deleteLegalCase(id);
 
-      alert("Legal Case Deleted Successfully");
+alert("Legal Case Deleted Successfully");
+
+dispatch(fetchLegalCases());
 
       // refresh list
-      fetchLegalCases();
+     // fetchLegalCases();
     } catch (error) {
       console.log(error);
 
@@ -62,13 +64,32 @@ export default function Legal() {
           <p className="text-muted">Manage Property Legal Cases</p>
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/legal/add")}
-        >
-          <FaPlus className="me-2" />
-          Add Legal Case
-        </button>
+ <div className="d-flex gap-2">
+
+  <button
+    className="btn btn-primary"
+    onClick={() => navigate("/legal/add")}
+  >
+    <FaPlus className="me-2" />
+    Add Legal Case
+  </button>
+  <button
+  className="btn btn-primary ms-2"
+  onClick={() => navigate("/case-tracking")}
+>
+<FaPlus className="me-2" />
+  Track Cases
+</button>
+
+  <button
+    className="btn btn-primary"
+    onClick={() => navigate("/consultations")}
+  >
+  <FaPlus className="me-2" />
+    Book Consultation
+  </button>
+
+</div>
       </div>
 
       {/* Search */}

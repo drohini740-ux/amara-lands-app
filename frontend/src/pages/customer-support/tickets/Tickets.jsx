@@ -1,17 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchTickets,
-  removeTicket,
-} from "../../../redux/ticketSlice";
+import { fetchTickets, removeTicket } from "../../../redux/ticketSlice";
 
-import {
-  FaPlus,
-  FaSearch,
-  FaEye,
-  FaEdit,
-  FaTrash,
-} from "react-icons/fa";
+import { FaPlus, FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
 
@@ -19,9 +10,7 @@ export default function Tickets() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { tickets, loading } = useSelector(
-    (state) => state.tickets
-  );
+  const { tickets, loading } = useSelector((state) => state.tickets);
 
   const [search, setSearch] = useState("");
 
@@ -30,7 +19,7 @@ export default function Tickets() {
   }, [dispatch]);
 
   const filteredTickets = tickets?.filter((ticket) =>
-    ticket.subject?.toLowerCase().includes(search.toLowerCase())
+    ticket.subject?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleDelete = async (id) => {
@@ -55,7 +44,6 @@ export default function Tickets() {
 
   return (
     <div className="container-fluid p-4">
-
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="fw-bold">Support Tickets</h2>
@@ -64,7 +52,7 @@ export default function Tickets() {
 
         <button
           className="btn btn-primary"
-          onClick={() => navigate("/support-tickets/add")}
+          onClick={() => navigate("/tickets/add")}
         >
           <FaPlus className="me-2" />
           Add Ticket
@@ -96,9 +84,7 @@ export default function Tickets() {
 
         <div className="card-body">
           <div className="table-responsive">
-
             <table className="table table-hover">
-
               <thead className="table-dark">
                 <tr>
                   <th>Subject</th>
@@ -110,26 +96,18 @@ export default function Tickets() {
               </thead>
 
               <tbody>
-
                 {filteredTickets?.length > 0 ? (
-
                   filteredTickets.map((ticket) => (
-
                     <tr key={ticket.id}>
                       <td>{ticket.subject}</td>
                       <td>{ticket.priority}</td>
                       <td>{ticket.status}</td>
-                      <td>
-                        {ticket.created_at?.substring(0, 10)}
-                      </td>
+                      <td>{ticket.created_at?.substring(0, 10)}</td>
 
                       <td>
-
                         <button
                           className="btn btn-info btn-sm me-2"
-                          onClick={() =>
-                            navigate(`/support-tickets/view/${ticket.id}`)
-                          }
+                          onClick={() => navigate(`/tickets/view/${ticket.id}`)}
                         >
                           <FaEye />
                         </button>
@@ -137,7 +115,7 @@ export default function Tickets() {
                         <button
                           className="btn btn-warning btn-sm me-2"
                           onClick={() =>
-                            navigate(`/support-tickets/edit/${ticket.id}`)
+                            navigate(`/tickets/edit/${ticket.id}`)
                           }
                         >
                           <FaEdit />
@@ -149,31 +127,21 @@ export default function Tickets() {
                         >
                           <FaTrash />
                         </button>
-
                       </td>
                     </tr>
-
                   ))
-
                 ) : (
-
                   <tr>
                     <td colSpan="5" className="text-center">
                       No Tickets Found
                     </td>
                   </tr>
-
                 )}
-
               </tbody>
-
             </table>
-
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }

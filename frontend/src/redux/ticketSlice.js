@@ -62,31 +62,53 @@ const ticketSlice = createSlice({
   reducers: {},
 
   extraReducers: (builder) => {
-    builder
+  builder
 
-      .addCase(fetchTickets.pending, (state) => {
-        state.loading = true;
-      })
+    // Fetch All
+    .addCase(fetchTickets.pending, (state) => {
+      state.loading = true;
+    })
 
-      .addCase(fetchTickets.fulfilled, (state, action) => {
-        state.loading = false;
-        state.tickets = action.payload.tickets || [];
-      })
+    .addCase(fetchTickets.fulfilled, (state, action) => {
+      state.loading = false;
+      state.tickets = action.payload.tickets || [];
+    })
 
-      .addCase(fetchTickets.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
+    .addCase(fetchTickets.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    })
 
-      .addCase(fetchTicket.fulfilled, (state, action) => {
-        state.ticket = action.payload.ticket;
-      })
+    // Fetch Single
+    .addCase(fetchTicket.fulfilled, (state, action) => {
+      state.ticket = action.payload.ticket;
+    })
 
-      .addCase(removeTicket.fulfilled, (state, action) => {
-        state.tickets = state.tickets.filter(
-          (ticket) => ticket.id !== action.payload
-        );
-      });
+    // Create
+    .addCase(createTicket.fulfilled, (state, action) => {
+      if (action.payload.ticket) {
+        state.tickets.unshift(action.payload.ticket);
+      }
+    })
+
+    // Update
+    .addCase(editTicket.fulfilled, (state, action) => {
+      state.tickets = state.tickets.map((ticket) =>
+        ticket.id === action.payload.ticket.id
+          ? action.payload.ticket
+          : ticket
+      );
+
+      state.ticket = action.payload.ticket;
+    })
+
+    // Delete
+    .addCase(removeTicket.fulfilled, (state, action) => {
+      state.tickets = state.tickets.filter(
+        (ticket) => ticket.id !== action.payload
+      );
+    });
+
   },
 });
 

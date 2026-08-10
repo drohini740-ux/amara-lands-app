@@ -1,105 +1,133 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import API from "../../services/api";
 
-export default function Register(){
+export default function Register() {
+  const navigate = useNavigate();
 
-return(
+  const [form, setForm] = useState({
+    full_name: "",
+    mobile: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  });
 
-<div className="container-fluid vh-100">
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-<div className="row h-100">
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-<div className="col-lg-6 d-flex align-items-center justify-content-center">
+    try {
+      const res = await API.post("/auth/register", form);
 
-<div className="card p-5" style={{width:"500px"}}>
+      toast.success(res.data.message);
 
-<h2 className="fw-bold mb-4">
+      navigate("/login");
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Registration Failed"
+      );
+    }
+  };
 
-Create Account
+  return (
+    <div className="container-fluid vh-100">
+      <div className="row h-100">
+        <div className="col-lg-6 d-flex align-items-center justify-content-center">
+          <div className="card p-5 shadow" style={{ width: "500px" }}>
+            <h2 className="fw-bold mb-4">
+              Create Account
+            </h2>
 
-</h2>
+            <form onSubmit={handleRegister}>
 
-<form>
+              <input
+                className="form-control mb-3"
+                placeholder="Full Name"
+                name="full_name"
+                value={form.full_name}
+                onChange={handleChange}
+              />
 
-<input
-className="form-control mb-3"
-placeholder="Full Name"
-/>
+              <input
+                className="form-control mb-3"
+                placeholder="Mobile"
+                name="mobile"
+                value={form.mobile}
+                onChange={handleChange}
+              />
 
-<input
-className="form-control mb-3"
-placeholder="Mobile"
-/>
+              <input
+                className="form-control mb-3"
+                placeholder="Email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+              />
 
-<input
-className="form-control mb-3"
-placeholder="Email"
-/>
+              <input
+                type="password"
+                className="form-control mb-3"
+                placeholder="Password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+              />
 
-<input
-type="password"
-className="form-control mb-3"
-placeholder="Password"
-/>
+              <input
+                type="password"
+                className="form-control mb-4"
+                placeholder="Confirm Password"
+                name="confirm_password"
+                value={form.confirm_password}
+                onChange={handleChange}
+              />
 
-<input
-type="password"
-className="form-control mb-4"
-placeholder="Confirm Password"
-/>
+              <button
+                type="submit"
+                className="btn btn-success w-100"
+              >
+                Register
+              </button>
 
-<button
-className="btn btn-success w-100"
->
+            </form>
 
-Register
+            <div className="text-center mt-4">
+              Already have an account?
 
-</button>
+              <Link
+                to="/login"
+                className="ms-2"
+              >
+                Login
+              </Link>
 
-</form>
+            </div>
 
-<div className="text-center mt-4">
+          </div>
+        </div>
 
-Already have an account?
+        <div className="col-lg-6 bg-success text-white d-none d-lg-flex align-items-center justify-content-center">
+          <div>
+            <h1 className="display-5">
+              Amara Lands
+            </h1>
 
-<Link
-to="/login"
-className="ms-2"
->
+            <p>
+              Secure Land Management Solution
+            </p>
 
-Login
+          </div>
+        </div>
 
-</Link>
-
-</div>
-
-</div>
-
-</div>
-
-<div className="col-lg-6 bg-success text-white d-none d-lg-flex align-items-center justify-content-center">
-
-<div>
-
-<h1 className="display-5">
-
-Amara Lands
-
-</h1>
-
-<p>
-
-Secure Land Management Solution
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-);
-
+      </div>
+    </div>
+  );
 }

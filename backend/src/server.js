@@ -28,6 +28,12 @@ const ticketRoutes = require("./routes/ticketRoutes");
 const patrolLogRoutes = require("./routes/patrolLogRoutes");
 const faqRoutes = require("./routes/faqRoutes");
 const liveChatRoutes = require("./routes/liveChatRoutes");
+const consultationRoutes = require("./routes/consultationRoutes");
+const caseTrackingRoutes = require("./routes/caseTrackingRoutes");
+const adminUserRoutes = require("./routes/admin/userRoutes");
+const adminPropertyRoutes = require("./routes/admin/propertyRoutes");
+
+
 const app = express();
 
 /* ------------------------- Middleware ------------------------- */
@@ -74,6 +80,8 @@ app.use("/api/v1/properties", propertyRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/property-documents", propertyDocumentRoutes);
 app.use("/api/v1/legal", legalRoutes);
+app.use("/api/v1/consultations", consultationRoutes);
+app.use("/api/v1/case-tracking", caseTrackingRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
@@ -84,10 +92,12 @@ app.use("/api/v1/security-reports", securityReportRoutes);
 app.use("/api/v1/geo-tagged-reports", geoTaggedReportRoutes);
 app.use("/api/v1/patrol-logs", patrolLogRoutes);
 app.use("/api/v1/surveillance-cameras", surveillanceCameraRoutes);
-app.use("/api/v1/support-tickets", ticketRoutes);
+app.use("/api/v1/admin/users", adminUserRoutes);
+app.use("/api/v1/tickets", ticketRoutes);
 app.use("/api/v1/faqs", faqRoutes);
 
 app.use("/api/v1/live-chat", liveChatRoutes);
+app.use("/api/v1/admin/properties", adminPropertyRoutes);
 
 
 /* ------------------------- 404 Handler ------------------------- */

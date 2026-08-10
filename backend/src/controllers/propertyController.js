@@ -1,35 +1,45 @@
 const pool = require("../config/db");
-
 // ========================
 // Add Property
 // ========================
 
 const addProperty = async (req, res) => {
-    try {
+  try {
+    const {
+      property_name,
+      survey_number,
+      property_type,
+      area,
+      address,
+      city,
+      state,
+      pincode,
+      latitude,
+      longitude,
+    } = req.body;
 
-        const {
-            property_name,
-            survey_number,
-            property_type,
-            area,
-            address,
-            city,
-            state,
-            pincode,
-            latitude,
-            longitude
-        } = req.body;
+    if (!property_name || !survey_number) {
+      return res.status(400).json({
+        success: false,
+        message: "Property Name and Survey Number are required.",
+      });
+    }
 
-        if (!property_name || !survey_number) {
-            return res.status(400).json({
-                success: false,
-                message: "Property Name and Survey Number are required."
-            });
-        }
+    const exists = await pool.query(
+      `SELECT id FROM properties WHERE survey_number=$1`,
+      [survey_number]
+    );
 
-       const result = await pool.query(
-    `INSERT INTO properties
-    (
+    if (exists.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Survey Number already exists",
+      });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO properties
+      (
         user_id,
         property_name,
         survey_number,
@@ -41,11 +51,11 @@ const addProperty = async (req, res) => {
         pincode,
         latitude,
         longitude
-    )
-    VALUES
-    ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-    RETURNING *`,
-    [
+      )
+      VALUES
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      RETURNING *`,
+      [
         req.user.id,
         property_name,
         survey_number,
@@ -56,45 +66,37 @@ const addProperty = async (req, res) => {
         state,
         pincode,
         latitude,
-        longitude
-    ]
-);
+        longitude,
+      ]
+    );
 
-console.log("Values:", [
-  req.user.id,
-  property_name,
-  survey_number,
-  property_type,
-  area,
-  address,
-  city,
-  state,
-  pincode,
-  latitude,
-  longitude,
-]
-        );
-        await createNotification(
-    user_id,
-    "Property Added",
-    "Your property has been added successfully.",
-    "Property"
-);
+    // Create notification
+    await pool.query(
+      `INSERT INTO notifications
+      (user_id,title,message,notification_type)
+      VALUES($1,$2,$3,$4)`,
+      [
+        req.user.id,
+        "Property Added",
+        "Your property has been added successfully.",
+        "Property",
+      ]
+    );
 
-        res.status(201).json({
-            success: true,
-            message: "Property Added Successfully",
-            property: result.rows[0]
-        });
+    res.status(201).json({
+      success: true,
+      message: "Property Added Successfully",
+      property: result.rows[0],
+    });
 
-    } catch (error) {
-        console.log(error);
+  } catch (error) {
+    console.log(error);
 
-        res.status(500).json({
-            success: false,
-            message: "Server Error"
-        });
-    }
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
 };
 
 // ========================
@@ -102,33 +104,27 @@ console.log("Values:", [
 // ========================
 
 const getProperties = async (req, res) => {
-
-    try {
-
-        const result = await pool.query(
-            `SELECT *
+  try {
+    const result = await pool.query(
+      `SELECT *
              FROM properties
              WHERE user_id=$1
              ORDER BY id DESC`,
-            [req.user.id]
-        );
+      [req.user.id],
+    );
 
-        res.json({
-            success: true,
-            properties: result.rows
-        });
+    res.json({
+      success: true,
+      properties: result.rows,
+    });
+  } catch (error) {
+    console.log(error);
 
-    } catch (error) {
-
-        console.log(error);
-
-        res.status(500).json({
-            success: false,
-            message: "Server Error"
-        });
-
-    }
-
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
 };
 
 // ========================
@@ -136,43 +132,34 @@ const getProperties = async (req, res) => {
 // ========================
 
 const getProperty = async (req, res) => {
-
-    try {
-
-        const result = await pool.query(
-            `SELECT *
+  try {
+    const result = await pool.query(
+      `SELECT *
              FROM properties
              WHERE id=$1
              AND user_id=$2`,
-            [
-                req.params.id,
-                req.user.id
-            ]
-        );
+      [req.params.id, req.user.id],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Property Not Found"
-            });
-        }
-
-        res.json({
-            success: true,
-            property: result.rows[0]
-        });
-
-    } catch (error) {
-
-        console.log(error);
-
-        res.status(500).json({
-            success: false,
-            message: "Server Error"
-        });
-
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Property Not Found",
+      });
     }
 
+    res.json({
+      success: true,
+      property: result.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
 };
 
 // ========================
@@ -180,24 +167,22 @@ const getProperty = async (req, res) => {
 // ========================
 
 const updateProperty = async (req, res) => {
+  try {
+    const {
+      property_name,
+      survey_number,
+      property_type,
+      area,
+      address,
+      city,
+      state,
+      pincode,
+      latitude,
+      longitude,
+    } = req.body;
 
-    try {
-
-        const {
-            property_name,
-            survey_number,
-            property_type,
-            area,
-            address,
-            city,
-            state,
-            pincode,
-            latitude,
-            longitude
-        } = req.body;
-
-        const result = await pool.query(
-            `UPDATE properties
+    const result = await pool.query(
+      `UPDATE properties
             SET
                 property_name=$1,
                 survey_number=$2,
@@ -212,46 +197,42 @@ const updateProperty = async (req, res) => {
             WHERE id=$11
             AND user_id=$12
             RETURNING *`,
-            [
-                property_name,
-                survey_number,
-                property_type,
-                area,
-                address,
-                city,
-                state,
-                pincode,
-                latitude,
-                longitude,
-                req.params.id,
-                req.user.id
-            ]
-        );
+      [
+        property_name,
+        survey_number,
+        property_type,
+        area,
+        address,
+        city,
+        state,
+        pincode,
+        latitude,
+        longitude,
+        req.params.id,
+        req.user.id,
+      ],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Property Not Found"
-            });
-        }
-
-        res.json({
-            success: true,
-            message: "Property Updated",
-            property: result.rows[0]
-        });
-
-    } catch (error) {
-
-        console.log(error);
-
-        res.status(500).json({
-            success: false,
-            message: "Server Error"
-        });
-
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Property Not Found",
+      });
     }
 
+    res.json({
+      success: true,
+      message: "Property Updated",
+      property: result.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
 };
 
 // ========================
@@ -259,49 +240,40 @@ const updateProperty = async (req, res) => {
 // ========================
 
 const deleteProperty = async (req, res) => {
-
-    try {
-
-        const result = await pool.query(
-            `DELETE FROM properties
+  try {
+    const result = await pool.query(
+      `DELETE FROM properties
              WHERE id=$1
              AND user_id=$2
              RETURNING *`,
-            [
-                req.params.id,
-                req.user.id
-            ]
-        );
+      [req.params.id, req.user.id],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Property Not Found"
-            });
-        }
-
-        res.json({
-            success: true,
-            message: "Property Deleted"
-        });
-
-    } catch (error) {
-
-        console.log(error);
-
-        res.status(500).json({
-            success: false,
-            message: "Server Error"
-        });
-
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Property Not Found",
+      });
     }
 
+    res.json({
+      success: true,
+      message: "Property Deleted",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
 };
 
 module.exports = {
-    addProperty,
-    getProperties,
-    getProperty,
-    updateProperty,
-    deleteProperty
+  addProperty,
+  getProperties,
+  getProperty,
+  updateProperty,
+  deleteProperty,
 };

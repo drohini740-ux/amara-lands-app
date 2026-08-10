@@ -5,13 +5,19 @@ import {
   fetchAppointments,
   removeAppointment,
 } from "../../redux/appointmentSlice";
+
 export default function Appointments() {
   const dispatch = useDispatch();
 
-  const { appointments, loading } = useSelector((state) => state.appointments);
+  const { appointments } = useSelector((state) => state.appointments);
+
+  useEffect(() => {
+    dispatch(fetchAppointments());
+  }, [dispatch]);
+
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this appointment?",
+      "Are you sure you want to delete this appointment?"
     );
 
     if (!confirmDelete) return;
@@ -28,42 +34,48 @@ export default function Appointments() {
     }
   };
 
-  useEffect(() => {
-    dispatch(fetchAppointments());
-  }, [dispatch]);
-
   return (
     <div className="container-fluid p-4">
       <div className="d-flex justify-content-between mb-4">
         <h2>Appointments</h2>
 
-        <Link to="/appointments/add" className="btn btn-primary">
+        <Link
+          to="/appointments/add"
+          className="btn btn-primary"
+        >
           Add Appointment
         </Link>
       </div>
 
       <div className="card shadow-sm">
         <div className="card-body">
-          <table className="table table-bordered">
+
+          <table className="table table-bordered table-hover">
             <thead className="table-dark">
               <tr>
                 <th>Customer</th>
                 <th>Property</th>
+                <th>Service</th>
                 <th>Phone</th>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Status</th>
+                <th>Payment</th>
                 <th>Actions</th>
               </tr>
             </thead>
 
             <tbody>
+
               {appointments.length > 0 ? (
                 appointments.map((item) => (
                   <tr key={item.id}>
+
                     <td>{item.customer_name}</td>
 
                     <td>{item.property_name}</td>
+
+                    <td>{item.service_type || "-"}</td>
 
                     <td>{item.phone}</td>
 
@@ -71,9 +83,34 @@ export default function Appointments() {
 
                     <td>{item.appointment_time}</td>
 
-                    <td>{item.status}</td>
+                    <td>
+                      <span
+                        className={`badge ${
+                          item.status === "Approved"
+                            ? "bg-success"
+                            : item.status === "Rejected"
+                            ? "bg-danger"
+                            : "bg-warning text-dark"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
 
                     <td>
+                      <span
+                        className={`badge ${
+                          item.payment_status === "Paid"
+                            ? "bg-success"
+                            : "bg-secondary"
+                        }`}
+                      >
+                        {item.payment_status || "Pending"}
+                      </span>
+                    </td>
+
+                    <td>
+
                       <Link
                         to={`/appointments/view/${item.id}`}
                         className="btn btn-info btn-sm me-2"
@@ -94,18 +131,22 @@ export default function Appointments() {
                       >
                         Delete
                       </button>
+
                     </td>
+
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="text-center">
+                  <td colSpan="9" className="text-center">
                     No Appointments Found
                   </td>
                 </tr>
               )}
+
             </tbody>
           </table>
+
         </div>
       </div>
     </div>
