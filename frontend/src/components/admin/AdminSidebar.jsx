@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+
 import {
   FaTachometerAlt,
   FaUsers,
@@ -11,6 +12,7 @@ import {
   FaUserTie,
   FaCog,
   FaSignOutAlt,
+  FaUndo,
 } from "react-icons/fa";
 
 export default function AdminSidebar() {
@@ -22,6 +24,9 @@ export default function AdminSidebar() {
         minHeight: "100vh",
       }}
     >
+      {/* =========================
+          HEADER
+      ========================= */}
       <div className="p-4 border-bottom">
         <h4 className="fw-bold text-center">
           Amara Lands
@@ -32,8 +37,12 @@ export default function AdminSidebar() {
         </small>
       </div>
 
+      {/* =========================
+          MENU
+      ========================= */}
       <ul className="nav flex-column p-2">
 
+        {/* Dashboard */}
         <li className="nav-item">
           <NavLink
             to="/admin/dashboard"
@@ -44,6 +53,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* User Management */}
         <li className="nav-item">
           <NavLink
             to="/admin/users"
@@ -54,6 +64,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Property Verification */}
         <li className="nav-item">
           <NavLink
             to="/admin/properties"
@@ -64,6 +75,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Payment Management */}
         <li className="nav-item">
           <NavLink
             to="/admin/payments"
@@ -74,6 +86,18 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Refund Management */}
+        <li className="nav-item">
+          <NavLink
+            to="/admin/refunds"
+            className="nav-link text-white"
+          >
+            <FaUndo className="me-2" />
+            Refund Management
+          </NavLink>
+        </li>
+
+        {/* Revenue Reports */}
         <li className="nav-item">
           <NavLink
             to="/admin/reports"
@@ -84,6 +108,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Analytics */}
         <li className="nav-item">
           <NavLink
             to="/admin/analytics"
@@ -94,6 +119,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Legal Management */}
         <li className="nav-item">
           <NavLink
             to="/admin/legal"
@@ -104,6 +130,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Security Monitoring */}
         <li className="nav-item">
           <NavLink
             to="/admin/security"
@@ -114,6 +141,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Staff Assignment */}
         <li className="nav-item">
           <NavLink
             to="/admin/staff"
@@ -124,6 +152,7 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Settings */}
         <li className="nav-item">
           <NavLink
             to="/admin/settings"
@@ -136,6 +165,7 @@ export default function AdminSidebar() {
 
         <hr className="text-secondary" />
 
+        {/* Logout */}
         <li className="nav-item">
           <NavLink
             to="/login"

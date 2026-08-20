@@ -1,4 +1,5 @@
 const pool = require("../../config/db");
+const { getIO } = require("../../socket");
 
 // ===========================
 // Get All Properties - Admin
@@ -84,7 +85,7 @@ const getPropertyById = async (req, res) => {
 
       WHERE p.id = $1
       `,
-      [req.params.id]
+      [req.params.id],
     );
 
     if (result.rows.length === 0) {
@@ -157,7 +158,7 @@ const updateProperty = async (req, res) => {
         latitude,
         longitude,
         req.params.id,
-      ]
+      ],
     );
 
     if (result.rows.length === 0) {
@@ -193,7 +194,7 @@ const deleteProperty = async (req, res) => {
       WHERE id = $1
       RETURNING *
       `,
-      [req.params.id]
+      [req.params.id],
     );
 
     if (result.rows.length === 0) {
@@ -216,22 +217,14 @@ const deleteProperty = async (req, res) => {
     });
   }
 };
-
-// ===========================
-// Update Verification Status
-// ===========================
-// ===========================
 // Update Verification Status
 // ===========================
 const updateVerificationStatus = async (req, res) => {
   try {
     const { verification_status } = req.body;
+    const propertyId = req.params.id;
 
-    const allowedStatuses = [
-      "Pending",
-      "Verified",
-      "Rejected",
-    ];
+    const allowedStatuses = ["Pending", "Verified", "Rejected"];
 
     if (!allowedStatuses.includes(verification_status)) {
       return res.status(400).json({
@@ -240,11 +233,30 @@ const updateVerificationStatus = async (req, res) => {
       });
     }
 
-    const verifiedBy =
-      verification_status === "Pending"
-        ? null
-        : req.user.id;
+    // Get property owner
+    const propertyResult = await pool.query(
+      `
+      SELECT
+        id,
+        user_id,
+        property_name,
+        verification_status
+      FROM properties
+      WHERE id = $1
+      `,
+      [propertyId],
+    );
 
+    if (propertyResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Property Not Found",
+      });
+    }
+
+    const property = propertyResult.rows[0];
+
+    // Update property verification status
     const result = await pool.query(
       `
       UPDATE properties
@@ -254,19 +266,36 @@ const updateVerificationStatus = async (req, res) => {
       WHERE id = $3
       RETURNING *
       `,
-      [
-        verification_status,
-        verifiedBy,
-        req.params.id,
-      ]
+      [verification_status, req.user.id, propertyId],
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Property Not Found",
-      });
-    }
+    // Create customer notification
+    const notificationResult = await pool.query(
+      `
+      INSERT INTO notifications
+      (
+        user_id,
+        title,
+        message,
+        notification_type
+      )
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+      `,
+      [
+        property.user_id,
+        "Property Verification Updated",
+        `Your property "${property.property_name}" has been ${verification_status}.`,
+        "Property Verification",
+      ],
+    );
+
+    const notification = notificationResult.rows[0];
+
+    // Send real-time notification
+    const io = getIO();
+
+    io.to(`user_${property.user_id}`).emit("newNotification", notification);
 
     res.json({
       success: true,
@@ -282,7 +311,6 @@ const updateVerificationStatus = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getAllProperties,
   getPropertyById,

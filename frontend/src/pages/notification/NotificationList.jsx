@@ -95,29 +95,27 @@ export default function NotificationList() {
                       ).toLocaleString()}
                     </td>
 
-                    <td>
+                <td>
+  <div className="d-flex align-items-center gap-2 flex-nowrap">
 
-                      {!notification.is_read && (
-                        <button
-                          className="btn btn-success btn-sm me-2"
-                          onClick={() =>
-                            handleRead(notification.id)
-                          }
-                        >
-                          Mark Read
-                        </button>
-                      )}
+    {!notification.is_read && (
+      <button
+        className="btn btn-success btn-sm"
+        onClick={() => handleRead(notification.id)}
+      >
+        Mark Read
+      </button>
+    )}
 
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() =>
-                          handleDelete(notification.id)
-                        }
-                      >
-                        Delete
-                      </button>
+    <button
+      className="btn btn-danger btn-sm"
+      onClick={() => handleDelete(notification.id)}
+    >
+      Delete
+    </button>
 
-                    </td>
+  </div>
+</td>
 
                   </tr>
 

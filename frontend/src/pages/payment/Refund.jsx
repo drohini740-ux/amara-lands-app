@@ -1,54 +1,126 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPayments } from "../../redux/paymentSlice";
+import api from "../../services/api";
 
 export default function Refund() {
-
   const { id } = useParams();
-
-  const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
-  const { payments } = useSelector((state) => state.payment);
-
+  const [payment, setPayment] = useState(null);
   const [reason, setReason] = useState("");
 
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
-    dispatch(fetchPayments());
-  }, [dispatch]);
+    fetchPayment();
+  }, [id]);
 
-  const payment = payments.find((item) => item.id === Number(id));
+  const fetchPayment = async () => {
+    try {
+      setLoading(true);
 
-  if (!payment) {
+      const res = await api.get(`/payments/${id}`);
+
+      setPayment(res.data.payment);
+    } catch (error) {
+      console.error("Fetch payment error:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Unable to load payment."
+      );
+
+      navigate("/payments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!reason.trim()) {
+      alert("Please enter refund reason.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      await api.post("/refunds", {
+        payment_id: payment.id,
+        reason: reason.trim(),
+      });
+
+      alert(
+        "Refund Request Submitted Successfully"
+      );
+
+      navigate("/payments");
+    } catch (error) {
+      console.error("Refund request error:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Unable to submit refund request."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
     return (
       <div className="container mt-5">
-        <h4>Loading...</h4>
+        <h4>Loading Payment...</h4>
       </div>
     );
   }
 
-  const handleSubmit = (e) => {
+  if (!payment) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-danger">
+          Payment not found.
+        </div>
 
-    e.preventDefault();
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate("/payments")}
+        >
+          Back to Payments
+        </button>
+      </div>
+    );
+  }
 
-    alert("Refund Request Submitted Successfully");
+  if (payment.payment_status !== "Success") {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning">
+          Only successful payments can be refunded.
+        </div>
 
-    navigate("/payments");
-
-  };
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate("/payments")}
+        >
+          Back to Payments
+        </button>
+      </div>
+    );
+  }
 
   return (
-
     <div className="container mt-4">
 
       <div className="card shadow">
 
         <div className="card-header bg-danger text-white">
-
-          <h3>Refund Request</h3>
-
+          <h3 className="mb-0">
+            Refund Request
+          </h3>
         </div>
 
         <div className="card-body">
@@ -58,35 +130,42 @@ export default function Refund() {
             <tbody>
 
               <tr>
-
                 <th>Property</th>
-
-                <td>{payment.property_name}</td>
-
+                <td>
+                  {payment.property_name || "-"}
+                </td>
               </tr>
 
               <tr>
-
                 <th>Amount</th>
-
-                <td>₹ {payment.amount}</td>
-
+                <td>
+                  ₹ {payment.amount || 0}
+                </td>
               </tr>
 
               <tr>
-
                 <th>Payment Method</th>
-
-                <td>{payment.payment_method}</td>
-
+                <td>
+                  {payment.payment_method || "-"}
+                </td>
               </tr>
 
               <tr>
-
                 <th>Status</th>
+                <td>
+                  <span className="badge bg-success">
+                    {payment.payment_status}
+                  </span>
+                </td>
+              </tr>
 
-                <td>{payment.payment_status}</td>
-
+              <tr>
+                <th>Transaction ID</th>
+                <td>
+                  {payment.transaction_id ||
+                    payment.razorpay_payment_id ||
+                    "-"}
+                </td>
               </tr>
 
             </tbody>
@@ -105,7 +184,10 @@ export default function Refund() {
                 className="form-control"
                 rows="4"
                 value={reason}
-                onChange={(e) => setReason(e.target.value)}
+                onChange={(e) =>
+                  setReason(e.target.value)
+                }
+                placeholder="Enter reason for refund..."
                 required
               />
 
@@ -114,14 +196,18 @@ export default function Refund() {
             <button
               type="submit"
               className="btn btn-danger me-2"
+              disabled={submitting}
             >
-              Submit Refund Request
+              {submitting
+                ? "Submitting..."
+                : "Submit Refund Request"}
             </button>
 
             <button
               type="button"
               className="btn btn-secondary"
               onClick={() => navigate("/payments")}
+              disabled={submitting}
             >
               Cancel
             </button>
@@ -129,11 +215,8 @@ export default function Refund() {
           </form>
 
         </div>
-
       </div>
 
     </div>
-
   );
-
 }

@@ -8,6 +8,7 @@ const {
   getNotifications,
   getNotification,
   markAsRead,
+   markAllAsRead,
   deleteNotification,
 } = require("../controllers/notificationController");
 
@@ -19,6 +20,7 @@ router.get("/", authMiddleware, getNotifications);
 
 // Get Single Notification
 router.get("/:id", authMiddleware, getNotification);
+router.put("/read-all", authMiddleware, markAllAsRead);
 
 // Mark Notification as Read
 router.put("/:id/read", authMiddleware, markAsRead);

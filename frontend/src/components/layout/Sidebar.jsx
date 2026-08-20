@@ -55,10 +55,7 @@ export default function Sidebar() {
           </NavLink>
         </li>
        <li className="nav-item mb-2">
-  <NavLink to="/payment-dashboard" className="nav-link">
-    <FaCreditCard className="me-2" />
-    Payment Dashboard
-  </NavLink>
+  
 </li>
 <li className="nav-item mb-2">
   <NavLink to="/security-reports" className="nav-link">

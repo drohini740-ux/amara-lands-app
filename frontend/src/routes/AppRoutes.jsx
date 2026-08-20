@@ -7,6 +7,10 @@ import Users from "../pages/admin/users/Users";
 import AddUser from "../pages/admin/users/AddUser";
 import ViewUser from "../pages/admin/users/ViewUser";
 import EditUser from "../pages/admin/users/EditUser";
+import RefundManagement from "../pages/admin/refunds/RefundManagement";
+
+import PaymentDashboard from "../pages/admin/payments/PaymentDashboard";
+import AdminPayments from "../pages/admin/payments/Payments";
 
 // ================= AUTH =================
 import Login from "../pages/auth/Login";
@@ -47,7 +51,7 @@ import AddPayment from "../pages/payment/AddPayment";
 import ViewPayment from "../pages/payment/ViewPayment";
 import EditPayment from "../pages/payment/EditPayment";
 import PaymentReceipt from "../pages/payment/PaymentReceipt";
-import PaymentDashboard from "../pages/payment/PaymentDashboard";
+// import PaymentDashboard from "../pages/payment/PaymentDashboard";
 import PaymentHistory from "../pages/payment/PaymentHistory";
 import Invoice from "../pages/payment/Invoice";
 import Refund from "../pages/payment/Refund";
@@ -98,11 +102,11 @@ import EditTicket from "../pages/customer-support/tickets/EditTicket";
 import FAQs from "../pages/customer-support/faq/FAQs";
 import LiveChat from "../pages/customer-support/live-chat/LiveChat";
 import WhatsAppSupport from "../pages/customer-support/whatsapp/WhatsAppSupport";
+
 import AdminProperties from "../pages/admin/properties/Properties";
 
 // ================= PROTECTION =================
 import ProtectedRoute from "./ProtectedRoute";
-
 
 export default function AppRoutes() {
   return (
@@ -137,7 +141,10 @@ export default function AppRoutes() {
 
         {/* ================= PROPERTY ================= */}
 
-        <Route path="/properties" element={<Properties />} />
+        <Route
+          path="/properties"
+          element={<Properties />}
+        />
 
         <Route
           path="/add-property"
@@ -234,7 +241,7 @@ export default function AppRoutes() {
         />
 
 
-        {/* ================= PAYMENTS ================= */}
+        {/* ================= CUSTOMER PAYMENTS ================= */}
 
         <Route
           path="/payments"
@@ -259,11 +266,6 @@ export default function AppRoutes() {
         <Route
           path="/payments/receipt/:id"
           element={<PaymentReceipt />}
-        />
-
-        <Route
-          path="/payment-dashboard"
-          element={<PaymentDashboard />}
         />
 
         <Route
@@ -492,14 +494,19 @@ export default function AppRoutes() {
           }
         />
 
-<Route
-  path="/admin/properties"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AdminProperties />
-    </ProtectedRoute>
-  }
-/>
+
+        {/* Admin Properties */}
+
+        <Route
+          path="/admin/properties"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminProperties />
+            </ProtectedRoute>
+          }
+        />
+
+
         {/* User Management */}
 
         <Route
@@ -511,9 +518,6 @@ export default function AppRoutes() {
           }
         />
 
-
-        {/* Add User */}
-
         <Route
           path="/admin/users/add"
           element={
@@ -522,9 +526,10 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
-
-        {/* View User */}
+        <Route
+  path="/admin/refunds"
+  element={<RefundManagement />}
+/>
 
         <Route
           path="/admin/users/view/:id"
@@ -535,14 +540,38 @@ export default function AppRoutes() {
           }
         />
 
-
-        {/* Edit User */}
-
         <Route
           path="/admin/users/edit/:id"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <EditUser />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* =====================================================
+            ADMIN PAYMENTS
+        ===================================================== */}
+
+        {/* Admin Payment Dashboard */}
+
+        <Route
+          path="/admin/payment-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <PaymentDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin All Payments */}
+
+        <Route
+          path="/admin/payments"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPayments />
             </ProtectedRoute>
           }
         />

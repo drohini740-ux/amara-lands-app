@@ -1,25 +1,58 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPayments } from "../../redux/paymentSlice";
+import api from "../../services/api";
 
 export default function Invoice() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const { payments } = useSelector((state) => state.payment);
+  const [payment, setPayment] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchPayments());
-  }, [dispatch]);
+    fetchPayment();
+  }, [id]);
 
-  const payment = payments.find((item) => item.id === Number(id));
+  const fetchPayment = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get(`/payments/${id}`);
+
+      setPayment(res.data.payment);
+    } catch (error) {
+      console.error("Invoice payment error:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Unable to load invoice."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container mt-5">
+        <h4>Loading Invoice...</h4>
+      </div>
+    );
+  }
 
   if (!payment) {
     return (
       <div className="container mt-5">
-        <h4>Loading Invoice...</h4>
+        <div className="alert alert-danger">
+          Payment not found.
+        </div>
+
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate("/payments")}
+        >
+          Back
+        </button>
       </div>
     );
   }
@@ -30,12 +63,20 @@ export default function Invoice() {
       <div className="card shadow">
 
         <div className="card-header bg-primary text-white">
-          <h3>Payment Invoice</h3>
+          <h3 className="mb-0">
+            Payment Invoice
+          </h3>
         </div>
 
         <div className="card-body">
 
-          <h4 className="text-center mb-4">AMARA LANDS</h4>
+          <h4 className="text-center mb-4">
+            AMARA LANDS
+          </h4>
+
+          <p className="text-center text-muted">
+            Payment Invoice
+          </p>
 
           <table className="table table-bordered">
 
@@ -48,39 +89,67 @@ export default function Invoice() {
 
               <tr>
                 <th>Property</th>
-                <td>{payment.property_name}</td>
+                <td>
+                  {payment.property_name || "-"}
+                </td>
               </tr>
 
               <tr>
                 <th>Amount</th>
-                <td>₹ {payment.amount}</td>
+                <td>
+                  ₹ {payment.amount || 0}
+                </td>
               </tr>
 
               <tr>
                 <th>Purpose</th>
-                <td>{payment.payment_for}</td>
+                <td>
+                  {payment.payment_for || "-"}
+                </td>
               </tr>
 
               <tr>
                 <th>Payment Method</th>
-                <td>{payment.payment_method}</td>
+                <td>
+                  {payment.payment_method || "-"}
+                </td>
               </tr>
 
               <tr>
                 <th>Status</th>
-                <td>{payment.payment_status}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      payment.payment_status ===
+                      "Success"
+                        ? "bg-success"
+                        : payment.payment_status ===
+                          "Pending"
+                        ? "bg-warning text-dark"
+                        : "bg-danger"
+                    }`}
+                  >
+                    {payment.payment_status || "-"}
+                  </span>
+                </td>
               </tr>
 
               <tr>
                 <th>Transaction ID</th>
-                <td>{payment.transaction_id || "-"}</td>
+                <td>
+                  {payment.transaction_id ||
+                    payment.razorpay_payment_id ||
+                    "-"}
+                </td>
               </tr>
 
               <tr>
                 <th>Payment Date</th>
                 <td>
                   {payment.payment_date
-                    ? payment.payment_date.substring(0, 10)
+                    ? new Date(
+                        payment.payment_date
+                      ).toLocaleDateString()
                     : "-"}
                 </td>
               </tr>
@@ -89,24 +158,26 @@ export default function Invoice() {
 
           </table>
 
-          <button
-            className="btn btn-success me-2"
-            onClick={() => window.print()}
-          >
-            Print Invoice
-          </button>
+          <div className="mt-4">
 
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate("/payments")}
-          >
-            Back
-          </button>
+            <button
+              className="btn btn-success me-2"
+              onClick={() => window.print()}
+            >
+              Print Invoice
+            </button>
+
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate("/payments")}
+            >
+              Back
+            </button>
+
+          </div>
 
         </div>
-
       </div>
-
     </div>
   );
 }

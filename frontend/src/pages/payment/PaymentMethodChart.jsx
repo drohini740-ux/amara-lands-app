@@ -21,45 +21,76 @@ const COLORS = [
 export default function PaymentMethodChart() {
   const [data, setData] = useState([]);
 
+  // ==========================================
+  // FETCH ADMIN PAYMENT METHOD STATISTICS
+  // ==========================================
+
   useEffect(() => {
     fetchMethods();
   }, []);
 
   const fetchMethods = async () => {
     try {
-      const res = await api.get("/payments/stats/methods");
-      setData(res.data.methods);
+      const res = await api.get(
+        "/admin/payments/stats/methods"
+      );
+
+      setData(res.data.methods || []);
     } catch (error) {
-      console.log(error);
+      console.error(
+        "Admin payment method stats error:",
+        error
+      );
+
+      setData([]);
     }
   };
 
   return (
     <div className="payment-table-card mt-5">
-      <h4 className="mb-4">Payment Methods</h4>
 
-      <ResponsiveContainer width="100%" height={350}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="total"
-            nameKey="payment_method"
-            outerRadius={120}
-            label
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
+      <h4 className="mb-4">
+        Payment Methods
+      </h4>
 
-          <Tooltip />
+      {data.length > 0 ? (
+        <ResponsiveContainer
+          width="100%"
+          height={350}
+        >
+          <PieChart>
 
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+            <Pie
+              data={data}
+              dataKey="total"
+              nameKey="payment_method"
+              outerRadius={120}
+              label
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    COLORS[
+                      index % COLORS.length
+                    ]
+                  }
+                />
+              ))}
+            </Pie>
+
+            <Tooltip />
+
+            <Legend />
+
+          </PieChart>
+        </ResponsiveContainer>
+      ) : (
+        <div className="text-center py-5 text-muted">
+          No payment method data available
+        </div>
+      )}
+
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import socket from "../../services/socketService";
 
 import { fetchProperties, removeProperty } from "../../redux/propertySlice";
 
@@ -21,9 +22,30 @@ export default function Properties() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
+ useEffect(() => {
+  dispatch(fetchProperties());
+
+  const handlePropertyUpdate = (data) => {
+    console.log(
+      "Property Verification Updated:",
+      data
+    );
+
     dispatch(fetchProperties());
-  }, [dispatch]);
+  };
+
+  socket.on(
+    "propertyVerificationUpdated",
+    handlePropertyUpdate
+  );
+
+  return () => {
+    socket.off(
+      "propertyVerificationUpdated",
+      handlePropertyUpdate
+    );
+  };
+}, [dispatch]);
 
   const filteredProperties = properties?.filter((property) => {
     return property.property_name?.toLowerCase().includes(search.toLowerCase());
@@ -141,15 +163,16 @@ export default function Properties() {
                       <td>
                         <span
                           className={`badge ${
-                            property.verification_status === "Approved"
+                            property.verification_status === "Verified"
                               ? "bg-success"
-                              : "bg-warning text-dark"
+                              : property.verification_status === "Rejected"
+                                ? "bg-danger"
+                                : "bg-warning text-dark"
                           }`}
                         >
                           {property.verification_status}
                         </span>
                       </td>
-
                       <td>
                         <button
                           className="btn btn-sm btn-info me-2"

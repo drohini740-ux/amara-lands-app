@@ -25,41 +25,124 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { notifications } = useSelector((state) => state.notifications);
+  const { notifications } = useSelector(
+    (state) => state.notifications
+  );
+
   const [openNotifications, setOpenNotifications] = useState(false);
-  // Fetch notifications every 5 seconds
+
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
+
+  // =========================================================
+  // NOTIFICATION + SOCKET.IO
+  // =========================================================
+
   useEffect(() => {
+    if (!user?.id) {
+      console.log("❌ No logged-in user found");
+      return;
+    }
+
+    console.log("👤 Logged-in user:", user);
+    console.log("🔌 User ID:", user.id);
+
+    // Fetch existing notifications
     dispatch(fetchNotifications());
 
-    socket.on("newNotification", (notification) => {
-      console.log("New Notification:", notification);
+    // Make sure socket is connected
+    if (!socket.connected) {
+      console.log("🔌 Connecting Socket.IO...");
+      socket.connect();
+    }
 
+    // Join user-specific notification room
+    console.log(
+      "🏠 Joining notification room:",
+      `user_${user.id}`
+    );
+
+    socket.emit("joinUserRoom", user.id);
+
+    // =======================================================
+    // REAL-TIME NOTIFICATION
+    // =======================================================
+
+    const handleNewNotification = (notification) => {
+      console.log(
+        "🔔 REAL-TIME NOTIFICATION RECEIVED:",
+        notification
+      );
+
+      // Refresh notifications immediately
       dispatch(fetchNotifications());
-    });
+    };
+
+    socket.on(
+      "newNotification",
+      handleNewNotification
+    );
+
+    // =======================================================
+    // CLEANUP
+    // =======================================================
 
     return () => {
-      socket.off("newNotification");
+      console.log(
+        "🧹 Removing notification socket listener"
+      );
+
+      socket.off(
+        "newNotification",
+        handleNewNotification
+      );
     };
-  }, [dispatch]);
-  // Close dropdown when clicking outside
+  }, [dispatch, user?.id]);
+
+  // =========================================================
+  // CLOSE NOTIFICATION DROPDOWN WHEN CLICKING OUTSIDE
+  // =========================================================
+
   useEffect(() => {
     const handleClickOutside = () => {
       setOpenNotifications(false);
     };
 
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener(
+      "click",
+      handleClickOutside
+    );
 
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener(
+        "click",
+        handleClickOutside
+      );
     };
   }, []);
 
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+
   const handleLogout = () => {
+    console.log("🚪 Logging out...");
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // Redirect to Login page
+
+    // Disconnect socket
+    if (socket.connected) {
+      socket.disconnect();
+    }
+
     navigate("/login");
   };
+
+  // =========================================================
+  // MENU ITEMS
+  // =========================================================
 
   const menuItems = [
     {
@@ -87,16 +170,12 @@ export default function MainLayout() {
       name: "Payments",
       icon: <FaCreditCard />,
     },
+  
     {
-      path: "/payment-dashboard",
-      name: "Payment Dashboard",
-      icon: <FaCreditCard />,
+      path: "/security-monitoring",
+      name: "Security Monitoring",
+      icon: <FaShieldAlt />,
     },
-   {
-  path: "/security-monitoring",
-  name: "Security Monitoring",
-  icon: <FaShieldAlt />,
-},
     {
       path: "/notifications",
       name: "Notifications",
@@ -113,11 +192,26 @@ export default function MainLayout() {
       icon: <FaUser />,
     },
   ];
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+
+  // =========================================================
+  // UNREAD COUNT
+  // =========================================================
+
+  const unreadCount = notifications.filter(
+    (notification) => !notification.is_read
+  ).length;
+
+  // =========================================================
+  // UI
+  // =========================================================
 
   return (
     <div className="d-flex">
-      {/* Sidebar */}
+
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
+
       <div
         className="sidebar shadow"
         style={{
@@ -126,63 +220,107 @@ export default function MainLayout() {
         }}
       >
         <div className="p-4 border-bottom">
-          <h2 className="fw-bold mb-0 text-warning">Amara Lands</h2>
+          <h2 className="fw-bold mb-0 text-warning">
+            Amara Lands
+          </h2>
         </div>
 
         <nav className="nav flex-column p-3">
+
           {menuItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               className={`nav-link d-flex align-items-center gap-3 rounded mb-2 ${
-                location.pathname === item.path ? "active-menu" : ""
+                location.pathname === item.path
+                  ? "active-menu"
+                  : ""
               }`}
               style={{
                 padding: "12px",
                 textDecoration: "none",
               }}
             >
-              <span style={{ fontSize: "18px" }}>{item.icon}</span>
+              <span
+                style={{
+                  fontSize: "18px",
+                }}
+              >
+                {item.icon}
+              </span>
 
               <span>{item.name}</span>
             </Link>
           ))}
+
         </nav>
       </div>
 
-      {/* Main Content */}
+      {/* =====================================================
+          MAIN CONTENT
+      ===================================================== */}
 
       <div className="flex-grow-1 bg-light">
-        {/* Header */}
 
-        <div className="bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center">
-          <h3 className="mb-0 fw-bold">Dashboard</h3>
+        {/* ===================================================
+            HEADER
+        =================================================== */}
+
+        <div
+          className="bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center"
+        >
+          <h3 className="mb-0 fw-bold">
+            Dashboard
+          </h3>
 
           <div className="d-flex align-items-center">
+
+            {/* =================================================
+                NOTIFICATION BELL
+            ================================================= */}
+
             <div className="position-relative me-4">
+
               <button
                 className="btn border-0 bg-transparent position-relative"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpenNotifications((prev) => !prev);
+
+                  setOpenNotifications(
+                    (prev) => !prev
+                  );
                 }}
               >
                 <FaBell size={22} />
 
                 {unreadCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  <span
+                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  >
                     {unreadCount}
                   </span>
                 )}
               </button>
+
               <NotificationDropdown
                 notifications={notifications}
                 open={openNotifications}
                 setOpen={setOpenNotifications}
               />
+
             </div>
 
-            <span className="me-3 fw-semibold">Rohini</span>
+            {/* =================================================
+                USER NAME
+            ================================================= */}
+
+            <span className="me-3 fw-semibold">
+              {user.full_name || "User"}
+            </span>
+
+            {/* =================================================
+                LOGOUT
+            ================================================= */}
 
             <button
               className="btn btn-danger btn-sm d-flex align-items-center"
@@ -191,14 +329,18 @@ export default function MainLayout() {
               <FaSignOutAlt className="me-2" />
               Logout
             </button>
+
           </div>
         </div>
 
-        {/* Page Content */}
+        {/* ===================================================
+            PAGE CONTENT
+        =================================================== */}
 
         <div className="p-4">
           <Outlet />
         </div>
+
       </div>
     </div>
   );
