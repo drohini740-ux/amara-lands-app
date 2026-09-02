@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-
 import {
   FaTachometerAlt,
   FaUsers,
@@ -13,6 +12,7 @@ import {
   FaCog,
   FaSignOutAlt,
   FaUndo,
+  FaFileInvoice,
 } from "react-icons/fa";
 
 export default function AdminSidebar() {
@@ -86,6 +86,17 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* Invoice Management */}
+        <li className="nav-item">
+          <NavLink
+            to="/admin/invoices"
+            className="nav-link text-white"
+          >
+            <FaFileInvoice className="me-2" />
+            Invoice Management
+          </NavLink>
+        </li>
+
         {/* Refund Management */}
         <li className="nav-item">
           <NavLink
@@ -94,17 +105,6 @@ export default function AdminSidebar() {
           >
             <FaUndo className="me-2" />
             Refund Management
-          </NavLink>
-        </li>
-
-        {/* Revenue Reports */}
-        <li className="nav-item">
-          <NavLink
-            to="/admin/reports"
-            className="nav-link text-white"
-          >
-            <FaClipboardList className="me-2" />
-            Revenue Reports
           </NavLink>
         </li>
 

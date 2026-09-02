@@ -8,10 +8,17 @@ import AddUser from "../pages/admin/users/AddUser";
 import ViewUser from "../pages/admin/users/ViewUser";
 import EditUser from "../pages/admin/users/EditUser";
 import RefundManagement from "../pages/admin/refunds/RefundManagement";
+import InvoiceManagement from "../pages/admin/payments/InvoiceManagement";
+import AdminLegal from "../pages/admin/legal/AdminLegal";
 
 import PaymentDashboard from "../pages/admin/payments/PaymentDashboard";
 import AdminPayments from "../pages/admin/payments/Payments";
-
+import Analytics from "../pages/admin/analytics/Analytics";
+import LegalManagement from "../pages/admin/legal/LegalManagement";
+import LegalCaseView from "../pages/admin/legal/LegalCaseView";
+import LegalCaseEdit from "../pages/admin/legal/LegalCaseEdit";
+//import AssignAdvocate from "../pages/admin/legal/AssignAdvocate";
+import CaseTracking from "../pages/admin/legal/CaseTracking";
 // ================= AUTH =================
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -32,7 +39,7 @@ import Legal from "../pages/legal/Legal";
 import AddLegalCase from "../pages/legal/AddLegalCase";
 import ViewLegalCase from "../pages/legal/ViewLegalCase";
 import EditLegalCase from "../pages/legal/EditLegalCase";
-import CaseTracking from "../pages/legal/CaseTracking";
+//import CaseTracking from "../pages/legal/CaseTracking";
 
 import Consultation from "../pages/legal/consultation/Consultation";
 import AddConsultation from "../pages/legal/consultation/AddConsultation";
@@ -90,7 +97,7 @@ import SurveillanceCameras from "../pages/security-monitoring/surveillance-camer
 import AddSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/AddSurveillanceCamera";
 import ViewSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/ViewSurveillanceCamera";
 import EditSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/EditSurveillanceCamera";
-
+//import RevenueReports from "../pages/admin/payments/RevenueReports";
 // ================= CUSTOMER SUPPORT =================
 import CustomerSupport from "../pages/customer-support/CustomerSupport";
 
@@ -111,7 +118,6 @@ import ProtectedRoute from "./ProtectedRoute";
 export default function AppRoutes() {
   return (
     <Routes>
-
       {/* =====================================================
           AUTHENTICATION
       ===================================================== */}
@@ -120,13 +126,11 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-
       {/* =====================================================
           CUSTOMER / MAIN APPLICATION
       ===================================================== */}
 
       <Route element={<MainLayout />}>
-
         {/* Dashboard */}
 
         <Route
@@ -138,194 +142,92 @@ export default function AppRoutes() {
           }
         />
 
-
         {/* ================= PROPERTY ================= */}
 
-        <Route
-          path="/properties"
-          element={<Properties />}
-        />
+        <Route path="/properties" element={<Properties />} />
 
-        <Route
-          path="/add-property"
-          element={<AddProperty />}
-        />
+        <Route path="/add-property" element={<AddProperty />} />
 
-        <Route
-          path="/properties/edit/:id"
-          element={<EditProperty />}
-        />
+        <Route path="/properties/edit/:id" element={<EditProperty />} />
 
-        <Route
-          path="/properties/view/:id"
-          element={<ViewProperty />}
-        />
+        <Route path="/properties/view/:id" element={<ViewProperty />} />
 
         <Route
           path="/properties/:propertyId/documents"
           element={<PropertyDocuments />}
         />
 
-
         {/* ================= LEGAL ================= */}
 
-        <Route
-          path="/legal"
-          element={<Legal />}
-        />
+        <Route path="/legal" element={<Legal />} />
 
-        <Route
-          path="/legal/add"
-          element={<AddLegalCase />}
-        />
+        <Route path="/legal/add" element={<AddLegalCase />} />
 
-        <Route
-          path="/legal/view/:id"
-          element={<ViewLegalCase />}
-        />
+        <Route path="/legal/view/:id" element={<ViewLegalCase />} />
 
-        <Route
-          path="/legal/edit/:id"
-          element={<EditLegalCase />}
-        />
+        <Route path="/legal/edit/:id" element={<EditLegalCase />} />
 
-        <Route
-          path="/case-tracking"
-          element={<CaseTracking />}
-        />
-
+        <Route path="/case-tracking" element={<CaseTracking />} />
 
         {/* ================= CONSULTATIONS ================= */}
 
-        <Route
-          path="/consultations"
-          element={<Consultation />}
-        />
+        <Route path="/consultations" element={<Consultation />} />
 
-        <Route
-          path="/consultations/add"
-          element={<AddConsultation />}
-        />
+        <Route path="/consultations/add" element={<AddConsultation />} />
 
-        <Route
-          path="/consultations/view/:id"
-          element={<ViewConsultation />}
-        />
+        <Route path="/consultations/view/:id" element={<ViewConsultation />} />
 
-        <Route
-          path="/consultations/edit/:id"
-          element={<EditConsultation />}
-        />
-
+        <Route path="/consultations/edit/:id" element={<EditConsultation />} />
 
         {/* ================= APPOINTMENTS ================= */}
 
-        <Route
-          path="/appointments"
-          element={<Appointments />}
-        />
+        <Route path="/appointments" element={<Appointments />} />
 
-        <Route
-          path="/appointments/add"
-          element={<AddAppointment />}
-        />
+        <Route path="/appointments/add" element={<AddAppointment />} />
 
-        <Route
-          path="/appointments/view/:id"
-          element={<ViewAppointment />}
-        />
+        <Route path="/appointments/view/:id" element={<ViewAppointment />} />
 
-        <Route
-          path="/appointments/edit/:id"
-          element={<EditAppointment />}
-        />
-
+        <Route path="/appointments/edit/:id" element={<EditAppointment />} />
 
         {/* ================= CUSTOMER PAYMENTS ================= */}
 
-        <Route
-          path="/payments"
-          element={<Payments />}
-        />
+        <Route path="/payments" element={<Payments />} />
 
-        <Route
-          path="/payments/add"
-          element={<AddPayment />}
-        />
+        <Route path="/payments/add" element={<AddPayment />} />
 
-        <Route
-          path="/payments/view/:id"
-          element={<ViewPayment />}
-        />
+        <Route path="/payments/view/:id" element={<ViewPayment />} />
 
-        <Route
-          path="/payments/edit/:id"
-          element={<EditPayment />}
-        />
+        <Route path="/payments/edit/:id" element={<EditPayment />} />
 
-        <Route
-          path="/payments/receipt/:id"
-          element={<PaymentReceipt />}
-        />
+        <Route path="/payments/receipt/:id" element={<PaymentReceipt />} />
 
-        <Route
-          path="/payments/history"
-          element={<PaymentHistory />}
-        />
+        <Route path="/payments/history" element={<PaymentHistory />} />
 
-        <Route
-          path="/payments/invoice/:id"
-          element={<Invoice />}
-        />
+        <Route path="/payments/invoice/:id" element={<Invoice />} />
 
-        <Route
-          path="/payments/refund/:id"
-          element={<Refund />}
-        />
-
+        <Route path="/payments/refund/:id" element={<Refund />} />
 
         {/* ================= NOTIFICATIONS ================= */}
 
-        <Route
-          path="/notifications"
-          element={<NotificationList />}
-        />
-
+        <Route path="/notifications" element={<NotificationList />} />
 
         {/* ================= PROFILE ================= */}
 
-        <Route
-          path="/profile"
-          element={<Profile />}
-        />
+        <Route path="/profile" element={<Profile />} />
 
-        <Route
-          path="/profile/edit"
-          element={<EditProfile />}
-        />
-
+        <Route path="/profile/edit" element={<EditProfile />} />
 
         {/* =====================================================
             SECURITY MONITORING
         ===================================================== */}
 
-        <Route
-          path="/security-monitoring"
-          element={<SecurityMonitoring />}
-        />
-
+        <Route path="/security-monitoring" element={<SecurityMonitoring />} />
 
         {/* Security Reports */}
 
-        <Route
-          path="/security-reports"
-          element={<SecurityReports />}
-        />
+        <Route path="/security-reports" element={<SecurityReports />} />
 
-        <Route
-          path="/security-reports/add"
-          element={<AddSecurityReport />}
-        />
+        <Route path="/security-reports/add" element={<AddSecurityReport />} />
 
         <Route
           path="/security-reports/view/:id"
@@ -337,36 +239,19 @@ export default function AppRoutes() {
           element={<EditSecurityReport />}
         />
 
-
         {/* Field Visits */}
 
-        <Route
-          path="/field-visits"
-          element={<FieldVisits />}
-        />
+        <Route path="/field-visits" element={<FieldVisits />} />
 
-        <Route
-          path="/field-visits/add"
-          element={<AddFieldVisit />}
-        />
+        <Route path="/field-visits/add" element={<AddFieldVisit />} />
 
-        <Route
-          path="/field-visits/view/:id"
-          element={<ViewFieldVisit />}
-        />
+        <Route path="/field-visits/view/:id" element={<ViewFieldVisit />} />
 
-        <Route
-          path="/field-visits/edit/:id"
-          element={<EditFieldVisit />}
-        />
-
+        <Route path="/field-visits/edit/:id" element={<EditFieldVisit />} />
 
         {/* Geo Tagged Reports */}
 
-        <Route
-          path="/geo-tagged-reports"
-          element={<GeoTaggedReports />}
-        />
+        <Route path="/geo-tagged-reports" element={<GeoTaggedReports />} />
 
         <Route
           path="/geo-tagged-reports/add"
@@ -383,36 +268,19 @@ export default function AppRoutes() {
           element={<EditGeoTaggedReport />}
         />
 
-
         {/* Patrol Logs */}
 
-        <Route
-          path="/patrol-logs"
-          element={<PatrolLogs />}
-        />
+        <Route path="/patrol-logs" element={<PatrolLogs />} />
 
-        <Route
-          path="/patrol-logs/add"
-          element={<AddPatrolLog />}
-        />
+        <Route path="/patrol-logs/add" element={<AddPatrolLog />} />
 
-        <Route
-          path="/patrol-logs/view/:id"
-          element={<ViewPatrolLog />}
-        />
+        <Route path="/patrol-logs/view/:id" element={<ViewPatrolLog />} />
 
-        <Route
-          path="/patrol-logs/edit/:id"
-          element={<EditPatrolLog />}
-        />
-
+        <Route path="/patrol-logs/edit/:id" element={<EditPatrolLog />} />
 
         {/* Surveillance Cameras */}
 
-        <Route
-          path="/surveillance-cameras"
-          element={<SurveillanceCameras />}
-        />
+        <Route path="/surveillance-cameras" element={<SurveillanceCameras />} />
 
         <Route
           path="/surveillance-cameras/add"
@@ -429,60 +297,32 @@ export default function AppRoutes() {
           element={<EditSurveillanceCamera />}
         />
 
-
         {/* =====================================================
             CUSTOMER SUPPORT
         ===================================================== */}
 
-        <Route
-          path="/support"
-          element={<CustomerSupport />}
-        />
+        <Route path="/support" element={<CustomerSupport />} />
 
-        <Route
-          path="/tickets"
-          element={<Tickets />}
-        />
+        <Route path="/tickets" element={<Tickets />} />
 
-        <Route
-          path="/tickets/add"
-          element={<AddTicket />}
-        />
+        <Route path="/tickets/add" element={<AddTicket />} />
 
-        <Route
-          path="/tickets/view/:id"
-          element={<ViewTicket />}
-        />
+        <Route path="/tickets/view/:id" element={<ViewTicket />} />
 
-        <Route
-          path="/tickets/edit/:id"
-          element={<EditTicket />}
-        />
+        <Route path="/tickets/edit/:id" element={<EditTicket />} />
 
-        <Route
-          path="/faq"
-          element={<FAQs />}
-        />
+        <Route path="/faq" element={<FAQs />} />
 
-        <Route
-          path="/whatsapp"
-          element={<WhatsAppSupport />}
-        />
+        <Route path="/whatsapp" element={<WhatsAppSupport />} />
 
-        <Route
-          path="/live-chat"
-          element={<LiveChat />}
-        />
-
+        <Route path="/live-chat" element={<LiveChat />} />
       </Route>
-
 
       {/* =====================================================
           ADMIN MODULE
       ===================================================== */}
 
       <Route element={<AdminLayout />}>
-
         {/* Admin Dashboard */}
 
         <Route
@@ -494,7 +334,6 @@ export default function AppRoutes() {
           }
         />
 
-
         {/* Admin Properties */}
 
         <Route
@@ -505,7 +344,8 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
+        <Route path="/admin/legal" element={<LegalManagement />} />
+        <Route path="/admin/legal/edit/:id" element={<LegalCaseEdit />} />
 
         {/* User Management */}
 
@@ -526,10 +366,8 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
-  path="/admin/refunds"
-  element={<RefundManagement />}
-/>
+        <Route path="/admin/refunds" element={<RefundManagement />} />
+        <Route path="/admin/legal/view/:id" element={<LegalCaseView />} />
 
         <Route
           path="/admin/users/view/:id"
@@ -548,7 +386,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
+        <Route path="/admin/analytics" element={<Analytics />} />
 
         {/* =====================================================
             ADMIN PAYMENTS
@@ -564,6 +402,8 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/admin/invoices" element={<InvoiceManagement />} />
+        <Route path="/admin/legal" element={<AdminLegal />} />
 
         {/* Admin All Payments */}
 
@@ -575,9 +415,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
       </Route>
-
     </Routes>
   );
 }

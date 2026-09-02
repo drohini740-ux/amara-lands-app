@@ -36,6 +36,9 @@ const adminUserRoutes = require("./routes/admin/userRoutes");
 const adminPropertyRoutes = require("./routes/admin/propertyRoutes");
 const refundRoutes = require("./routes/refundRoutes");
 const adminRefundRoutes = require("./routes/admin/refundRoutes");
+const invoiceRoutes = require("./routes/admin/invoiceRoutes");
+const analyticsRoutes = require("./routes/admin/analyticsRoutes");
+const adminLegalRoutes = require("./routes/admin/legalRoutes");
 
 const app = express();
 
@@ -88,6 +91,7 @@ app.use("/api/v1/appointments", appointmentRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/admin/invoices", invoiceRoutes);
 //app.use("/api/security-reports", securityReportRoutes);
 app.use("/api/v1/field-visits", fieldVisitRoutes);
 app.use("/api/v1/security-reports", securityReportRoutes);
@@ -103,6 +107,8 @@ app.use("/api/v1/admin/properties", adminPropertyRoutes);
 app.use("/api/v1/admin/payments", adminPaymentRoutes);
 app.use("/api/v1/refunds", refundRoutes);
 app.use("/api/v1/admin/refunds", adminRefundRoutes);
+app.use("/api/v1/admin/analytics", analyticsRoutes);
+app.use("/api/v1/admin/legal", adminLegalRoutes);
 /* ------------------------- 404 Handler ------------------------- */
 
 app.use((req, res) => {

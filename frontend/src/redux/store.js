@@ -15,6 +15,7 @@ import patrolLogReducer from "./patrolLogSlice";
 import surveillanceCameraReducer from "./surveillanceCameraSlice";
 
 import ticketReducer from "./ticketSlice";
+import adminLegalReducer from "./adminLegalSlice";
 
 
 const store = configureStore({
@@ -38,6 +39,7 @@ const store = configureStore({
     tickets: ticketReducer,
     consultations: consultationReducer,
     adminUsers: adminUsersReducer,
+    adminLegal: adminLegalReducer,
   },
 });
 
