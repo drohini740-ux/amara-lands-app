@@ -39,8 +39,11 @@ const adminRefundRoutes = require("./routes/admin/refundRoutes");
 const invoiceRoutes = require("./routes/admin/invoiceRoutes");
 const analyticsRoutes = require("./routes/admin/analyticsRoutes");
 const adminLegalRoutes = require("./routes/admin/legalRoutes");
+const motionDetectionAlertRoutes = require("./routes/admin/motionDetectionAlertRoutes");
+const liveSnapshotRoutes = require("./routes/admin/liveSnapshotRoutes");
 
 const app = express();
+app.disable("etag");
 
 /* ------------------------- Middleware ------------------------- */
 
@@ -109,6 +112,8 @@ app.use("/api/v1/refunds", refundRoutes);
 app.use("/api/v1/admin/refunds", adminRefundRoutes);
 app.use("/api/v1/admin/analytics", analyticsRoutes);
 app.use("/api/v1/admin/legal", adminLegalRoutes);
+app.use("/api/v1/motion-detection-alerts", motionDetectionAlertRoutes);
+app.use("/api/v1/live-snapshots", liveSnapshotRoutes);
 /* ------------------------- 404 Handler ------------------------- */
 
 app.use((req, res) => {

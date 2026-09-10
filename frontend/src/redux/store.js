@@ -16,6 +16,8 @@ import surveillanceCameraReducer from "./surveillanceCameraSlice";
 
 import ticketReducer from "./ticketSlice";
 import adminLegalReducer from "./adminLegalSlice";
+import motionDetectionAlertReducer from "./motionDetectionAlertSlice";
+import liveSnapshotReducer from "./liveSnapshotSlice";
 
 
 const store = configureStore({
@@ -40,6 +42,8 @@ const store = configureStore({
     consultations: consultationReducer,
     adminUsers: adminUsersReducer,
     adminLegal: adminLegalReducer,
+    motionDetectionAlerts: motionDetectionAlertReducer,
+    liveSnapshots: liveSnapshotReducer,
   },
 });
 

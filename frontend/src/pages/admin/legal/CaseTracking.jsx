@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   FaSearch,
   FaUserTie,
   FaCalendarAlt,
 } from "react-icons/fa";
 
-import { fetchCaseTracking } from "../../../redux/adminLegalSlice";
+import { fetchAdminLegalCases } from "../../../redux/adminLegalSlice";
 
 const CaseTracking = () => {
   const dispatch = useDispatch();
 
   const {
-    caseTracking,
+    legalCases = [],
     loading,
     error,
   } = useSelector((state) => state.adminLegal);
@@ -20,14 +21,22 @@ const CaseTracking = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
 
+  // ==========================================
+  // FETCH LEGAL CASES
+  // ==========================================
+
   useEffect(() => {
-    dispatch(fetchCaseTracking());
+    dispatch(fetchAdminLegalCases());
   }, [dispatch]);
 
-  const filteredCases = useMemo(() => {
-    return caseTracking.filter((item) => {
-      const searchText = search.toLowerCase();
+  // ==========================================
+  // FILTER CASES
+  // ==========================================
 
+  const filteredCases = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    return legalCases.filter((item) => {
       const matchesSearch =
         String(item.case_title || "")
           .toLowerCase()
@@ -52,7 +61,11 @@ const CaseTracking = () => {
 
       return matchesSearch && matchesStatus;
     });
-  }, [caseTracking, search, status]);
+  }, [legalCases, search, status]);
+
+  // ==========================================
+  // STATUS STYLE
+  // ==========================================
 
   const getStatusStyle = (caseStatus) => {
     const value = String(caseStatus || "").toLowerCase();
@@ -81,6 +94,22 @@ const CaseTracking = () => {
       };
     }
 
+    if (value === "in progress") {
+      return {
+        background: "#f8f9fa",
+        color: "#111",
+        border: "1px solid #c9a227",
+      };
+    }
+
+    if (value === "on hold") {
+      return {
+        background: "#f8f9fa",
+        color: "#856404",
+        border: "1px solid #c9a227",
+      };
+    }
+
     return {
       background: "#fff",
       color: "#111",
@@ -93,10 +122,11 @@ const CaseTracking = () => {
       style={{
         minHeight: "100vh",
         background: "#f7f7f7",
-        padding: "25px",
       }}
     >
-      {/* Header */}
+      {/* ==========================================
+          HEADER
+      ========================================== */}
 
       <div className="mb-4">
         <h2
@@ -114,17 +144,25 @@ const CaseTracking = () => {
         </p>
       </div>
 
+      {/* ==========================================
+          ERROR
+      ========================================== */}
+
       {error && (
         <div className="alert alert-danger">
           {error}
         </div>
       )}
 
-      {/* Filters */}
+      {/* ==========================================
+          FILTERS
+      ========================================== */}
 
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
           <div className="row g-3">
+            {/* SEARCH */}
+
             <div className="col-md-8">
               <div className="input-group">
                 <span
@@ -150,6 +188,8 @@ const CaseTracking = () => {
               </div>
             </div>
 
+            {/* STATUS */}
+
             <div className="col-md-4">
               <select
                 className="form-select"
@@ -158,23 +198,38 @@ const CaseTracking = () => {
                   setStatus(e.target.value)
                 }
               >
-                <option value="All">All Status</option>
-                <option value="Open">Open</option>
-                <option value="Pending">Pending</option>
+                <option value="All">
+                  All Status
+                </option>
+
+                <option value="Open">
+                  Open
+                </option>
+
+                <option value="Pending">
+                  Pending
+                </option>
+
                 <option value="In Progress">
                   In Progress
                 </option>
+
                 <option value="On Hold">
                   On Hold
                 </option>
-                <option value="Closed">Closed</option>
+
+                <option value="Closed">
+                  Closed
+                </option>
               </select>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tracking Table */}
+      {/* ==========================================
+          TABLE
+      ========================================== */}
 
       <div className="card border-0 shadow-sm">
         <div className="table-responsive">
@@ -214,7 +269,16 @@ const CaseTracking = () => {
                     colSpan="7"
                     className="text-center py-5"
                   >
-                    Loading case tracking...
+                    <div
+                      className="spinner-border"
+                      style={{
+                        color: "#c9a227",
+                      }}
+                    ></div>
+
+                    <div className="mt-2 text-muted">
+                      Loading case tracking...
+                    </div>
                   </td>
                 </tr>
               ) : filteredCases.length === 0 ? (
@@ -229,6 +293,8 @@ const CaseTracking = () => {
               ) : (
                 filteredCases.map((item) => (
                   <tr key={item.id}>
+                    {/* CASE */}
+
                     <td className="px-3">
                       <strong>
                         {item.case_title || "-"}
@@ -241,6 +307,8 @@ const CaseTracking = () => {
                       )}
                     </td>
 
+                    {/* PROPERTY */}
+
                     <td>
                       <strong>
                         {item.property_name || "-"}
@@ -248,14 +316,19 @@ const CaseTracking = () => {
 
                       {item.survey_number && (
                         <div className="small text-muted">
-                          Survey: {item.survey_number}
+                          Survey:{" "}
+                          {item.survey_number}
                         </div>
                       )}
                     </td>
 
+                    {/* CUSTOMER */}
+
                     <td>
                       {item.customer_name || "-"}
                     </td>
+
+                    {/* ADVOCATE */}
 
                     <td>
                       {item.advocate_name ? (
@@ -276,6 +349,8 @@ const CaseTracking = () => {
                       )}
                     </td>
 
+                    {/* HEARING */}
+
                     <td>
                       {item.hearing_date
                         ? String(
@@ -283,6 +358,8 @@ const CaseTracking = () => {
                           ).substring(0, 10)
                         : "No Date"}
                     </td>
+
+                    {/* STATUS */}
 
                     <td>
                       <span
@@ -294,6 +371,8 @@ const CaseTracking = () => {
                         {item.status || "Open"}
                       </span>
                     </td>
+
+                    {/* REMARKS */}
 
                     <td>
                       <span className="small">

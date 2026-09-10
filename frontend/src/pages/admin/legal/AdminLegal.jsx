@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import LegalConsultations from "./LegalConsultations";
+import LegalTeam from "./LegalTeam";
 import {
   FaEye,
   FaSearch,
@@ -105,8 +106,7 @@ const AdminLegal = () => {
 
       const matchesStatus =
         statusFilter === "All" ||
-        String(item.status || "").toLowerCase() ===
-          statusFilter.toLowerCase();
+        String(item.status || "").toLowerCase() === statusFilter.toLowerCase();
 
       return matchesSearch && matchesStatus;
     });
@@ -119,18 +119,15 @@ const AdminLegal = () => {
   const totalCases = legalCases.length;
 
   const openCases = legalCases.filter(
-    (item) =>
-      String(item.status || "").toLowerCase() === "open"
+    (item) => String(item.status || "").toLowerCase() === "open",
   ).length;
 
   const pendingCases = legalCases.filter(
-    (item) =>
-      String(item.status || "").toLowerCase() === "pending"
+    (item) => String(item.status || "").toLowerCase() === "pending",
   ).length;
 
   const closedCases = legalCases.filter(
-    (item) =>
-      String(item.status || "").toLowerCase() === "closed"
+    (item) => String(item.status || "").toLowerCase() === "closed",
   ).length;
 
   // =====================================================
@@ -144,9 +141,7 @@ const AdminLegal = () => {
 
     const dateString = String(date).substring(0, 10);
 
-    const parsedDate = new Date(
-      `${dateString}T00:00:00`
-    );
+    const parsedDate = new Date(`${dateString}T00:00:00`);
 
     if (Number.isNaN(parsedDate.getTime())) {
       return dateString;
@@ -240,7 +235,7 @@ const AdminLegal = () => {
             status: form.status,
             remarks: form.remarks.trim(),
           },
-        })
+        }),
       ).unwrap();
 
       alert("Legal case updated successfully.");
@@ -250,15 +245,12 @@ const AdminLegal = () => {
       // Refresh the joined property/customer information
       await dispatch(fetchAdminLegalCases()).unwrap();
     } catch (err) {
-      console.error(
-        "Update legal case error:",
-        err
-      );
+      console.error("Update legal case error:", err);
 
       alert(
         typeof err === "string"
           ? err
-          : err?.message || "Failed to update legal case."
+          : err?.message || "Failed to update legal case.",
       );
     } finally {
       setSaving(false);
@@ -271,7 +263,7 @@ const AdminLegal = () => {
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this legal case?"
+      "Are you sure you want to delete this legal case?",
     );
 
     if (!confirmed) {
@@ -279,21 +271,16 @@ const AdminLegal = () => {
     }
 
     try {
-      await dispatch(
-        deleteAdminLegalCase(id)
-      ).unwrap();
+      await dispatch(deleteAdminLegalCase(id)).unwrap();
 
       alert("Legal case deleted successfully.");
     } catch (err) {
-      console.error(
-        "Delete legal case error:",
-        err
-      );
+      console.error("Delete legal case error:", err);
 
       alert(
         typeof err === "string"
           ? err
-          : err?.message || "Failed to delete legal case."
+          : err?.message || "Failed to delete legal case.",
       );
     }
   };
@@ -360,9 +347,7 @@ const AdminLegal = () => {
     return {
       background: active ? "#c9a227" : "#fff",
       color: active ? "#111" : "#444",
-      border: active
-        ? "1px solid #c9a227"
-        : "1px solid #ddd",
+      border: active ? "1px solid #c9a227" : "1px solid #ddd",
       fontWeight: "600",
       padding: "11px 18px",
       borderRadius: "6px",
@@ -429,9 +414,7 @@ const AdminLegal = () => {
 
             <button
               type="button"
-              onClick={() =>
-                setActiveSection("cases")
-              }
+              onClick={() => setActiveSection("cases")}
               style={getTabStyle("cases")}
             >
               <FaGavel className="me-2" />
@@ -442,9 +425,7 @@ const AdminLegal = () => {
 
             <button
               type="button"
-              onClick={() =>
-                setActiveSection("tracking")
-              }
+              onClick={() => setActiveSection("tracking")}
               style={getTabStyle("tracking")}
             >
               <FaClipboardList className="me-2" />
@@ -455,9 +436,7 @@ const AdminLegal = () => {
 
             <button
               type="button"
-              onClick={() =>
-                setActiveSection("hearings")
-              }
+              onClick={() => setActiveSection("hearings")}
               style={getTabStyle("hearings")}
             >
               <FaCalendarAlt className="me-2" />
@@ -468,9 +447,7 @@ const AdminLegal = () => {
 
             <button
               type="button"
-              onClick={() =>
-                setActiveSection("consultations")
-              }
+              onClick={() => setActiveSection("consultations")}
               style={getTabStyle("consultations")}
             >
               <FaComments className="me-2" />
@@ -481,9 +458,7 @@ const AdminLegal = () => {
 
             <button
               type="button"
-              onClick={() =>
-                setActiveSection("team")
-              }
+              onClick={() => setActiveSection("team")}
               style={getTabStyle("team")}
             >
               <FaUserTie className="me-2" />
@@ -501,11 +476,7 @@ const AdminLegal = () => {
         <>
           {/* ERROR */}
 
-          {error && (
-            <div className="alert alert-danger">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert-danger">{error}</div>}
 
           {/* =================================================
               SUMMARY CARDS
@@ -518,14 +489,11 @@ const AdminLegal = () => {
               <div
                 className="card border-0 shadow-sm h-100"
                 style={{
-                  borderTop:
-                    "4px solid #c9a227",
+                  borderTop: "4px solid #c9a227",
                 }}
               >
                 <div className="card-body">
-                  <p className="text-muted mb-1">
-                    Total Cases
-                  </p>
+                  <p className="text-muted mb-1">Total Cases</p>
 
                   <h3
                     style={{
@@ -545,14 +513,11 @@ const AdminLegal = () => {
               <div
                 className="card border-0 shadow-sm h-100"
                 style={{
-                  borderTop:
-                    "4px solid #c9a227",
+                  borderTop: "4px solid #c9a227",
                 }}
               >
                 <div className="card-body">
-                  <p className="text-muted mb-1">
-                    Open Cases
-                  </p>
+                  <p className="text-muted mb-1">Open Cases</p>
 
                   <h3
                     style={{
@@ -572,14 +537,11 @@ const AdminLegal = () => {
               <div
                 className="card border-0 shadow-sm h-100"
                 style={{
-                  borderTop:
-                    "4px solid #c9a227",
+                  borderTop: "4px solid #c9a227",
                 }}
               >
                 <div className="card-body">
-                  <p className="text-muted mb-1">
-                    Pending Cases
-                  </p>
+                  <p className="text-muted mb-1">Pending Cases</p>
 
                   <h3
                     style={{
@@ -599,14 +561,11 @@ const AdminLegal = () => {
               <div
                 className="card border-0 shadow-sm h-100"
                 style={{
-                  borderTop:
-                    "4px solid #111",
+                  borderTop: "4px solid #111",
                 }}
               >
                 <div className="card-body">
-                  <p className="text-muted mb-1">
-                    Closed Cases
-                  </p>
+                  <p className="text-muted mb-1">Closed Cases</p>
 
                   <h3
                     style={{
@@ -635,8 +594,7 @@ const AdminLegal = () => {
                       style={{
                         background: "#111",
                         color: "#fff",
-                        border:
-                          "1px solid #111",
+                        border: "1px solid #111",
                       }}
                     >
                       <FaSearch />
@@ -647,9 +605,7 @@ const AdminLegal = () => {
                       className="form-control"
                       placeholder="Search by case, property, customer, case number, court or advocate..."
                       value={search}
-                      onChange={(e) =>
-                        setSearch(e.target.value)
-                      }
+                      onChange={(e) => setSearch(e.target.value)}
                     />
                   </div>
                 </div>
@@ -658,35 +614,19 @@ const AdminLegal = () => {
                   <select
                     className="form-select"
                     value={statusFilter}
-                    onChange={(e) =>
-                      setStatusFilter(
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => setStatusFilter(e.target.value)}
                   >
-                    <option value="All">
-                      All Status
-                    </option>
+                    <option value="All">All Status</option>
 
-                    <option value="Open">
-                      Open
-                    </option>
+                    <option value="Open">Open</option>
 
-                    <option value="Pending">
-                      Pending
-                    </option>
+                    <option value="Pending">Pending</option>
 
-                    <option value="In Progress">
-                      In Progress
-                    </option>
+                    <option value="In Progress">In Progress</option>
 
-                    <option value="On Hold">
-                      On Hold
-                    </option>
+                    <option value="On Hold">On Hold</option>
 
-                    <option value="Closed">
-                      Closed
-                    </option>
+                    <option value="Closed">Closed</option>
                   </select>
                 </div>
               </div>
@@ -805,10 +745,7 @@ const AdminLegal = () => {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td
-                          colSpan="9"
-                          className="text-center py-5"
-                        >
+                        <td colSpan="9" className="text-center py-5">
                           <div
                             className="spinner-border"
                             style={{
@@ -823,10 +760,7 @@ const AdminLegal = () => {
                       </tr>
                     ) : filteredCases.length === 0 ? (
                       <tr>
-                        <td
-                          colSpan="9"
-                          className="text-center py-5 text-muted"
-                        >
+                        <td colSpan="9" className="text-center py-5 text-muted">
                           No legal cases found.
                         </td>
                       </tr>
@@ -836,17 +770,11 @@ const AdminLegal = () => {
                           {/* PROPERTY */}
 
                           <td className="px-3">
-                            <strong>
-                              {item.property_name ||
-                                "-"}
-                            </strong>
+                            <strong>{item.property_name || "-"}</strong>
 
                             {item.survey_number && (
                               <div className="small text-muted">
-                                Survey:{" "}
-                                {
-                                  item.survey_number
-                                }
+                                Survey: {item.survey_number}
                               </div>
                             )}
                           </td>
@@ -854,42 +782,28 @@ const AdminLegal = () => {
                           {/* CUSTOMER */}
 
                           <td>
-                            <strong>
-                              {item.customer_name ||
-                                "-"}
-                            </strong>
+                            <strong>{item.customer_name || "-"}</strong>
 
                             {item.customer_email && (
                               <div className="small text-muted">
-                                {
-                                  item.customer_email
-                                }
+                                {item.customer_email}
                               </div>
                             )}
                           </td>
 
                           {/* CASE NUMBER */}
 
-                          <td>
-                            {item.case_number ||
-                              "-"}
-                          </td>
+                          <td>{item.case_number || "-"}</td>
 
                           {/* CASE TITLE */}
 
                           <td>
-                            <strong>
-                              {item.case_title ||
-                                "-"}
-                            </strong>
+                            <strong>{item.case_title || "-"}</strong>
                           </td>
 
                           {/* COURT */}
 
-                          <td>
-                            {item.court_name ||
-                              "-"}
-                          </td>
+                          <td>{item.court_name || "-"}</td>
 
                           {/* ADVOCATE */}
 
@@ -899,65 +813,47 @@ const AdminLegal = () => {
                                 <FaUserTie
                                   className="me-1"
                                   style={{
-                                    color:
-                                      "#c9a227",
+                                    color: "#c9a227",
                                   }}
                                 />
 
-                                {
-                                  item.advocate_name
-                                }
+                                {item.advocate_name}
                               </span>
                             ) : (
-                              <span className="text-muted">
-                                Not Assigned
-                              </span>
+                              <span className="text-muted">Not Assigned</span>
                             )}
                           </td>
 
                           {/* HEARING */}
 
-                          <td>
-                            {formatDate(
-                              item.hearing_date
-                            )}
-                          </td>
+                          <td>{formatDate(item.hearing_date)}</td>
 
                           {/* STATUS */}
 
                           <td>
                             <span
                               className="badge px-3 py-2"
-                              style={getStatusStyle(
-                                item.status
-                              )}
+                              style={getStatusStyle(item.status)}
                             >
-                              {item.status ||
-                                "Open"}
+                              {item.status || "Open"}
                             </span>
                           </td>
 
                           {/* ACTIONS */}
 
                           <td>
-                            <div
-                              className="d-flex justify-content-center gap-2"
-                            >
+                            <div className="d-flex justify-content-center gap-2">
                               {/* VIEW / EDIT */}
 
                               <button
                                 type="button"
                                 className="btn btn-sm"
                                 title="View / Edit Case"
-                                onClick={() =>
-                                  handleView(item)
-                                }
+                                onClick={() => handleView(item)}
                                 style={{
-                                  background:
-                                    "#c9a227",
+                                  background: "#c9a227",
                                   color: "#111",
-                                  border:
-                                    "1px solid #c9a227",
+                                  border: "1px solid #c9a227",
                                 }}
                               >
                                 <FaEye />
@@ -969,17 +865,11 @@ const AdminLegal = () => {
                                 type="button"
                                 className="btn btn-sm"
                                 title="Delete Case"
-                                onClick={() =>
-                                  handleDelete(
-                                    item.id
-                                  )
-                                }
+                                onClick={() => handleDelete(item.id)}
                                 style={{
-                                  background:
-                                    "#111",
+                                  background: "#111",
                                   color: "#fff",
-                                  border:
-                                    "1px solid #111",
+                                  border: "1px solid #111",
                                 }}
                               >
                                 <FaTrash />
@@ -1001,118 +891,24 @@ const AdminLegal = () => {
           CASE TRACKING
       ===================================================== */}
 
-      {activeSection === "tracking" && (
-        <CaseTracking />
-      )}
+      {activeSection === "tracking" && <CaseTracking />}
 
       {/* =====================================================
           UPCOMING HEARINGS
       ===================================================== */}
 
-      {activeSection === "hearings" && (
-        <UpcomingHearings />
-      )}
+      {activeSection === "hearings" && <UpcomingHearings />}
 
       {/* =====================================================
           CONSULTATIONS
       ===================================================== */}
 
-      {activeSection === "consultations" && (
-        <div className="card border-0 shadow-sm">
-          <div
-            className="card-header"
-            style={{
-              background: "#c9a227",
-              color: "#111",
-              fontWeight: "700",
-              fontSize: "18px",
-            }}
-          >
-            <FaComments className="me-2" />
-            Legal Consultations
-          </div>
-
-          <div className="card-body text-center py-5">
-            <FaComments
-              size={45}
-              style={{
-                color: "#c9a227",
-              }}
-            />
-
-            <h4 className="mt-3">
-              Legal Consultations
-            </h4>
-
-            <p className="text-muted">
-              Consultation management will be
-              implemented here.
-            </p>
-
-            <button
-              type="button"
-              className="btn"
-              style={{
-                background: "#111",
-                color: "#fff",
-              }}
-            >
-              Manage Consultations
-            </button>
-          </div>
-        </div>
-      )}
-
+      {activeSection === "consultations" && <LegalConsultations />}
       {/* =====================================================
           LEGAL TEAM
       ===================================================== */}
 
-      {activeSection === "team" && (
-        <div className="card border-0 shadow-sm">
-          <div
-            className="card-header"
-            style={{
-              background: "#c9a227",
-              color: "#111",
-              fontWeight: "700",
-              fontSize: "18px",
-            }}
-          >
-            <FaUserTie className="me-2" />
-            Legal Team
-          </div>
-
-          <div className="card-body text-center py-5">
-            <FaUserTie
-              size={45}
-              style={{
-                color: "#c9a227",
-              }}
-            />
-
-            <h4 className="mt-3">
-              Legal Team
-            </h4>
-
-            <p className="text-muted">
-              Advocate and legal team management
-              will be implemented here.
-            </p>
-
-            <button
-              type="button"
-              className="btn"
-              style={{
-                background: "#111",
-                color: "#fff",
-              }}
-            >
-              Manage Legal Team
-            </button>
-          </div>
-        </div>
-      )}
-
+      {activeSection === "team" && <LegalTeam />}
       {/* =====================================================
           VIEW / EDIT MODAL
       ===================================================== */}
@@ -1127,8 +923,7 @@ const AdminLegal = () => {
           style={{
             position: "fixed",
             inset: 0,
-            background:
-              "rgba(0, 0, 0, 0.7)",
+            background: "rgba(0, 0, 0, 0.7)",
             zIndex: 1050,
             display: "flex",
             justifyContent: "center",
@@ -1157,9 +952,7 @@ const AdminLegal = () => {
               }}
             >
               <div>
-                <h5 className="mb-1">
-                  Legal Case Details
-                </h5>
+                <h5 className="mb-1">Legal Case Details</h5>
 
                 <small
                   style={{
@@ -1188,33 +981,23 @@ const AdminLegal = () => {
 
                 <div className="row g-3 mb-4">
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">
-                      Property
-                    </label>
+                    <label className="form-label fw-bold">Property</label>
 
                     <input
                       type="text"
                       className="form-control"
-                      value={
-                        selectedCase.property_name ||
-                        "-"
-                      }
+                      value={selectedCase.property_name || "-"}
                       disabled
                     />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">
-                      Customer
-                    </label>
+                    <label className="form-label fw-bold">Customer</label>
 
                     <input
                       type="text"
                       className="form-control"
-                      value={
-                        selectedCase.customer_name ||
-                        "-"
-                      }
+                      value={selectedCase.customer_name || "-"}
                       disabled
                     />
                   </div>
@@ -1225,9 +1008,7 @@ const AdminLegal = () => {
                 {/* CASE TITLE */}
 
                 <div className="mb-3">
-                  <label className="form-label fw-bold">
-                    Case Title
-                  </label>
+                  <label className="form-label fw-bold">Case Title</label>
 
                   <input
                     type="text"
@@ -1243,9 +1024,7 @@ const AdminLegal = () => {
 
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">
-                      Case Number
-                    </label>
+                    <label className="form-label fw-bold">Case Number</label>
 
                     <input
                       type="text"
@@ -1257,9 +1036,7 @@ const AdminLegal = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">
-                      Court Name
-                    </label>
+                    <label className="form-label fw-bold">Court Name</label>
 
                     <input
                       type="text"
@@ -1281,7 +1058,6 @@ const AdminLegal = () => {
                         color: "#c9a227",
                       }}
                     />
-
                     Assign Advocate
                   </label>
 
@@ -1295,8 +1071,7 @@ const AdminLegal = () => {
                   />
 
                   <small className="text-muted">
-                    Enter the advocate responsible for
-                    this legal case.
+                    Enter the advocate responsible for this legal case.
                   </small>
                 </div>
 
@@ -1304,9 +1079,7 @@ const AdminLegal = () => {
 
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">
-                      Hearing Date
-                    </label>
+                    <label className="form-label fw-bold">Hearing Date</label>
 
                     <input
                       type="date"
@@ -1318,9 +1091,7 @@ const AdminLegal = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">
-                      Status
-                    </label>
+                    <label className="form-label fw-bold">Status</label>
 
                     <select
                       name="status"
@@ -1328,25 +1099,15 @@ const AdminLegal = () => {
                       value={form.status}
                       onChange={handleChange}
                     >
-                      <option value="Open">
-                        Open
-                      </option>
+                      <option value="Open">Open</option>
 
-                      <option value="Pending">
-                        Pending
-                      </option>
+                      <option value="Pending">Pending</option>
 
-                      <option value="In Progress">
-                        In Progress
-                      </option>
+                      <option value="In Progress">In Progress</option>
 
-                      <option value="On Hold">
-                        On Hold
-                      </option>
+                      <option value="On Hold">On Hold</option>
 
-                      <option value="Closed">
-                        Closed
-                      </option>
+                      <option value="Closed">Closed</option>
                     </select>
                   </div>
                 </div>
@@ -1354,9 +1115,7 @@ const AdminLegal = () => {
                 {/* REMARKS */}
 
                 <div className="mb-3">
-                  <label className="form-label fw-bold">
-                    Remarks
-                  </label>
+                  <label className="form-label fw-bold">Remarks</label>
 
                   <textarea
                     name="remarks"
@@ -1376,8 +1135,7 @@ const AdminLegal = () => {
               <div
                 className="d-flex justify-content-end gap-2 p-3"
                 style={{
-                  borderTop:
-                    "1px solid #ddd",
+                  borderTop: "1px solid #ddd",
                   background: "#fafafa",
                 }}
               >
@@ -1402,9 +1160,7 @@ const AdminLegal = () => {
                 >
                   <FaEdit className="me-2" />
 
-                  {saving
-                    ? "Updating..."
-                    : "Update Legal Case"}
+                  {saving ? "Updating..." : "Update Legal Case"}
                 </button>
               </div>
             </form>
