@@ -40,7 +40,9 @@ const invoiceRoutes = require("./routes/admin/invoiceRoutes");
 const analyticsRoutes = require("./routes/admin/analyticsRoutes");
 const adminLegalRoutes = require("./routes/admin/legalRoutes");
 const motionDetectionAlertRoutes = require("./routes/admin/motionDetectionAlertRoutes");
+const intrusionNotificationRoutes = require("./routes/admin/intrusionNotificationRoutes");
 const liveSnapshotRoutes = require("./routes/admin/liveSnapshotRoutes");
+const liveCameraFeedRoutes = require("./routes/admin/liveCameraFeedRoutes");
 
 const app = express();
 app.disable("etag");
@@ -114,6 +116,8 @@ app.use("/api/v1/admin/analytics", analyticsRoutes);
 app.use("/api/v1/admin/legal", adminLegalRoutes);
 app.use("/api/v1/motion-detection-alerts", motionDetectionAlertRoutes);
 app.use("/api/v1/live-snapshots", liveSnapshotRoutes);
+app.use("/api/v1/live-camera-feeds", liveCameraFeedRoutes);
+app.use("/api/v1/intrusion-notifications", intrusionNotificationRoutes);
 /* ------------------------- 404 Handler ------------------------- */
 
 app.use((req, res) => {

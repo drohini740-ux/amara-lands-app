@@ -13,12 +13,12 @@ import fieldVisitReducer from "./fieldVisitSlice";
 import geoTaggedReportReducer from "./geoTaggedReportSlice";
 import patrolLogReducer from "./patrolLogSlice";
 import surveillanceCameraReducer from "./surveillanceCameraSlice";
-
 import ticketReducer from "./ticketSlice";
 import adminLegalReducer from "./adminLegalSlice";
 import motionDetectionAlertReducer from "./motionDetectionAlertSlice";
 import liveSnapshotReducer from "./liveSnapshotSlice";
-
+import liveCameraFeedReducer from "./liveCameraFeedSlice";
+import intrusionNotificationReducer from "./intrusionNotificationSlice";
 
 const store = configureStore({
   reducer: {
@@ -44,6 +44,8 @@ const store = configureStore({
     adminLegal: adminLegalReducer,
     motionDetectionAlerts: motionDetectionAlertReducer,
     liveSnapshots: liveSnapshotReducer,
+    liveCameraFeed: liveCameraFeedReducer,
+    intrusionNotifications: intrusionNotificationReducer,
   },
 });
 

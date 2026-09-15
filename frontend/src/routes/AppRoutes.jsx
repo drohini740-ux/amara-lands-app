@@ -22,6 +22,9 @@ import AdminSurveillanceCameras from "../pages/admin/security/SurveillanceCamera
 import MotionDetectionAlerts from "../pages/admin/security/MotionDetectionAlerts";
 import MotionDetectionAlertView from "../pages/admin/security/MotionDetectionAlertView";
 import LiveSnapshots from "../pages/admin/security/LiveSnapshots";
+import LiveCameraFeed from "../pages/admin/security/LiveCameraFeed";
+import IntrusionNotifications from "../pages/admin/security/IntrusionNotifications";
+import IntrusionNotificationView from "../pages/admin/security/IntrusionNotificationView";
 // ================= AUTH =================
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -344,7 +347,22 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/admin/security/live-feed"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LiveCameraFeed />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/security/intrusion-notifications"
+          element={<IntrusionNotifications />}
+        />
+        <Route
+          path="/admin/security/intrusion-notifications/:id"
+          element={<IntrusionNotificationView />}
+        />
         {/* Admin Properties */}
 
         <Route
