@@ -1,46 +1,82 @@
 import { Routes, Route } from "react-router-dom";
 
-// ================= ADMIN =================
+// =====================================================
+// ADMIN
+// =====================================================
+
 import AdminLayout from "../layouts/AdminLayout";
+
 import AdminDashboard from "../pages/admin/dashboard/AdminDashboard";
+
 import Users from "../pages/admin/users/Users";
 import AddUser from "../pages/admin/users/AddUser";
 import ViewUser from "../pages/admin/users/ViewUser";
 import EditUser from "../pages/admin/users/EditUser";
+
 import RefundManagement from "../pages/admin/refunds/RefundManagement";
+
 import InvoiceManagement from "../pages/admin/payments/InvoiceManagement";
 import PaymentDashboard from "../pages/admin/payments/PaymentDashboard";
 import AdminPayments from "../pages/admin/payments/Payments";
+
 import Analytics from "../pages/admin/analytics/Analytics";
+
 import AdminLegal from "../pages/admin/legal/AdminLegal";
 import LegalCaseView from "../pages/admin/legal/LegalCaseView";
 import LegalCaseEdit from "../pages/admin/legal/LegalCaseEdit";
-//import AssignAdvocate from "../pages/admin/legal/AssignAdvocate";
-//import CaseTracking from "../pages/admin/legal/CaseTracking";
+
+// =====================================================
+// ADMIN SECURITY
+// =====================================================
+
 import AdminSecurityMonitoring from "../pages/admin/security/SecurityMonitoring";
 import AdminSurveillanceCameras from "../pages/admin/security/SurveillanceCameras";
+
 import MotionDetectionAlerts from "../pages/admin/security/MotionDetectionAlerts";
 import MotionDetectionAlertView from "../pages/admin/security/MotionDetectionAlertView";
+
 import LiveSnapshots from "../pages/admin/security/LiveSnapshots";
 import LiveCameraFeed from "../pages/admin/security/LiveCameraFeed";
+
 import IntrusionNotifications from "../pages/admin/security/IntrusionNotifications";
 import IntrusionNotificationView from "../pages/admin/security/IntrusionNotificationView";
-// ================= AUTH =================
+
+import SecurityDashboard from "../pages/admin/security/SecurityDashboard";
+import StaffAssignments from "../pages/admin/staff/StaffAssignments";
+import AddStaffAssignment from "../pages/admin/staff/AddStaffAssignment";
+import ViewStaffAssignment from "../pages/admin/staff/ViewStaffAssignment";
+import EditStaffAssignment from "../pages/admin/staff/EditStaffAssignment";
+import AdminSettings from "../pages/admin/settings/AdminSettings";
+import SuperAdminDashboard from "../pages/superAdmin/SuperAdminDashboard";
+import SuperAdminLayout from "../layouts/SuperAdminLayout";
+// =====================================================
+// AUTH
+// =====================================================
+
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 
-// ================= CUSTOMER =================
+// =====================================================
+// CUSTOMER / MAIN LAYOUT
+// =====================================================
+
 import MainLayout from "../layouts/MainLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 
-// ================= PROPERTY =================
+// =====================================================
+// PROPERTY
+// =====================================================
+
 import Properties from "../pages/property/Properties";
 import AddProperty from "../pages/property/AddProperty";
 import EditProperty from "../pages/property/EditProperty";
 import ViewProperty from "../pages/property/ViewProperty";
 import PropertyDocuments from "../pages/property/PropertyDocuments";
 
-// ================= LEGAL =================
+// =====================================================
+// LEGAL
+// =====================================================
+
 import Legal from "../pages/legal/Legal";
 import AddLegalCase from "../pages/legal/AddLegalCase";
 import ViewLegalCase from "../pages/legal/ViewLegalCase";
@@ -52,31 +88,45 @@ import AddConsultation from "../pages/legal/consultation/AddConsultation";
 import EditConsultation from "../pages/legal/consultation/EditConsultation";
 import ViewConsultation from "../pages/legal/consultation/ViewConsultation";
 
-// ================= APPOINTMENTS =================
+// =====================================================
+// APPOINTMENTS
+// =====================================================
+
 import Appointments from "../pages/appointment/Appointments";
 import AddAppointment from "../pages/appointment/AddAppointment";
 import ViewAppointment from "../pages/appointment/ViewAppointment";
 import EditAppointment from "../pages/appointment/EditAppointment";
 
-// ================= PAYMENTS =================
+// =====================================================
+// CUSTOMER PAYMENTS
+// =====================================================
+
 import Payments from "../pages/payment/Payments";
 import AddPayment from "../pages/payment/AddPayment";
 import ViewPayment from "../pages/payment/ViewPayment";
 import EditPayment from "../pages/payment/EditPayment";
 import PaymentReceipt from "../pages/payment/PaymentReceipt";
-// import PaymentDashboard from "../pages/payment/PaymentDashboard";
 import PaymentHistory from "../pages/payment/PaymentHistory";
 import Invoice from "../pages/payment/Invoice";
 import Refund from "../pages/payment/Refund";
 
-// ================= NOTIFICATIONS =================
+// =====================================================
+// NOTIFICATIONS
+// =====================================================
+
 import NotificationList from "../pages/notification/NotificationList";
 
-// ================= PROFILE =================
+// =====================================================
+// PROFILE
+// =====================================================
+
 import Profile from "../pages/profile/Profile";
 import EditProfile from "../pages/profile/EditProfile";
 
-// ================= SECURITY =================
+// =====================================================
+// CUSTOMER SECURITY MONITORING
+// =====================================================
+
 import SecurityMonitoring from "../pages/security-monitoring/SecurityMonitoring";
 
 import SecurityReports from "../pages/security-monitoring/security-reports/SecurityReports";
@@ -103,8 +153,11 @@ import SurveillanceCameras from "../pages/security-monitoring/surveillance-camer
 import AddSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/AddSurveillanceCamera";
 import ViewSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/ViewSurveillanceCamera";
 import EditSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/EditSurveillanceCamera";
-//import RevenueReports from "../pages/admin/payments/RevenueReports";
-// ================= CUSTOMER SUPPORT =================
+
+// =====================================================
+// CUSTOMER SUPPORT
+// =====================================================
+
 import CustomerSupport from "../pages/customer-support/CustomerSupport";
 
 import Tickets from "../pages/customer-support/tickets/Tickets";
@@ -116,10 +169,21 @@ import FAQs from "../pages/customer-support/faq/FAQs";
 import LiveChat from "../pages/customer-support/live-chat/LiveChat";
 import WhatsAppSupport from "../pages/customer-support/whatsapp/WhatsAppSupport";
 
+// =====================================================
+// ADMIN PROPERTIES
+// =====================================================
+
 import AdminProperties from "../pages/admin/properties/Properties";
 
-// ================= PROTECTION =================
+// =====================================================
+// PROTECTION
+// =====================================================
+
 import ProtectedRoute from "./ProtectedRoute";
+
+// =====================================================
+// APP ROUTES
+// =====================================================
 
 export default function AppRoutes() {
   return (
@@ -129,7 +193,9 @@ export default function AppRoutes() {
       ===================================================== */}
 
       <Route path="/" element={<Login />} />
+
       <Route path="/login" element={<Login />} />
+
       <Route path="/register" element={<Register />} />
 
       {/* =====================================================
@@ -137,7 +203,7 @@ export default function AppRoutes() {
       ===================================================== */}
 
       <Route element={<MainLayout />}>
-        {/* Dashboard */}
+        {/* ================= DASHBOARD ================= */}
 
         <Route
           path="/dashboard"
@@ -148,7 +214,9 @@ export default function AppRoutes() {
           }
         />
 
-        {/* ================= PROPERTY ================= */}
+        {/* =================================================
+            PROPERTY
+        ================================================= */}
 
         <Route path="/properties" element={<Properties />} />
 
@@ -163,7 +231,9 @@ export default function AppRoutes() {
           element={<PropertyDocuments />}
         />
 
-        {/* ================= LEGAL ================= */}
+        {/* =================================================
+            LEGAL
+        ================================================= */}
 
         <Route path="/legal" element={<Legal />} />
 
@@ -175,7 +245,9 @@ export default function AppRoutes() {
 
         <Route path="/case-tracking" element={<CaseTracking />} />
 
-        {/* ================= CONSULTATIONS ================= */}
+        {/* =================================================
+            CONSULTATIONS
+        ================================================= */}
 
         <Route path="/consultations" element={<Consultation />} />
 
@@ -185,7 +257,9 @@ export default function AppRoutes() {
 
         <Route path="/consultations/edit/:id" element={<EditConsultation />} />
 
-        {/* ================= APPOINTMENTS ================= */}
+        {/* =================================================
+            APPOINTMENTS
+        ================================================= */}
 
         <Route path="/appointments" element={<Appointments />} />
 
@@ -195,7 +269,9 @@ export default function AppRoutes() {
 
         <Route path="/appointments/edit/:id" element={<EditAppointment />} />
 
-        {/* ================= CUSTOMER PAYMENTS ================= */}
+        {/* =================================================
+            CUSTOMER PAYMENTS
+        ================================================= */}
 
         <Route path="/payments" element={<Payments />} />
 
@@ -213,23 +289,27 @@ export default function AppRoutes() {
 
         <Route path="/payments/refund/:id" element={<Refund />} />
 
-        {/* ================= NOTIFICATIONS ================= */}
+        {/* =================================================
+            NOTIFICATIONS
+        ================================================= */}
 
         <Route path="/notifications" element={<NotificationList />} />
 
-        {/* ================= PROFILE ================= */}
+        {/* =================================================
+            PROFILE
+        ================================================= */}
 
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/profile/edit" element={<EditProfile />} />
 
-        {/* =====================================================
-            SECURITY MONITORING
-        ===================================================== */}
+        {/* =================================================
+            CUSTOMER SECURITY MONITORING
+        ================================================= */}
 
         <Route path="/security-monitoring" element={<SecurityMonitoring />} />
 
-        {/* Security Reports */}
+        {/* ================= SECURITY REPORTS ================= */}
 
         <Route path="/security-reports" element={<SecurityReports />} />
 
@@ -245,7 +325,7 @@ export default function AppRoutes() {
           element={<EditSecurityReport />}
         />
 
-        {/* Field Visits */}
+        {/* ================= FIELD VISITS ================= */}
 
         <Route path="/field-visits" element={<FieldVisits />} />
 
@@ -255,7 +335,7 @@ export default function AppRoutes() {
 
         <Route path="/field-visits/edit/:id" element={<EditFieldVisit />} />
 
-        {/* Geo Tagged Reports */}
+        {/* ================= GEO TAGGED REPORTS ================= */}
 
         <Route path="/geo-tagged-reports" element={<GeoTaggedReports />} />
 
@@ -274,7 +354,7 @@ export default function AppRoutes() {
           element={<EditGeoTaggedReport />}
         />
 
-        {/* Patrol Logs */}
+        {/* ================= PATROL LOGS ================= */}
 
         <Route path="/patrol-logs" element={<PatrolLogs />} />
 
@@ -284,21 +364,13 @@ export default function AppRoutes() {
 
         <Route path="/patrol-logs/edit/:id" element={<EditPatrolLog />} />
 
-        {/* Surveillance Cameras */}
+        {/* ================= SURVEILLANCE CAMERAS ================= */}
 
         <Route path="/surveillance-cameras" element={<SurveillanceCameras />} />
 
         <Route
           path="/surveillance-cameras/add"
           element={<AddSurveillanceCamera />}
-        />
-        <Route
-          path="/admin/security/cameras"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminSurveillanceCameras />
-            </ProtectedRoute>
-          }
         />
 
         <Route
@@ -311,9 +383,9 @@ export default function AppRoutes() {
           element={<EditSurveillanceCamera />}
         />
 
-        {/* =====================================================
+        {/* =================================================
             CUSTOMER SUPPORT
-        ===================================================== */}
+        ================================================= */}
 
         <Route path="/support" element={<CustomerSupport />} />
 
@@ -337,7 +409,9 @@ export default function AppRoutes() {
       ===================================================== */}
 
       <Route element={<AdminLayout />}>
-        {/* Admin Dashboard */}
+        {/* =================================================
+            ADMIN DASHBOARD
+        ================================================= */}
 
         <Route
           path="/admin/dashboard"
@@ -347,105 +421,10 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/admin/security/live-feed"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <LiveCameraFeed />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/security/intrusion-notifications"
-          element={<IntrusionNotifications />}
-        />
-        <Route
-          path="/admin/security/intrusion-notifications/:id"
-          element={<IntrusionNotificationView />}
-        />
-        {/* Admin Properties */}
 
-        <Route
-          path="/admin/properties"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminProperties />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/admin/legal" element={<AdminLegal />} />
-        <Route path="/admin/legal/edit/:id" element={<LegalCaseEdit />} />
-        <Route path="/admin/security" element={<AdminSecurityMonitoring />} />
-        {/* =====================================================
-    ADMIN SECURITY MONITORING
-===================================================== */}
-
-        <Route
-          path="/admin/security"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminSecurityMonitoring />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/security/reports"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SecurityReports />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/security/field-visits"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <FieldVisits />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/security/live-snapshots"
-          element={<LiveSnapshots />}
-        />
-
-        <Route
-          path="/admin/security/geo-reports"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <GeoTaggedReports />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/security/patrol-logs"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <PatrolLogs />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/security/cameras"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SurveillanceCameras />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/security/motion-alerts"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <MotionDetectionAlerts />
-            </ProtectedRoute>
-          }
-        />
-        {/* User Management */}
+        {/* =================================================
+            ADMIN USERS
+        ================================================= */}
 
         <Route
           path="/admin/users"
@@ -464,8 +443,6 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path="/admin/refunds" element={<RefundManagement />} />
-        <Route path="/admin/legal/view/:id" element={<LegalCaseView />} />
 
         <Route
           path="/admin/users/view/:id"
@@ -475,14 +452,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/admin/security-monitoring"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminSecurityMonitoring />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/admin/users/edit/:id"
           element={
@@ -491,13 +461,23 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path="/admin/analytics" element={<Analytics />} />
 
-        {/* =====================================================
+        {/* =================================================
+            ADMIN PROPERTIES
+        ================================================= */}
+
+        <Route
+          path="/admin/properties"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminProperties />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
             ADMIN PAYMENTS
-        ===================================================== */}
-
-        {/* Admin Payment Dashboard */}
+        ================================================= */}
 
         <Route
           path="/admin/payment-dashboard"
@@ -507,13 +487,6 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path="/admin/invoices" element={<InvoiceManagement />} />
-        <Route
-          path="/admin/security/motion-alerts/view/:id"
-          element={<MotionDetectionAlertView />}
-        />
-
-        {/* Admin All Payments */}
 
         <Route
           path="/admin/payments"
@@ -523,6 +496,295 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/admin/invoices"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <InvoiceManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/refunds"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <RefundManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            ADMIN ANALYTICS
+        ================================================= */}
+
+        <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            ADMIN LEGAL
+        ================================================= */}
+
+        <Route
+          path="/admin/legal"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLegal />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/legal/view/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LegalCaseView />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/legal/edit/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LegalCaseEdit />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            ADMIN SECURITY MONITORING
+        ===================================================== */}
+
+        {/* Security Dashboard */}
+
+        <Route
+          path="/admin/security"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SecurityDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Security Monitoring Main Page */}
+
+        <Route
+          path="/admin/security/monitoring"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSecurityMonitoring />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            SURVEILLANCE CAMERAS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/surveillance-cameras"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSurveillanceCameras />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Camera View */}
+
+        <Route
+          path="/admin/security/surveillance-cameras/view/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSurveillanceCameras />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            LIVE CAMERA FEED
+        ================================================= */}
+
+        <Route
+          path="/admin/security/live-feed"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LiveCameraFeed />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            LIVE SNAPSHOTS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/live-snapshots"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LiveSnapshots />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            MOTION DETECTION ALERTS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/motion-detection-alerts"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <MotionDetectionAlerts />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/security/motion-detection-alerts/view/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <MotionDetectionAlertView />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            INTRUSION NOTIFICATIONS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/intrusion-notifications"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <IntrusionNotifications />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/security/intrusion-notifications/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <IntrusionNotificationView />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            SECURITY REPORTS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/reports"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SecurityReports />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            FIELD VISITS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/field-visits"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <FieldVisits />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            GEO-TAGGED REPORTS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/geo-reports"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <GeoTaggedReports />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =================================================
+            PATROL LOGS
+        ================================================= */}
+
+        <Route
+          path="/admin/security/patrol-logs"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <PatrolLogs />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/staff"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <StaffAssignments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/staff/add"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AddStaffAssignment />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/staff/view/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ViewStaffAssignment />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/staff/edit/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <EditStaffAssignment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSettings />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      <Route
+        path="/super-admin"
+        element={
+          <ProtectedRoute allowedRoles={["super_admin"]}>
+            <SuperAdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<SuperAdminDashboard />} />
       </Route>
     </Routes>
   );

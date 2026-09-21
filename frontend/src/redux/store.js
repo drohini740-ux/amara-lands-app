@@ -19,6 +19,8 @@ import motionDetectionAlertReducer from "./motionDetectionAlertSlice";
 import liveSnapshotReducer from "./liveSnapshotSlice";
 import liveCameraFeedReducer from "./liveCameraFeedSlice";
 import intrusionNotificationReducer from "./intrusionNotificationSlice";
+import securityMonitoringDashboardReducer from "./securityMonitoringDashboardSlice";
+import staffAssignmentReducer from "./staffAssignmentSlice";
 
 const store = configureStore({
   reducer: {
@@ -46,6 +48,8 @@ const store = configureStore({
     liveSnapshots: liveSnapshotReducer,
     liveCameraFeed: liveCameraFeedReducer,
     intrusionNotifications: intrusionNotificationReducer,
+    securityMonitoringDashboard: securityMonitoringDashboardReducer,
+    staffAssignment: staffAssignmentReducer,
   },
 });
 

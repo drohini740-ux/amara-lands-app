@@ -12,24 +12,32 @@ const register = async (req, res) => {
       email,
       password,
       confirm_password,
+      role,
     } = req.body;
 
+    // Trim values
     full_name = full_name?.trim();
     mobile = mobile?.trim();
     email = email?.trim().toLowerCase();
+    role = role?.trim().toLowerCase();
+
+    // ================= VALIDATION =================
 
     if (
       !full_name ||
       !mobile ||
       !email ||
       !password ||
-      !confirm_password
+      !confirm_password ||
+      !role
     ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required.",
       });
     }
+
+    // ================= PASSWORD =================
 
     if (password !== confirm_password) {
       return res.status(400).json({
@@ -38,8 +46,28 @@ const register = async (req, res) => {
       });
     }
 
+    // ================= ALLOWED ROLES =================
+
+    const allowedRoles = [
+      "customer",
+      "field_executive",
+      "legal",
+      "security",
+      "admin",
+      "super_admin",
+    ];
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role selected.",
+      });
+    }
+
+    // ================= CHECK EXISTING USER =================
+
     const userExists = await pool.query(
-      `SELECT id FROM users WHERE email=$1 OR mobile=$2`,
+      `SELECT id FROM users WHERE email = $1 OR mobile = $2`,
       [email, mobile]
     );
 
@@ -50,24 +78,44 @@ const register = async (req, res) => {
       });
     }
 
+    // ================= HASH PASSWORD =================
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    console.log("Generated Hash:", hashedPassword);
+    // ================= INSERT USER =================
 
     const result = await pool.query(
       `INSERT INTO users
-      (full_name,mobile,email,password)
-      VALUES($1,$2,$3,$4)
-      RETURNING id,full_name,mobile,email,role`,
+        (
+          full_name,
+          mobile,
+          email,
+          password,
+          role,
+          status
+        )
+       VALUES
+        ($1, $2, $3, $4, $5, $6)
+       RETURNING
+        id,
+        full_name,
+        mobile,
+        email,
+        role,
+        status`,
       [
         full_name,
         mobile,
         email,
-        hashedPassword
+        hashedPassword,
+        role,
+        "active",
       ]
     );
 
     const user = result.rows[0];
+
+    // ================= TOKEN =================
 
     const token = generateToken(user);
 
@@ -79,21 +127,21 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Registration Error:", error);
 
     return res.status(500).json({
       success: false,
       message: "Server Error",
+      error: error.message,
     });
   }
 };
 
+
 // ================= LOGIN =================
 
 const login = async (req, res) => {
-
   try {
-
     let { email, password } = req.body;
 
     email = email?.trim().toLowerCase();
@@ -107,10 +155,9 @@ const login = async (req, res) => {
 
     console.log("============== LOGIN ==============");
     console.log("Email:", email);
-    console.log("Password:", password);
 
     const result = await pool.query(
-      `SELECT * FROM users WHERE email=$1`,
+      `SELECT * FROM users WHERE email = $1`,
       [email]
     );
 
@@ -123,12 +170,10 @@ const login = async (req, res) => {
 
     const user = result.rows[0];
 
-    console.log("Database User:", user.email);
-    console.log("Stored Hash:", user.password);
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    console.log("Password Match:", isMatch);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
       return res.status(401).json({
@@ -149,20 +194,21 @@ const login = async (req, res) => {
         email: user.email,
         mobile: user.mobile,
         role: user.role,
+        status: user.status,
       },
     });
 
   } catch (error) {
-
-    console.error(error);
+    console.error("Login Error:", error);
 
     return res.status(500).json({
       success: false,
       message: "Server Error",
+      error: error.message,
     });
-
   }
 };
+
 
 module.exports = {
   register,

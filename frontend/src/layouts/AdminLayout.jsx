@@ -4,20 +4,37 @@ import AdminNavbar from "../components/admin/AdminNavbar";
 
 export default function AdminLayout() {
   return (
-    <div className="d-flex">
-
+    <div
+      className="d-flex"
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f8f9fa",
+      }}
+    >
+      {/* ================= ADMIN SIDEBAR ================= */}
       <AdminSidebar />
 
-      <div className="flex-grow-1">
-
+      {/* ================= MAIN CONTENT ================= */}
+      <div
+        className="flex-grow-1"
+        style={{
+          minWidth: 0,
+        }}
+      >
+        {/* ================= ADMIN NAVBAR ================= */}
         <AdminNavbar />
 
-        <div className="p-4 bg-light" style={{ minHeight: "100vh" }}>
+        {/* ================= PAGE CONTENT ================= */}
+        <main
+          className="p-4"
+          style={{
+            minHeight: "calc(100vh - 70px)",
+            backgroundColor: "#f8f9fa",
+          }}
+        >
           <Outlet />
-        </div>
-
+        </main>
       </div>
-
     </div>
   );
 }

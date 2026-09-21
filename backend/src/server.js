@@ -43,8 +43,12 @@ const motionDetectionAlertRoutes = require("./routes/admin/motionDetectionAlertR
 const intrusionNotificationRoutes = require("./routes/admin/intrusionNotificationRoutes");
 const liveSnapshotRoutes = require("./routes/admin/liveSnapshotRoutes");
 const liveCameraFeedRoutes = require("./routes/admin/liveCameraFeedRoutes");
-
+const securityMonitoringDashboardRoutes = require("./routes/admin/securityMonitoringDashboardRoutes");
+const staffAssignmentRoutes = require("./routes/admin/staffAssignmentRoutes");
+const settingsRoutes = require("./routes/admin/settingsRoutes");
+const superAdminDashboardRoutes = require("./routes/superAdmin/superAdminDashboardRoutes");
 const app = express();
+
 app.disable("etag");
 
 /* ------------------------- Middleware ------------------------- */
@@ -118,6 +122,22 @@ app.use("/api/v1/motion-detection-alerts", motionDetectionAlertRoutes);
 app.use("/api/v1/live-snapshots", liveSnapshotRoutes);
 app.use("/api/v1/live-camera-feeds", liveCameraFeedRoutes);
 app.use("/api/v1/intrusion-notifications", intrusionNotificationRoutes);
+app.use(
+  "/api/v1/admin/security-monitoring/dashboard",
+  securityMonitoringDashboardRoutes,
+);
+app.use(
+  "/api/v1/admin/staff-assignments",
+  staffAssignmentRoutes
+);
+app.use(
+  "/api/v1/admin/settings",
+  settingsRoutes
+);
+app.use(
+    "/api/v1/super-admin",
+    superAdminDashboardRoutes
+);
 /* ------------------------- 404 Handler ------------------------- */
 
 app.use((req, res) => {
