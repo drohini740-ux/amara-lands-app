@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../../services/api";
 
-import PaymentCharts from "../../payment/PaymentCharts";
-import PaymentMethodChart from "../../payment/PaymentMethodChart";
+import PaymentCharts from "../../Customer/payment/PaymentCharts";
+import PaymentMethodChart from "../../Customer/payment/PaymentMethodChart";
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";

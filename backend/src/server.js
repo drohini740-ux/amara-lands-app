@@ -66,6 +66,11 @@ const superAdminSecuritySessionRoutes =
   require("./routes/superAdmin/superAdminSecuritySessionRoutes");
   const superAdminBackupRoutes = require("./routes/superAdmin/superAdminBackupRoutes");
   const superAdminIntegrationRoutes = require("./routes/superAdmin/superAdminIntegrationRoutes");
+  const legalTeamCaseRoutes = require("./routes/legalTeam/legalTeamCaseRoutes");
+  const legalTeamConsultationRoutes = require(
+  "./routes/legalTeam/legalTeamConsultationRoutes"
+);
+const legalTeamAppointmentRoutes = require("./routes/legalTeam/legalTeamAppointmentRoutes");
 const app = express();
 
 app.disable("etag");
@@ -228,6 +233,18 @@ app.use(
 app.use(
   "/api/v1/super-admin/integrations",
   superAdminIntegrationRoutes
+);
+app.use(
+  "/api/v1/legal-team/cases",
+  legalTeamCaseRoutes
+);
+app.use(
+  "/api/v1/legal-team/consultations",
+  legalTeamConsultationRoutes
+);
+app.use(
+  "/api/v1/legal-team/appointments",
+  legalTeamAppointmentRoutes
 );
 /* ------------------------- 404 Handler ------------------------- */
 

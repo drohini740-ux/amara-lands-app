@@ -48,7 +48,7 @@ export default function Login() {
           break;
 
         case "legal":
-          navigate("/legal/dashboard");
+          navigate("/legal-team/dashboard");
           break;
 
         case "field_executive":

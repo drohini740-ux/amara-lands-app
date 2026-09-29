@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // =====================================================
 // ADMIN
@@ -72,6 +72,14 @@ import SuperAdminSettings from "../pages/superAdmin/SuperAdminSettings";
 import SuperAdminSecuritySessions from "../pages/superAdmin/SuperAdminSecuritySessions";
 import SuperAdminBackup from "../pages/superAdmin/SuperAdminBackup";
 import SuperAdminIntegrations from "../pages/superAdmin/SuperAdminIntegrations";
+import LegalTeamLayout from "../components/legalTeam/LegalTeamLayout";
+import LegalTeamDashboard from "../pages/legalTeam/LegalTeamDashboard";
+import LegalTeamCases from "../pages/legalTeam/LegalTeamCases";
+import LegalTeamCaseDetails from "../pages/legalTeam/LegalTeamCaseDetails";
+import LegalTeamConsultations from "../pages/legalTeam/LegalTeamConsultations";
+import LegalTeamConsultationDetails from "../pages/legalTeam/LegalTeamConsultationDetails";
+import LegalTeamAppointments from "../pages/legalTeam/LegalTeamAppointments";
+import LegalTeamAppointmentDetails from "../pages/legalTeam/LegalTeamAppointmentDetails";
 // =====================================================
 // AUTH
 // =====================================================
@@ -85,17 +93,17 @@ import Register from "../pages/auth/Register";
 // =====================================================
 
 import MainLayout from "../layouts/MainLayout";
-import Dashboard from "../pages/dashboard/Dashboard";
+import Dashboard from "../pages/Customer/dashboard/Dashboard";
 
 // =====================================================
 // PROPERTY
 // =====================================================
 
-import Properties from "../pages/property/Properties";
-import AddProperty from "../pages/property/AddProperty";
-import EditProperty from "../pages/property/EditProperty";
-import ViewProperty from "../pages/property/ViewProperty";
-import PropertyDocuments from "../pages/property/PropertyDocuments";
+import Properties from "../pages/Customer/property/Properties";
+import AddProperty from "../pages/Customer/property/AddProperty";
+import EditProperty from "../pages/Customer/property/EditProperty";
+import ViewProperty from "../pages/Customer/property/ViewProperty";
+import PropertyDocuments from "../pages/Customer/property/PropertyDocuments";
 
 // =====================================================
 // LEGAL
@@ -116,36 +124,36 @@ import ViewConsultation from "../pages/legal/consultation/ViewConsultation";
 // APPOINTMENTS
 // =====================================================
 
-import Appointments from "../pages/appointment/Appointments";
-import AddAppointment from "../pages/appointment/AddAppointment";
-import ViewAppointment from "../pages/appointment/ViewAppointment";
-import EditAppointment from "../pages/appointment/EditAppointment";
+import Appointments from "../pages/Customer/appointment/Appointments";
+import AddAppointment from "../pages/Customer/appointment/AddAppointment";
+import ViewAppointment from "../pages/Customer/appointment/ViewAppointment";
+import EditAppointment from "../pages/Customer/appointment/EditAppointment";
 
 // =====================================================
 // CUSTOMER PAYMENTS
 // =====================================================
 
-import Payments from "../pages/payment/Payments";
-import AddPayment from "../pages/payment/AddPayment";
-import ViewPayment from "../pages/payment/ViewPayment";
-import EditPayment from "../pages/payment/EditPayment";
-import PaymentReceipt from "../pages/payment/PaymentReceipt";
-import PaymentHistory from "../pages/payment/PaymentHistory";
-import Invoice from "../pages/payment/Invoice";
-import Refund from "../pages/payment/Refund";
+import Payments from "../pages/Customer/payment/Payments";
+import AddPayment from "../pages/Customer/payment/AddPayment";
+import ViewPayment from "../pages/Customer/payment/ViewPayment";
+import EditPayment from "../pages/Customer/payment/EditPayment";
+import PaymentReceipt from "../pages/Customer/payment/PaymentReceipt";
+import PaymentHistory from "../pages/Customer/payment/PaymentHistory";
+import Invoice from "../pages/Customer/payment/Invoice";
+import Refund from "../pages/Customer/payment/Refund";
 
 // =====================================================
 // NOTIFICATIONS
 // =====================================================
 
-import NotificationList from "../pages/notification/NotificationList";
+import NotificationList from "../pages/Customer/notification/NotificationList";
 
 // =====================================================
 // PROFILE
 // =====================================================
 
-import Profile from "../pages/profile/Profile";
-import EditProfile from "../pages/profile/EditProfile";
+import Profile from "../pages/Customer/profile/Profile";
+import EditProfile from "../pages/Customer/profile/EditProfile";
 
 // =====================================================
 // CUSTOMER SECURITY MONITORING
@@ -215,17 +223,12 @@ export default function AppRoutes() {
       {/* =====================================================
           AUTHENTICATION
       ===================================================== */}
-
       <Route path="/" element={<Login />} />
-
       <Route path="/login" element={<Login />} />
-
       <Route path="/register" element={<Register />} />
-
       {/* =====================================================
           CUSTOMER / MAIN APPLICATION
       ===================================================== */}
-
       <Route element={<MainLayout />}>
         {/* ================= DASHBOARD ================= */}
 
@@ -427,11 +430,9 @@ export default function AppRoutes() {
 
         <Route path="/live-chat" element={<LiveChat />} />
       </Route>
-
       {/* =====================================================
           ADMIN MODULE
       ===================================================== */}
-
       <Route element={<AdminLayout />}>
         {/* =================================================
             ADMIN DASHBOARD
@@ -799,7 +800,6 @@ export default function AppRoutes() {
           }
         />
       </Route>
-
       <Route
         path="/super-admin"
         element={
@@ -835,13 +835,45 @@ export default function AppRoutes() {
           path="security-sessions"
           element={<SuperAdminSecuritySessions />}
         />
-        <Route
-  path="backup"
-  element={<SuperAdminBackup />}
+        <Route path="backup" element={<SuperAdminBackup />} />
+        <Route path="integrations" element={<SuperAdminIntegrations />} />
+      </Route>
+      <Route
+  path="/legal/dashboard"
+  element={<Navigate to="/legal-team/dashboard" replace />}
+/>
+      <Route
+        path="/legal-team"
+        element={
+          <ProtectedRoute allowedRoles={["legal"]}>
+            <LegalTeamLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<LegalTeamDashboard />} />
+         <Route
+    path="cases"
+    element={<LegalTeamCases />}
+  />
+   <Route
+    path="cases/view/:id"
+    element={<LegalTeamCaseDetails />}
+  />
+  <Route
+  path="consultations"
+  element={<LegalTeamConsultations />}
 />
 <Route
-  path="integrations"
-  element={<SuperAdminIntegrations />}
+  path="consultations/view/:id"
+  element={<LegalTeamConsultationDetails />}
+/>
+<Route
+  path="appointments"
+  element={<LegalTeamAppointments />}
+/>
+<Route
+  path="appointments/view/:id"
+  element={<LegalTeamAppointmentDetails />}
 />
       </Route>
     </Routes>
