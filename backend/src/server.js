@@ -47,6 +47,25 @@ const securityMonitoringDashboardRoutes = require("./routes/admin/securityMonito
 const staffAssignmentRoutes = require("./routes/admin/staffAssignmentRoutes");
 const settingsRoutes = require("./routes/admin/settingsRoutes");
 const superAdminDashboardRoutes = require("./routes/superAdmin/superAdminDashboardRoutes");
+const superAdminUserRoutes = require("./routes/superAdmin/superAdminUserRoutes");
+const superAdminRoleRoutes = require("./routes/superAdmin/superAdminRoleRoutes");
+const superAdminPermissionRoutes = require("./routes/superAdmin/superAdminPermissionRoutes");
+const superAdminPropertyRoutes = require("./routes/superAdmin/superAdminPropertyRoutes");
+const superAdminLegalRoutes = require("./routes/superAdmin/superAdminLegalRoutes");
+const superAdminSecurityRoutes = require("./routes/superAdmin/superAdminSecurityRoutes");
+const superAdminAppointmentRoutes = require("./routes/superAdmin/superAdminAppointmentRoutes");
+const superAdminPaymentRoutes = require("./routes/superAdmin/superAdminPaymentRoutes");
+const superAdminStaffRoutes = require("./routes/superAdmin/superAdminStaffRoutes");
+const superAdminSupportRoutes = require("./routes/superAdmin/superAdminSupportRoutes");
+const superAdminFaqRoutes = require("./routes/superAdmin/superAdminFaqRoutes");
+const superAdminNotificationRoutes = require("./routes/superAdmin/superAdminNotificationRoutes");
+const superAdminReportRoutes = require("./routes/superAdmin/superAdminReportRoutes");
+const superAdminAuditLogRoutes = require("./routes/superAdmin/superAdminAuditLogRoutes");
+const superAdminSettingsRoutes = require("./routes/superAdmin/superAdminSettingsRoutes");
+const superAdminSecuritySessionRoutes =
+  require("./routes/superAdmin/superAdminSecuritySessionRoutes");
+  const superAdminBackupRoutes = require("./routes/superAdmin/superAdminBackupRoutes");
+  const superAdminIntegrationRoutes = require("./routes/superAdmin/superAdminIntegrationRoutes");
 const app = express();
 
 app.disable("etag");
@@ -135,8 +154,80 @@ app.use(
   settingsRoutes
 );
 app.use(
-    "/api/v1/super-admin",
-    superAdminDashboardRoutes
+  "/api/v1/super-admin/dashboard",
+  superAdminDashboardRoutes
+);
+app.use(
+  "/api/v1/super-admin/users",
+  superAdminUserRoutes
+);
+app.use(
+  "/api/v1/super-admin/roles",
+  superAdminRoleRoutes
+);
+app.use(
+  "/api/v1/super-admin/permissions",
+  superAdminPermissionRoutes
+);
+app.use(
+  "/api/v1/super-admin/properties",
+  superAdminPropertyRoutes
+);
+app.use(
+  "/api/v1/super-admin/legal",
+  superAdminLegalRoutes
+);
+app.use(
+  "/api/v1/super-admin/security",
+  superAdminSecurityRoutes
+);
+app.use(
+  "/api/v1/super-admin/appointments",
+  superAdminAppointmentRoutes
+);
+app.use(
+  "/api/v1/super-admin/payments",
+  superAdminPaymentRoutes
+);
+app.use(
+  "/api/v1/super-admin/staff",
+  superAdminStaffRoutes
+);
+app.use(
+  "/api/v1/super-admin/support",
+  superAdminSupportRoutes
+);
+app.use(
+  "/api/v1/super-admin/faqs",
+  superAdminFaqRoutes
+);
+app.use(
+  "/api/v1/super-admin/notifications",
+  superAdminNotificationRoutes
+);
+app.use(
+  "/api/v1/super-admin/reports",
+  superAdminReportRoutes
+);
+app.use(
+  "/api/v1/super-admin/audit-logs",
+  superAdminAuditLogRoutes
+);
+app.use(
+  "/api/v1/super-admin/settings",
+  superAdminSettingsRoutes
+);
+app.use(
+  "/api/v1/super-admin/security-sessions",
+  superAdminSecuritySessionRoutes
+);
+app.use(
+  "/api/v1/super-admin/backup",
+  superAdminBackupRoutes
+);
+app.use(
+  "/api/v1/super-admin/integrations",
+  superAdminIntegrationRoutes
 );
 /* ------------------------- 404 Handler ------------------------- */
 

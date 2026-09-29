@@ -21,6 +21,22 @@ import liveCameraFeedReducer from "./liveCameraFeedSlice";
 import intrusionNotificationReducer from "./intrusionNotificationSlice";
 import securityMonitoringDashboardReducer from "./securityMonitoringDashboardSlice";
 import staffAssignmentReducer from "./staffAssignmentSlice";
+import superAdminDashboardReducer from "./superAdminDashboardSlice";
+import superAdminProperty from "./superAdminPropertySlice";
+import superAdminLegal from "./superAdminLegalSlice";
+import superAdminSecurity from "./superAdminSecuritySlice";
+import superAdminAppointment from "./superAdminAppointmentSlice";
+import superAdminPayment from "./superAdminPaymentSlice";
+import superAdminStaff from "./superAdminStaffSlice";
+import superAdminSupport from "./superAdminSupportSlice";
+import superAdminFaq from "./superAdminFaqSlice";
+import superAdminNotification from "./superAdminNotificationSlice";
+import superAdminReport from "./superAdminReportSlice";
+import superAdminAuditLog from "./superAdminAuditLogSlice";
+import superAdminSettingsReducer from "./superAdminSettingsSlice";
+import superAdminSecuritySessionReducer from "./superAdminSecuritySessionSlice";
+import superAdminBackupReducer from "./superAdminBackupSlice";
+import superAdminIntegrationReducer from "./superAdminIntegrationSlice";
 
 const store = configureStore({
   reducer: {
@@ -50,6 +66,23 @@ const store = configureStore({
     intrusionNotifications: intrusionNotificationReducer,
     securityMonitoringDashboard: securityMonitoringDashboardReducer,
     staffAssignment: staffAssignmentReducer,
+    superAdminDashboard: superAdminDashboardReducer,
+    superAdminProperty: superAdminProperty,
+    superAdminLegal: superAdminLegal,
+    superAdminSecurity: superAdminSecurity,
+    superAdminAppointment: superAdminAppointment,
+    superAdminPayment: superAdminPayment,
+    superAdminStaff: superAdminStaff,
+    superAdminSupport: superAdminSupport,
+    superAdminFaq: superAdminFaq,
+    superAdminNotification: superAdminNotification,
+    superAdminReport: superAdminReport,
+    superAdminAuditLog: superAdminAuditLog,
+    superAdminSettings: superAdminSettingsReducer,
+    superAdminSettings: superAdminSettingsReducer,
+    superAdminSecuritySession:superAdminSecuritySessionReducer,
+    superAdminBackup: superAdminBackupReducer,
+    superAdminIntegration:superAdminIntegrationReducer,
   },
 });
 

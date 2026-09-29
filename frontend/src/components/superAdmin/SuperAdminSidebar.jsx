@@ -6,48 +6,131 @@ import {
   FaUsers,
   FaUserShield,
   FaUserCog,
-  FaCog,
-  FaHistory,
+  FaHome,
+  FaGavel,
+  FaShieldAlt,
+  FaCalendarAlt,
+  FaMoneyBillWave,
+  FaUserTie,
+  FaHeadset,
+  FaQuestionCircle,
+  FaBell,
   FaChartBar,
+  FaHistory,
+  FaCog,
+  FaLock,
+  FaDatabase,
+  FaPlug,
 } from "react-icons/fa";
 
 const SuperAdminSidebar = () => {
-
   const menuItems = [
     {
       name: "Dashboard",
       path: "/super-admin/dashboard",
       icon: <FaTachometerAlt />,
     },
+
     {
       name: "User Management",
       path: "/super-admin/users",
       icon: <FaUsers />,
     },
-    {
-      name: "Admin Management",
-      path: "/super-admin/admins",
-      icon: <FaUserShield />,
-    },
+
     {
       name: "Roles & Permissions",
       path: "/super-admin/roles",
       icon: <FaUserCog />,
     },
+
     {
-      name: "System Settings",
-      path: "/super-admin/settings",
-      icon: <FaCog />,
+      name: "Property Management",
+      path: "/super-admin/properties",
+      icon: <FaHome />,
     },
+
+    {
+      name: "Legal Management",
+      path: "/super-admin/legal",
+      icon: <FaGavel />,
+    },
+
+    {
+      name: "Security Management",
+      path: "/super-admin/security",
+      icon: <FaShieldAlt />,
+    },
+
+    {
+      name: "Appointment Management",
+      path: "/super-admin/appointments",
+      icon: <FaCalendarAlt />,
+    },
+
+    {
+      name: "Payment Management",
+      path: "/super-admin/payments",
+      icon: <FaMoneyBillWave />,
+    },
+
+    {
+      name: "Staff Management",
+      path: "/super-admin/staff",
+      icon: <FaUserTie />,
+    },
+
+    {
+      name: "Customer Support",
+      path: "/super-admin/support",
+      icon: <FaHeadset />,
+    },
+
+    {
+      name: "FAQ Management",
+      path: "/super-admin/faqs",
+      icon: <FaQuestionCircle />,
+    },
+
+    {
+      name: "Notifications",
+      path: "/super-admin/notifications",
+      icon: <FaBell />,
+    },
+
+    {
+      name: "Reports & Analytics",
+      path: "/super-admin/reports",
+      icon: <FaChartBar />,
+    },
+
     {
       name: "Audit Logs",
       path: "/super-admin/audit-logs",
       icon: <FaHistory />,
     },
+
     {
-      name: "Reports",
-      path: "/super-admin/reports",
-      icon: <FaChartBar />,
+      name: "System Settings",
+      path: "/super-admin/settings",
+      icon: <FaCog />,
+    },
+
+    {
+      name: "Security & Sessions",
+      path: "/super-admin/security-sessions",
+      icon: <FaLock />,
+    },
+
+    {
+      name: "Backup & Database",
+      path: "/super-admin/backup",
+      icon: <FaDatabase />,
+    },
+
+    {
+      name: "Integrations",
+      path: "/super-admin/integrations",
+      icon: <FaPlug />,
     },
   ];
 
@@ -58,10 +141,13 @@ const SuperAdminSidebar = () => {
         minHeight: "100vh",
         backgroundColor: "#111111",
         color: "#FFFFFF",
+        flexShrink: 0,
       }}
     >
-
+      {/* ================================================= */}
       {/* LOGO */}
+      {/* ================================================= */}
+
       <div
         className="p-4"
         style={{
@@ -89,11 +175,18 @@ const SuperAdminSidebar = () => {
         </small>
       </div>
 
+      {/* ================================================= */}
       {/* MENU */}
-      <div className="p-3">
+      {/* ================================================= */}
 
+      <div
+        className="p-3"
+        style={{
+          maxHeight: "calc(100vh - 100px)",
+          overflowY: "auto",
+        }}
+      >
         {menuItems.map((item) => (
-
           <NavLink
             key={item.path}
             to={item.path}
@@ -103,33 +196,33 @@ const SuperAdminSidebar = () => {
               backgroundColor: isActive
                 ? "#C9A227"
                 : "transparent",
-              padding: "12px 15px",
-              marginBottom: "6px",
+              padding: "11px 13px",
+              marginBottom: "5px",
               borderRadius: "6px",
               fontWeight: isActive ? "600" : "400",
               transition: "all 0.2s ease",
             })}
           >
-
             <span
               className="me-3"
               style={{
-                fontSize: "17px",
+                fontSize: "16px",
+                minWidth: "20px",
               }}
             >
               {item.icon}
             </span>
 
-            <span>
+            <span
+              style={{
+                fontSize: "14px",
+              }}
+            >
               {item.name}
             </span>
-
           </NavLink>
-
         ))}
-
       </div>
-
     </div>
   );
 };

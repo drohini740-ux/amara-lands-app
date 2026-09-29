@@ -3,21 +3,15 @@ const express = require("express");
 const router = express.Router();
 
 const {
-    getSuperAdminDashboard
+  getDashboardStats,
 } = require("../../controllers/superAdmin/superAdminDashboardController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-
-// ==========================================
-// SUPER ADMIN DASHBOARD
-// ==========================================
-
 router.get(
-    "/dashboard",
-    authMiddleware,
-    getSuperAdminDashboard
+  "/",
+  authMiddleware,
+  getDashboardStats
 );
-
 
 module.exports = router;

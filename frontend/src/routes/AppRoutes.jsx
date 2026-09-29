@@ -24,6 +24,7 @@ import Analytics from "../pages/admin/analytics/Analytics";
 import AdminLegal from "../pages/admin/legal/AdminLegal";
 import LegalCaseView from "../pages/admin/legal/LegalCaseView";
 import LegalCaseEdit from "../pages/admin/legal/LegalCaseEdit";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 
 // =====================================================
 // ADMIN SECURITY
@@ -49,11 +50,34 @@ import EditStaffAssignment from "../pages/admin/staff/EditStaffAssignment";
 import AdminSettings from "../pages/admin/settings/AdminSettings";
 import SuperAdminDashboard from "../pages/superAdmin/SuperAdminDashboard";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
+import SuperAdminUsers from "../pages/superAdmin/SuperAdminUsers";
+import SuperAdminAddUser from "../pages/superAdmin/SuperAdminAddUser";
+import SuperAdminEditUser from "../pages/superAdmin/SuperAdminEditUser";
+import SuperAdminRoles from "../pages/superAdmin/SuperAdminRoles";
+import SuperAdminAddRole from "../pages/superAdmin/SuperAdminAddRole";
+import SuperAdminEditRole from "../pages/superAdmin/SuperAdminEditRole";
+import SuperAdminRolePermissions from "../pages/superAdmin/SuperAdminRolePermissions";
+import SuperAdminProperties from "../pages/superAdmin/SuperAdminProperties";
+import SuperAdminLegal from "../pages/superAdmin/SuperAdminLegal";
+import SuperAdminSecurity from "../pages/superAdmin/SuperAdminSecurity";
+import SuperAdminAppointments from "../pages/superAdmin/SuperAdminAppointments";
+import SuperAdminPayments from "../pages/superAdmin/SuperAdminPayments";
+import SuperAdminStaff from "../pages/superAdmin/SuperAdminStaff";
+import SuperAdminSupport from "../pages/superAdmin/SuperAdminSupport";
+import SuperAdminFaqs from "../pages/superAdmin/SuperAdminFaqs";
+import SuperAdminNotifications from "../pages/superAdmin/SuperAdminNotifications";
+import SuperAdminReports from "../pages/superAdmin/SuperAdminReports";
+import SuperAdminAuditLogs from "../pages/superAdmin/SuperAdminAuditLogs";
+import SuperAdminSettings from "../pages/superAdmin/SuperAdminSettings";
+import SuperAdminSecuritySessions from "../pages/superAdmin/SuperAdminSecuritySessions";
+import SuperAdminBackup from "../pages/superAdmin/SuperAdminBackup";
+import SuperAdminIntegrations from "../pages/superAdmin/SuperAdminIntegrations";
 // =====================================================
 // AUTH
 // =====================================================
 
 import Login from "../pages/auth/Login";
+
 import Register from "../pages/auth/Register";
 
 // =====================================================
@@ -179,7 +203,7 @@ import AdminProperties from "../pages/admin/properties/Properties";
 // PROTECTION
 // =====================================================
 
-import ProtectedRoute from "./ProtectedRoute";
+//import ProtectedRoute from "./ProtectedRoute";
 
 // =====================================================
 // APP ROUTES
@@ -785,6 +809,40 @@ export default function AppRoutes() {
         }
       >
         <Route path="dashboard" element={<SuperAdminDashboard />} />
+        <Route path="users" element={<SuperAdminUsers />} />
+        <Route path="users/add" element={<SuperAdminAddUser />} />
+        <Route path="users/edit/:id" element={<SuperAdminEditUser />} />
+        <Route path="roles" element={<SuperAdminRoles />} />
+        <Route path="roles/add" element={<SuperAdminAddRole />} />
+        <Route path="roles/edit/:id" element={<SuperAdminEditRole />} />
+        <Route
+          path="roles/:roleId/permissions"
+          element={<SuperAdminRolePermissions />}
+        />
+        <Route path="properties" element={<SuperAdminProperties />} />
+        <Route path="legal" element={<SuperAdminLegal />} />
+        <Route path="security" element={<SuperAdminSecurity />} />
+        <Route path="appointments" element={<SuperAdminAppointments />} />
+        <Route path="payments" element={<SuperAdminPayments />} />
+        <Route path="staff" element={<SuperAdminStaff />} />
+        <Route path="support" element={<SuperAdminSupport />} />
+        <Route path="faqs" element={<SuperAdminFaqs />} />
+        <Route path="notifications" element={<SuperAdminNotifications />} />
+        <Route path="reports" element={<SuperAdminReports />} />
+        <Route path="audit-logs" element={<SuperAdminAuditLogs />} />
+        <Route path="settings" element={<SuperAdminSettings />} />
+        <Route
+          path="security-sessions"
+          element={<SuperAdminSecuritySessions />}
+        />
+        <Route
+  path="backup"
+  element={<SuperAdminBackup />}
+/>
+<Route
+  path="integrations"
+  element={<SuperAdminIntegrations />}
+/>
       </Route>
     </Routes>
   );

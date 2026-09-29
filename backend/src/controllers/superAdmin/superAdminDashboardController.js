@@ -1,176 +1,279 @@
 const pool = require("../../config/db");
 
-// ======================================================
-// GET SUPER ADMIN DASHBOARD
-// ======================================================
+// =====================================================
+// SUPER ADMIN DASHBOARD
+// =====================================================
+const getDashboardStats = async (req, res) => {
+  try {
+    // -------------------------------------------------
+    // 1. Total Users
+    // -------------------------------------------------
+    const usersResult = await pool.query(`
+      SELECT COUNT(*) AS total_users
+      FROM users
+    `);
 
-const getSuperAdminDashboard = async (req, res) => {
+    // -------------------------------------------------
+    // 2. Total Properties
+    // -------------------------------------------------
+    const propertiesResult = await pool.query(`
+      SELECT COUNT(*) AS total_properties
+      FROM properties
+    `);
 
-    try {
+    // -------------------------------------------------
+    // 3. Pending Property Approvals
+    // -------------------------------------------------
+    const pendingApprovalsResult = await pool.query(`
+      SELECT COUNT(*) AS pending_approvals
+      FROM properties
+      WHERE LOWER(verification_status) = 'pending'
+    `);
 
-        // ==========================================
-        // CHECK SUPER ADMIN
-        // ==========================================
+    // -------------------------------------------------
+    // 4. Total Bookings / Appointments
+    // -------------------------------------------------
+    const bookingsResult = await pool.query(`
+      SELECT COUNT(*) AS total_bookings
+      FROM appointments
+    `);
 
-        if (!req.user || !req.user.id) {
+    // -------------------------------------------------
+    // 5. Active Staff
+    // -------------------------------------------------
+    const activeStaffResult = await pool.query(`
+      SELECT COUNT(*) AS active_staff
+      FROM users
+      WHERE status = 'active'
+      AND role NOT IN ('customer', 'super_admin')
+    `);
 
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized"
-            });
+    // -------------------------------------------------
+    // 6. Total Revenue
+    // -------------------------------------------------
+    // Count only successful/completed/captured payments.
+    const revenueResult = await pool.query(`
+      SELECT COALESCE(SUM(amount), 0) AS total_revenue
+      FROM payments
+      WHERE LOWER(payment_status) IN (
+        'success',
+        'successful',
+        'completed',
+        'captured'
+      )
+    `);
 
-        }
+    // -------------------------------------------------
+    // 7. Payment Statistics
+    // -------------------------------------------------
+    const paymentStatsResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_payments,
+        COUNT(*) FILTER (
+          WHERE LOWER(payment_status) IN (
+            'success',
+            'successful',
+            'completed',
+            'captured'
+          )
+        ) AS successful_payments,
+        COUNT(*) FILTER (
+          WHERE LOWER(payment_status) = 'pending'
+        ) AS pending_payments,
+        COUNT(*) FILTER (
+          WHERE LOWER(payment_status) IN (
+            'failed',
+            'failure'
+          )
+        ) AS failed_payments
+      FROM payments
+    `);
 
-        if (req.user.role !== "super_admin") {
+    // -------------------------------------------------
+    // 8. User Statistics
+    // -------------------------------------------------
+    const userStatsResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_users,
+        COUNT(*) FILTER (
+          WHERE status = 'active'
+        ) AS active_users,
+        COUNT(*) FILTER (
+          WHERE status = 'inactive'
+        ) AS inactive_users,
+        COUNT(*) FILTER (
+          WHERE role = 'customer'
+        ) AS customers,
+        COUNT(*) FILTER (
+          WHERE role = 'field_executive'
+        ) AS field_executives,
+        COUNT(*) FILTER (
+          WHERE role = 'legal'
+        ) AS legal_users,
+        COUNT(*) FILTER (
+          WHERE role = 'security'
+        ) AS security_users,
+        COUNT(*) FILTER (
+          WHERE role = 'admin'
+        ) AS admins,
+        COUNT(*) FILTER (
+          WHERE role = 'super_admin'
+        ) AS super_admins
+      FROM users
+    `);
 
-            return res.status(403).json({
-                success: false,
-                message: "Access denied. Super Admin only."
-            });
+    // -------------------------------------------------
+    // 9. Property Statistics
+    // -------------------------------------------------
+    const propertyStatsResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_properties,
+        COUNT(*) FILTER (
+          WHERE LOWER(verification_status) = 'pending'
+        ) AS pending_properties,
+        COUNT(*) FILTER (
+          WHERE LOWER(verification_status) = 'verified'
+        ) AS verified_properties,
+        COUNT(*) FILTER (
+          WHERE LOWER(verification_status) = 'rejected'
+        ) AS rejected_properties
+      FROM properties
+    `);
 
-        }
+    // -------------------------------------------------
+    // 10. Appointment Statistics
+    // -------------------------------------------------
+    const appointmentStatsResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_appointments,
+        COUNT(*) FILTER (
+          WHERE LOWER(status) = 'pending'
+        ) AS pending_appointments,
+        COUNT(*) FILTER (
+          WHERE LOWER(status) = 'confirmed'
+        ) AS confirmed_appointments,
+        COUNT(*) FILTER (
+          WHERE LOWER(status) = 'completed'
+        ) AS completed_appointments,
+        COUNT(*) FILTER (
+          WHERE LOWER(status) = 'cancelled'
+        ) AS cancelled_appointments
+      FROM appointments
+    `);
 
+    // -------------------------------------------------
+    // Final Response
+    // -------------------------------------------------
+    return res.status(200).json({
+      success: true,
+      message: "Super Admin dashboard data fetched successfully.",
 
-        // ==========================================
-        // USER COUNTS
-        // ==========================================
+      data: {
+        overview: {
+          total_users: Number(
+            usersResult.rows[0].total_users
+          ),
 
-        const userCountResult = await pool.query(`
-            SELECT
-                COUNT(*) AS total_users,
+          total_properties: Number(
+            propertiesResult.rows[0].total_properties
+          ),
 
-                COUNT(*) FILTER (
-                    WHERE role = 'admin'
-                ) AS total_admins,
+          total_revenue: Number(
+            revenueResult.rows[0].total_revenue
+          ),
 
-                COUNT(*) FILTER (
-                    WHERE role = 'field_executive'
-                ) AS total_field_executives,
+          total_bookings: Number(
+            bookingsResult.rows[0].total_bookings
+          ),
 
-                COUNT(*) FILTER (
-                    WHERE role = 'legal'
-                ) AS total_legal,
+          pending_approvals: Number(
+            pendingApprovalsResult.rows[0].pending_approvals
+          ),
 
-                COUNT(*) FILTER (
-                    WHERE role = 'security'
-                ) AS total_security,
+          active_staff: Number(
+            activeStaffResult.rows[0].active_staff
+          ),
+        },
 
-                COUNT(*) FILTER (
-                    WHERE role = 'customer'
-                ) AS total_customers,
+        users: {
+          total: Number(userStatsResult.rows[0].total_users),
+          active: Number(userStatsResult.rows[0].active_users),
+          inactive: Number(userStatsResult.rows[0].inactive_users),
+          customers: Number(userStatsResult.rows[0].customers),
+          field_executives: Number(
+            userStatsResult.rows[0].field_executives
+          ),
+          legal: Number(userStatsResult.rows[0].legal_users),
+          security: Number(userStatsResult.rows[0].security_users),
+          admins: Number(userStatsResult.rows[0].admins),
+          super_admins: Number(
+            userStatsResult.rows[0].super_admins
+          ),
+        },
 
-                COUNT(*) FILTER (
-                    WHERE status = 'active'
-                ) AS active_users,
+        properties: {
+          total: Number(
+            propertyStatsResult.rows[0].total_properties
+          ),
+          pending: Number(
+            propertyStatsResult.rows[0].pending_properties
+          ),
+          verified: Number(
+            propertyStatsResult.rows[0].verified_properties
+          ),
+          rejected: Number(
+            propertyStatsResult.rows[0].rejected_properties
+          ),
+        },
 
-                COUNT(*) FILTER (
-                    WHERE status = 'inactive'
-                ) AS inactive_users
+        appointments: {
+          total: Number(
+            appointmentStatsResult.rows[0].total_appointments
+          ),
+          pending: Number(
+            appointmentStatsResult.rows[0].pending_appointments
+          ),
+          confirmed: Number(
+            appointmentStatsResult.rows[0].confirmed_appointments
+          ),
+          completed: Number(
+            appointmentStatsResult.rows[0].completed_appointments
+          ),
+          cancelled: Number(
+            appointmentStatsResult.rows[0].cancelled_appointments
+          ),
+        },
 
-            FROM users
-        `);
+        payments: {
+          total: Number(
+            paymentStatsResult.rows[0].total_payments
+          ),
+          successful: Number(
+            paymentStatsResult.rows[0].successful_payments
+          ),
+          pending: Number(
+            paymentStatsResult.rows[0].pending_payments
+          ),
+          failed: Number(
+            paymentStatsResult.rows[0].failed_payments
+          ),
+        },
+      },
+    });
+  } catch (error) {
+    console.error(
+      "SUPER ADMIN DASHBOARD ERROR:",
+      error
+    );
 
-
-        // ==========================================
-        // PROPERTY COUNTS
-        // ==========================================
-
-        const propertyCountResult = await pool.query(`
-            SELECT
-                COUNT(*) AS total_properties,
-
-                COUNT(*) FILTER (
-                    WHERE verification_status = 'Pending'
-                ) AS pending_properties,
-
-                COUNT(*) FILTER (
-                    WHERE verification_status = 'Verified'
-                ) AS verified_properties,
-
-                COUNT(*) FILTER (
-                    WHERE verification_status = 'Rejected'
-                ) AS rejected_properties
-
-            FROM properties
-        `);
-
-
-        // ==========================================
-        // RECENT USERS
-        // ==========================================
-
-        const recentUsersResult = await pool.query(`
-            SELECT
-                id,
-                full_name,
-                email,
-                role,
-                status,
-                created_at
-            FROM users
-            ORDER BY created_at DESC
-            LIMIT 5
-        `);
-
-
-        // ==========================================
-        // RECENT PROPERTIES
-        // ==========================================
-
-        const recentPropertiesResult = await pool.query(`
-            SELECT
-                id,
-                property_name,
-                survey_number,
-                city,
-                state,
-                verification_status,
-                created_at
-            FROM properties
-            ORDER BY created_at DESC
-            LIMIT 5
-        `);
-
-
-        // ==========================================
-        // RESPONSE
-        // ==========================================
-
-        return res.status(200).json({
-
-            success: true,
-
-            data: {
-
-                users: userCountResult.rows[0],
-
-                properties: propertyCountResult.rows[0],
-
-                recent_users: recentUsersResult.rows,
-
-                recent_properties: recentPropertiesResult.rows
-
-            }
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Super Admin Dashboard Error:",
-            error
-        );
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to load Super Admin dashboard"
-        });
-
-    }
-
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch Super Admin dashboard data.",
+      error: error.message,
+    });
+  }
 };
 
-
 module.exports = {
-    getSuperAdminDashboard
+  getDashboardStats,
 };
