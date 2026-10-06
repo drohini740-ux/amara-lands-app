@@ -80,6 +80,27 @@ import LegalTeamConsultations from "../pages/legalTeam/LegalTeamConsultations";
 import LegalTeamConsultationDetails from "../pages/legalTeam/LegalTeamConsultationDetails";
 import LegalTeamAppointments from "../pages/legalTeam/LegalTeamAppointments";
 import LegalTeamAppointmentDetails from "../pages/legalTeam/LegalTeamAppointmentDetails";
+import LegalTeamProperties from "../pages/legalTeam/LegalTeamProperties";
+import LegalTeamPropertyDetails from "../pages/legalTeam/LegalTeamPropertyDetails";
+import LegalTeamDocuments from "../pages/legalTeam/LegalTeamDocuments";
+import LegalTeamDocumentDetails from "../pages/legalTeam/LegalTeamDocumentDetails";
+import LegalTeamNotifications from "../pages/legalTeam/LegalTeamNotifications";
+import LegalTeamNotificationDetails from "../pages/legalTeam/LegalTeamNotificationDetails";
+import LegalTeamReports from "../pages/legalTeam/LegalTeamReports";
+import LegalTeamProfile from "../pages/legalTeam/LegalTeamProfile";
+import FieldExecutiveLayout from "../components/fieldExecutive/FieldExecutiveLayout";
+import FieldExecutiveDashboard from "../pages/fieldExecutive/FieldExecutiveDashboard";
+import FieldExecutiveProperties from "../pages/fieldExecutive/FieldExecutiveProperties";
+import FieldExecutivePropertyDetails from "../pages/fieldExecutive/FieldExecutivePropertyDetails";
+import FieldExecutiveVisits from "../pages/fieldExecutive/FieldExecutiveVisits";
+import FieldExecutiveVisitDetails from "../pages/fieldExecutive/FieldExecutiveVisitDetails";
+//import FieldExecutiveVisitDetails from "../pages/fieldExecutive/FieldExecutiveVisitDetails";
+import FieldExecutiveSecurityReports
+  from "../pages/fieldExecutive/FieldExecutiveSecurityReports";
+  import FieldExecutiveDocuments
+  from "../pages/fieldExecutive/FieldExecutiveDocuments";
+  import FieldExecutiveAppointments
+  from "../pages/fieldExecutive/FieldExecutiveAppointments";
 // =====================================================
 // AUTH
 // =====================================================
@@ -185,7 +206,13 @@ import SurveillanceCameras from "../pages/security-monitoring/surveillance-camer
 import AddSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/AddSurveillanceCamera";
 import ViewSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/ViewSurveillanceCamera";
 import EditSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/EditSurveillanceCamera";
-
+import FieldExecutiveRouteNavigation from "../pages/fieldExecutive/FieldExecutiveRouteNavigation";
+import FieldExecutivePropertyVerification
+  from "../pages/fieldExecutive/FieldExecutivePropertyVerification";
+  import FieldExecutiveSiteVisits
+  from "../pages/fieldExecutive/FieldExecutiveSiteVisits";
+  import FieldExecutiveVisitReports
+  from "../pages/fieldExecutive/FieldExecutiveVisitReports";
 // =====================================================
 // CUSTOMER SUPPORT
 // =====================================================
@@ -875,7 +902,114 @@ export default function AppRoutes() {
   path="appointments/view/:id"
   element={<LegalTeamAppointmentDetails />}
 />
+<Route
+  path="properties"
+  element={<LegalTeamProperties />}
+/>
+<Route
+  path="properties/view/:id"
+  element={<LegalTeamPropertyDetails />}
+/>
+<Route
+  path="documents"
+  element={<LegalTeamDocuments />}
+/>
+<Route
+  path="documents/view/:id"
+  element={<LegalTeamDocumentDetails />}
+/>
+<Route
+  path="notifications"
+  element={<LegalTeamNotifications />}
+/>
+<Route
+  path="notifications/view/:id"
+  element={<LegalTeamNotificationDetails />}
+/>
+<Route
+  path="reports"
+  element={<LegalTeamReports />}
+/>
+<Route
+  path="profile"
+  element={<LegalTeamProfile />}
+/>
       </Route>
+      <Route
+  path="/field"
+  element={
+    <ProtectedRoute
+      allowedRoles={["field_executive"]}
+    >
+      <FieldExecutiveLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route
+    path="dashboard"
+    element={<FieldExecutiveDashboard />}
+  />
+  <Route
+  path="properties"
+  element={<FieldExecutiveProperties />}
+/>
+<Route
+  path="properties/:id"
+  element={<FieldExecutivePropertyDetails />}
+/>
+<Route
+  path="visits"
+  element={<FieldExecutiveVisits />}
+/>
+<Route
+  path="visits/:id"
+  element={
+    <FieldExecutiveVisitDetails />
+  }
+/>
+<Route
+  path="route-navigation"
+  element={
+    <FieldExecutiveRouteNavigation />
+  }
+/>
+<Route
+  path="verification"
+  element={
+    <FieldExecutivePropertyVerification />
+  }
+/>
+<Route
+  path="site-visits"
+  element={
+    <FieldExecutiveSiteVisits />
+  }
+/>
+<Route
+  path="visit-reports"
+  element={
+    <FieldExecutiveVisitReports />
+  }
+/>
+<Route
+  path="security-reports"
+  element={
+    <FieldExecutiveSecurityReports />
+  }
+/>
+<Route
+  path="documents"
+  element={
+    <FieldExecutiveDocuments />
+  }
+/>
+<Route
+  path="appointments"
+  element={
+    <FieldExecutiveAppointments />
+  }
+/>
+</Route>
     </Routes>
   );
 }

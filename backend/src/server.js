@@ -71,6 +71,44 @@ const superAdminSecuritySessionRoutes =
   "./routes/legalTeam/legalTeamConsultationRoutes"
 );
 const legalTeamAppointmentRoutes = require("./routes/legalTeam/legalTeamAppointmentRoutes");
+const legalTeamPropertyRoutes = require("./routes/legalTeam/legalTeamPropertyRoutes");
+const legalTeamDocumentRoutes = require("./routes/legalTeam/legalTeamDocumentRoutes");
+const legalTeamNotificationRoutes = require("./routes/legalTeam/legalTeamNotificationRoutes");
+const legalTeamReportRoutes = require("./routes/legalTeam/legalTeamReportRoutes");
+const legalTeamProfileRoutes = require("./routes/legalTeam/legalTeamProfileRoutes");
+const fieldExecutiveDashboardRoutes = require("./routes/fieldExecutive/fieldExecutiveDashboardRoutes");
+const fieldExecutivePropertyRoutes = require("./routes/fieldExecutive/fieldExecutivePropertyRoutes");
+const fieldExecutiveVisitRoutes = require(
+  "./routes/fieldExecutive/fieldExecutiveVisitRoutes"
+);
+const fieldExecutiveGeoAttendanceRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveGeoAttendanceRoutes"
+  );
+  const fieldExecutiveMediaRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveMediaRoutes"
+  );
+  const fieldExecutiveVerificationRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveVerificationRoutes"
+  );
+  const fieldExecutiveVisitReportRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveVisitReportRoutes"
+  );
+  const fieldExecutiveSecurityReportRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveSecurityReportRoutes"
+  );
+  const fieldExecutiveDocumentRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveDocumentRoutes"
+  );
+  const fieldExecutiveAppointmentRoutes =
+  require(
+    "./routes/fieldExecutive/fieldExecutiveAppointmentRoutes"
+  );
 const app = express();
 
 app.disable("etag");
@@ -245,6 +283,66 @@ app.use(
 app.use(
   "/api/v1/legal-team/appointments",
   legalTeamAppointmentRoutes
+);
+app.use(
+  "/api/v1/legal-team/properties",
+  legalTeamPropertyRoutes
+);
+app.use(
+  "/api/v1/legal-team/documents",
+  legalTeamDocumentRoutes
+);
+app.use(
+  "/api/v1/legal-team/notifications",
+  legalTeamNotificationRoutes
+);
+app.use(
+  "/api/v1/legal-team/reports",
+  legalTeamReportRoutes
+);
+app.use(
+  "/api/v1/legal-team/profile",
+  legalTeamProfileRoutes
+);
+app.use(
+  "/api/v1/field/dashboard",
+  fieldExecutiveDashboardRoutes
+);
+app.use(
+  "/api/v1/field/properties",
+  fieldExecutivePropertyRoutes
+);
+app.use(
+  "/api/v1/field/visits",
+  fieldExecutiveVisitRoutes
+);
+app.use(
+  "/api/v1/field/geo-attendance",
+  fieldExecutiveGeoAttendanceRoutes
+);
+app.use(
+  "/api/v1/field/media",
+  fieldExecutiveMediaRoutes
+);
+app.use(
+  "/api/v1/field/verification",
+  fieldExecutiveVerificationRoutes
+);
+app.use(
+  "/api/v1/field/visit-reports",
+  fieldExecutiveVisitReportRoutes
+);
+app.use(
+  "/api/v1/field/security-reports",
+  fieldExecutiveSecurityReportRoutes
+);
+app.use(
+  "/api/v1/field/documents",
+  fieldExecutiveDocumentRoutes
+);
+app.use(
+  "/api/v1/field/appointments",
+  fieldExecutiveAppointmentRoutes
 );
 /* ------------------------- 404 Handler ------------------------- */
 

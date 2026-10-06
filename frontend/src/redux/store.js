@@ -37,7 +37,23 @@ import superAdminSettingsReducer from "./superAdminSettingsSlice";
 import superAdminSecuritySessionReducer from "./superAdminSecuritySessionSlice";
 import superAdminBackupReducer from "./superAdminBackupSlice";
 import superAdminIntegrationReducer from "./superAdminIntegrationSlice";
-
+import legalTeamReportReducer from "./legalTeamReportSlice";
+import legalTeamProfileReducer from "./legalTeamProfileSlice";
+import fieldExecutiveDashboardReducer from "./fieldExecutiveDashboardSlice";
+import fieldExecutivePropertyReducer from "./fieldExecutivePropertySlice";
+import fieldExecutiveVisitReducer from "./fieldExecutiveVisitSlice";
+import fieldExecutiveGeoAttendanceReducer from "./fieldExecutiveGeoAttendanceSlice";
+import fieldExecutiveMediaReducer from "./fieldExecutiveMediaSlice";
+import fieldExecutiveVerificationReducer
+  from "./fieldExecutiveVerificationSlice";
+  import fieldExecutiveVisitReportReducer
+  from "./fieldExecutiveVisitReportSlice";
+  import fieldExecutiveSecurityReportReducer
+  from "./fieldExecutiveSecurityReportSlice";
+  import fieldExecutiveDocumentReducer
+  from "./fieldExecutiveDocumentSlice";
+  import fieldExecutiveAppointmentReducer
+  from "./fieldExecutiveAppointmentSlice";
 const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
@@ -83,6 +99,26 @@ const store = configureStore({
     superAdminSecuritySession:superAdminSecuritySessionReducer,
     superAdminBackup: superAdminBackupReducer,
     superAdminIntegration:superAdminIntegrationReducer,
+    legalTeamReport: legalTeamReportReducer,
+    legalTeamProfile: legalTeamProfileReducer,
+    fieldExecutiveDashboard:fieldExecutiveDashboardReducer,
+    fieldExecutiveProperty: fieldExecutivePropertyReducer,
+    fieldExecutiveVisit:
+  fieldExecutiveVisitReducer,
+  fieldExecutiveGeoAttendance:
+  fieldExecutiveGeoAttendanceReducer,
+  fieldExecutiveMedia:
+  fieldExecutiveMediaReducer,
+  fieldExecutiveVerification:
+  fieldExecutiveVerificationReducer,
+  fieldExecutiveVisitReport:
+  fieldExecutiveVisitReportReducer,
+  fieldExecutiveSecurityReport:
+  fieldExecutiveSecurityReportReducer,
+  fieldExecutiveDocument:
+  fieldExecutiveDocumentReducer,
+  fieldExecutiveAppointment:
+  fieldExecutiveAppointmentReducer,
   },
 });
 
