@@ -8,12 +8,13 @@ const authMiddleware = require(
 );
 
 const {
-  getMySecurityReports,
-  getSecurityReportById,
-  createSecurityReport,
-  updateSecurityReport,
+  getMyNotifications,
+  getNotificationById,
+  createNotification,
+  updateNotificationReadStatus,
+  deleteNotification,
 } = require(
-  "../../controllers/fieldExecutive/fieldExecutiveSecurityReportController"
+  "../../controllers/fieldExecutive/fieldExecutiveNotificationController"
 );
 
 // =====================================================
@@ -23,39 +24,48 @@ const {
 router.use(authMiddleware);
 
 // =====================================================
-// GET MY SECURITY REPORTS
+// GET MY NOTIFICATIONS
 // =====================================================
 
 router.get(
   "/",
-  getMySecurityReports
+  getMyNotifications
 );
 
 // =====================================================
-// CREATE SECURITY REPORT
+// CREATE NOTIFICATION
 // =====================================================
 
 router.post(
   "/",
-  createSecurityReport
+  createNotification
 );
 
 // =====================================================
-// GET SECURITY REPORT BY ID
+// GET NOTIFICATION BY ID
 // =====================================================
 
 router.get(
   "/:id",
-  getSecurityReportById
+  getNotificationById
 );
 
 // =====================================================
-// UPDATE SECURITY REPORT
+// MARK READ / UNREAD
 // =====================================================
 
 router.put(
+  "/:id/read",
+  updateNotificationReadStatus
+);
+
+// =====================================================
+// DELETE NOTIFICATION
+// =====================================================
+
+router.delete(
   "/:id",
-  updateSecurityReport
+  deleteNotification
 );
 
 module.exports = router;

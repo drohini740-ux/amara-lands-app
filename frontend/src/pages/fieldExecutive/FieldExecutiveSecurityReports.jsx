@@ -1,6 +1,14 @@
 
-import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
 
 import {
   FaShieldAlt,
@@ -14,10 +22,13 @@ import {
   FaSpinner,
   FaTimes,
   FaExclamationTriangle,
+  FaPlus,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import {
   fetchFieldExecutiveSecurityReports,
+  createFieldExecutiveSecurityReport,
   fetchFieldExecutiveSecurityReportById,
   updateFieldExecutiveSecurityReport,
   clearSelectedSecurityReport,
@@ -25,8 +36,16 @@ import {
   clearSecurityReportSuccess,
 } from "../../redux/fieldExecutiveSecurityReportSlice";
 
+import {
+  fetchFieldExecutiveProperties,
+} from "../../redux/fieldExecutivePropertySlice";
+
 const FieldExecutiveSecurityReports = () => {
   const dispatch = useDispatch();
+
+  // =====================================================
+  // SECURITY REPORT REDUX STATE
+  // =====================================================
 
   const {
     reports,
@@ -43,35 +62,99 @@ const FieldExecutiveSecurityReports = () => {
       state.fieldExecutiveSecurityReport
   );
 
-  const [search, setSearch] = useState("");
+  // =====================================================
+  // PROPERTY REDUX STATE
+  // =====================================================
+
+  const {
+    properties,
+    loading: propertiesLoading,
+  } = useSelector(
+    (state) =>
+      state.fieldExecutiveProperty
+  );
+
+  // =====================================================
+  // FILTER STATES
+  // =====================================================
+
+  const [search, setSearch] =
+    useState("");
+
   const [statusFilter, setStatusFilter] =
     useState("all");
 
-  const [reportTypeFilter, setReportTypeFilter] =
-    useState("all");
+  const [
+    reportTypeFilter,
+    setReportTypeFilter,
+  ] = useState("all");
+
+  // =====================================================
+  // VIEW / EDIT MODALS
+  // =====================================================
 
   const [showModal, setShowModal] =
     useState(false);
 
-  const [showEditModal, setShowEditModal] =
-    useState(false);
-
-  const [editReportType, setEditReportType] =
-    useState("");
-
-  const [editDescription, setEditDescription] =
-    useState("");
-
-  const [editStatus, setEditStatus] =
-    useState("");
+  const [
+    showEditModal,
+    setShowEditModal,
+  ] = useState(false);
 
   // =====================================================
-  // LOAD REPORTS
+  // CREATE MODAL
+  // =====================================================
+
+  const [
+    showCreateModal,
+    setShowCreateModal,
+  ] = useState(false);
+
+  const [
+    createError,
+    setCreateError,
+  ] = useState("");
+
+  const [createFormData, setCreateFormData] =
+    useState({
+      property_id: "",
+      report_type:
+        "Security Inspection",
+      description: "",
+      latitude: "",
+      longitude: "",
+    });
+
+  // =====================================================
+  // EDIT FORM
+  // =====================================================
+
+  const [
+    editReportType,
+    setEditReportType,
+  ] = useState("");
+
+  const [
+    editDescription,
+    setEditDescription,
+  ] = useState("");
+
+  const [
+    editStatus,
+    setEditStatus,
+  ] = useState("");
+
+  // =====================================================
+  // LOAD REPORTS + PROPERTIES
   // =====================================================
 
   useEffect(() => {
     dispatch(
       fetchFieldExecutiveSecurityReports()
+    );
+
+    dispatch(
+      fetchFieldExecutiveProperties()
     );
   }, [dispatch]);
 
@@ -89,7 +172,10 @@ const FieldExecutiveSecurityReports = () => {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [successMessage, dispatch]);
+  }, [
+    successMessage,
+    dispatch,
+  ]);
 
   // =====================================================
   // VIEW REPORT
@@ -143,14 +229,23 @@ const FieldExecutiveSecurityReports = () => {
     const result = await dispatch(
       updateFieldExecutiveSecurityReport({
         id: selectedReport.id,
-        data: {
-          report_type:
-            editReportType,
-          description:
-            editDescription,
-          report_status:
-            editStatus,
-        },
+
+        report_type:
+          editReportType.trim(),
+
+        description:
+          editDescription.trim(),
+
+        latitude:
+          selectedReport.latitude ||
+          null,
+
+        longitude:
+          selectedReport.longitude ||
+          null,
+
+        report_status:
+          editStatus,
       })
     );
 
@@ -162,9 +257,204 @@ const FieldExecutiveSecurityReports = () => {
       setShowEditModal(false);
 
       dispatch(
+        clearSelectedSecurityReport()
+      );
+
+      dispatch(
         fetchFieldExecutiveSecurityReports()
       );
     }
+  };
+
+  // =====================================================
+  // OPEN CREATE MODAL
+  // =====================================================
+
+  const handleOpenCreateModal = () => {
+    setCreateError("");
+
+    setCreateFormData({
+      property_id: "",
+      report_type:
+        "Security Inspection",
+      description: "",
+      latitude: "",
+      longitude: "",
+    });
+
+    dispatch(
+      clearSecurityReportError()
+    );
+
+    setShowCreateModal(true);
+  };
+
+  // =====================================================
+  // CLOSE CREATE MODAL
+  // =====================================================
+
+  const handleCloseCreateModal = () => {
+    if (actionLoading) return;
+
+    setShowCreateModal(false);
+
+    setCreateError("");
+
+    setCreateFormData({
+      property_id: "",
+      report_type:
+        "Security Inspection",
+      description: "",
+      latitude: "",
+      longitude: "",
+    });
+
+    dispatch(
+      clearSecurityReportError()
+    );
+  };
+
+  // =====================================================
+  // HANDLE CREATE SECURITY REPORT
+  // =====================================================
+
+  const handleCreateSecurityReport =
+    async (e) => {
+      e.preventDefault();
+
+      setCreateError("");
+
+      const propertyId =
+        createFormData.property_id;
+
+      const reportType =
+        createFormData.report_type.trim();
+
+      const description =
+        createFormData.description.trim();
+
+      if (!propertyId) {
+        setCreateError(
+          "Please select a property."
+        );
+
+        return;
+      }
+
+      if (!reportType) {
+        setCreateError(
+          "Please select a report type."
+        );
+
+        return;
+      }
+
+      if (!description) {
+        setCreateError(
+          "Please enter the report description."
+        );
+
+        return;
+      }
+
+      try {
+        await dispatch(
+          createFieldExecutiveSecurityReport({
+            property_id:
+              Number(propertyId),
+
+            report_type:
+              reportType,
+
+            description:
+              description,
+
+            latitude:
+              createFormData.latitude ||
+              null,
+
+            longitude:
+              createFormData.longitude ||
+              null,
+          })
+        ).unwrap();
+
+        setShowCreateModal(false);
+
+        setCreateFormData({
+          property_id: "",
+          report_type:
+            "Security Inspection",
+          description: "",
+          latitude: "",
+          longitude: "",
+        });
+
+        setCreateError("");
+
+        // Refresh so the newly-created
+        // report contains all joined
+        // property/customer details.
+        dispatch(
+          fetchFieldExecutiveSecurityReports()
+        );
+      } catch (error) {
+        setCreateError(
+          error ||
+            "Unable to create security report."
+        );
+      }
+    };
+
+  // =====================================================
+  // GET CURRENT LOCATION
+  // =====================================================
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setCreateError(
+        "Geolocation is not supported by this browser."
+      );
+
+      return;
+    }
+
+    setCreateError("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCreateFormData(
+          (previous) => ({
+            ...previous,
+
+            latitude:
+              position.coords.latitude.toFixed(
+                7
+              ),
+
+            longitude:
+              position.coords.longitude.toFixed(
+                7
+              ),
+          })
+        );
+      },
+      (locationError) => {
+        console.error(
+          "Security Report Location Error:",
+          locationError
+        );
+
+        setCreateError(
+          "Unable to get your current location. Please allow location access."
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   // =====================================================
@@ -184,6 +474,8 @@ const FieldExecutiveSecurityReports = () => {
   // =====================================================
 
   const handleCloseEdit = () => {
+    if (actionLoading) return;
+
     setShowEditModal(false);
 
     dispatch(
@@ -203,9 +495,9 @@ const FieldExecutiveSecurityReports = () => {
     if (!date) return "-";
 
     try {
-      return new Date(date).toLocaleString(
-        "en-IN"
-      );
+      return new Date(
+        date
+      ).toLocaleString("en-IN");
     } catch {
       return "-";
     }
@@ -233,7 +525,9 @@ const FieldExecutiveSecurityReports = () => {
       };
     }
 
-    if (normalized === "in progress") {
+    if (
+      normalized === "in progress"
+    ) {
       return {
         backgroundColor: "#FFF3CD",
         color: "#856404",
@@ -340,7 +634,8 @@ const FieldExecutiveSecurityReports = () => {
   // SUMMARY
   // =====================================================
 
-  const totalReports = reports.length;
+  const totalReports =
+    reports.length;
 
   const pendingReports =
     reports.filter(
@@ -434,25 +729,52 @@ const FieldExecutiveSecurityReports = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="btn"
-          disabled={loading}
-          onClick={() =>
-            dispatch(
-              fetchFieldExecutiveSecurityReports()
-            )
-          }
-          style={{
-            border: "1px solid #C9A227",
-            color: "#C9A227",
-            backgroundColor: "#FFFFFF",
-          }}
-        >
-          <FaSync className="me-2" />
+        <div className="d-flex gap-2">
+          {/* REFRESH */}
 
-          Refresh
-        </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={loading}
+            onClick={() =>
+              dispatch(
+                fetchFieldExecutiveSecurityReports()
+              )
+            }
+            style={{
+              border:
+                "1px solid #C9A227",
+              color: "#C9A227",
+              backgroundColor:
+                "#FFFFFF",
+            }}
+          >
+            <FaSync className="me-2" />
+
+            Refresh
+          </button>
+
+          {/* ADD SECURITY REPORT */}
+
+          <button
+            type="button"
+            className="btn"
+            disabled={propertiesLoading}
+            onClick={
+              handleOpenCreateModal
+            }
+            style={{
+              backgroundColor: "#111111",
+              color: "#FFFFFF",
+              border:
+                "1px solid #111111",
+            }}
+          >
+            <FaPlus className="me-2" />
+
+            Add Security Report
+          </button>
+        </div>
       </div>
 
       {/* ================================================= */}
@@ -728,7 +1050,8 @@ const FieldExecutiveSecurityReports = () => {
               }}
             >
               Showing{" "}
-              {filteredReports.length} reports
+              {filteredReports.length}{" "}
+              reports
             </span>
           </div>
         </div>
@@ -762,8 +1085,9 @@ const FieldExecutiveSecurityReports = () => {
               </p>
 
               <small className="text-muted">
-                Security reports created for this
-                Field Executive will appear here.
+                Security reports created for
+                this Field Executive will
+                appear here.
               </small>
             </div>
           ) : (
@@ -771,7 +1095,8 @@ const FieldExecutiveSecurityReports = () => {
               <table className="table table-hover mb-0 align-middle">
                 <thead
                   style={{
-                    backgroundColor: "#111111",
+                    backgroundColor:
+                      "#111111",
                     color: "#FFFFFF",
                   }}
                 >
@@ -981,6 +1306,408 @@ const FieldExecutiveSecurityReports = () => {
       </div>
 
       {/* ================================================= */}
+      {/* CREATE SECURITY REPORT MODAL */}
+      {/* ================================================= */}
+
+      {showCreateModal && (
+        <div
+          className="modal d-block"
+          tabIndex="-1"
+          style={{
+            backgroundColor:
+              "rgba(0,0,0,0.5)",
+          }}
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              {/* HEADER */}
+
+              <div
+                className="modal-header"
+                style={{
+                  backgroundColor:
+                    "#111111",
+                  color: "#FFFFFF",
+                }}
+              >
+                <h5 className="modal-title">
+                  Add Security Report
+                </h5>
+
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={
+                    handleCloseCreateModal
+                  }
+                  disabled={
+                    actionLoading
+                  }
+                  style={{
+                    color: "#FFFFFF",
+                  }}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* FORM */}
+
+              <form
+                onSubmit={
+                  handleCreateSecurityReport
+                }
+              >
+                <div className="modal-body">
+                  {(createError ||
+                    actionError) && (
+                    <div className="alert alert-danger">
+                      {createError ||
+                        actionError}
+                    </div>
+                  )}
+
+                  {/* PROPERTY */}
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Property
+                    </label>
+
+                    <select
+                      className="form-select"
+                      value={
+                        createFormData.property_id
+                      }
+                      onChange={(e) =>
+                        setCreateFormData(
+                          (previous) => ({
+                            ...previous,
+                            property_id:
+                              e.target.value,
+                          })
+                        )
+                      }
+                      disabled={
+                        propertiesLoading ||
+                        actionLoading
+                      }
+                    >
+                      <option value="">
+                        Select Property
+                      </option>
+
+                      {properties?.map(
+                        (property) => {
+                          const propertyId =
+                            property.property_id ||
+                            property.id;
+
+                          return (
+                            <option
+                              key={
+                                propertyId
+                              }
+                              value={
+                                propertyId
+                              }
+                            >
+                              {property.property_name ||
+                                "Property"}{" "}
+                              -{" "}
+                              {property.survey_number ||
+                                "No Survey Number"}
+                            </option>
+                          );
+                        }
+                      )}
+                    </select>
+
+                    {propertiesLoading && (
+                      <small className="text-muted">
+                        Loading assigned
+                        properties...
+                      </small>
+                    )}
+
+                    {!propertiesLoading &&
+                      properties?.length ===
+                        0 && (
+                        <small className="text-danger">
+                          No assigned
+                          properties
+                          available.
+                        </small>
+                      )}
+                  </div>
+
+                  {/* REPORT TYPE */}
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Report Type
+                    </label>
+
+                    <select
+                      className="form-select"
+                      value={
+                        createFormData.report_type
+                      }
+                      onChange={(e) =>
+                        setCreateFormData(
+                          (previous) => ({
+                            ...previous,
+                            report_type:
+                              e.target.value,
+                          })
+                        )
+                      }
+                      disabled={
+                        actionLoading
+                      }
+                    >
+                      <option value="Security Inspection">
+                        Security Inspection
+                      </option>
+
+                      <option value="Security Issue">
+                        Security Issue
+                      </option>
+
+                      <option value="Intrusion">
+                        Intrusion
+                      </option>
+
+                      <option value="Property Damage">
+                        Property Damage
+                      </option>
+
+                      <option value="Suspicious Activity">
+                        Suspicious Activity
+                      </option>
+
+                      <option value="Other">
+                        Other
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* DESCRIPTION */}
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Description
+                    </label>
+
+                    <textarea
+                      className="form-control"
+                      rows="5"
+                      placeholder="Describe the security observation or issue..."
+                      value={
+                        createFormData.description
+                      }
+                      onChange={(e) =>
+                        setCreateFormData(
+                          (previous) => ({
+                            ...previous,
+                            description:
+                              e.target.value,
+                          })
+                        )
+                      }
+                      disabled={
+                        actionLoading
+                      }
+                    />
+                  </div>
+
+                  {/* LOCATION */}
+
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <label className="form-label fw-semibold mb-0">
+                        Location
+                      </label>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={
+                          handleGetCurrentLocation
+                        }
+                        disabled={
+                          actionLoading
+                        }
+                        style={{
+                          border:
+                            "1px solid #C9A227",
+                          color:
+                            "#C9A227",
+                          backgroundColor:
+                            "#FFFFFF",
+                        }}
+                      >
+                        <FaMapMarkerAlt className="me-2" />
+                        Get Current Location
+                      </button>
+                    </div>
+
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <label className="form-label text-muted">
+                          Latitude
+                        </label>
+
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Latitude"
+                          value={
+                            createFormData.latitude
+                          }
+                          onChange={(e) =>
+                            setCreateFormData(
+                              (
+                                previous
+                              ) => ({
+                                ...previous,
+                                latitude:
+                                  e
+                                    .target
+                                    .value,
+                              })
+                            )
+                          }
+                          disabled={
+                            actionLoading
+                          }
+                        />
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label text-muted">
+                          Longitude
+                        </label>
+
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Longitude"
+                          value={
+                            createFormData.longitude
+                          }
+                          onChange={(e) =>
+                            setCreateFormData(
+                              (
+                                previous
+                              ) => ({
+                                ...previous,
+                                longitude:
+                                  e
+                                    .target
+                                    .value,
+                              })
+                            )
+                          }
+                          disabled={
+                            actionLoading
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* INFORMATION */}
+
+                  <div
+                    className="alert mb-0"
+                    style={{
+                      backgroundColor:
+                        "#FFFDF5",
+                      border:
+                        "1px solid #E6D48A",
+                      color: "#555555",
+                    }}
+                  >
+                    <FaInfoCircle
+                      className="me-2"
+                      style={{
+                        color:
+                          "#C9A227",
+                      }}
+                    />
+
+                    The security report will
+                    be created for your
+                    assigned property and
+                    will initially have
+                    Pending status.
+                  </div>
+                </div>
+
+                {/* FOOTER */}
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={
+                      handleCloseCreateModal
+                    }
+                    disabled={
+                      actionLoading
+                    }
+                    style={{
+                      border:
+                        "1px solid #111111",
+                      color: "#111111",
+                      backgroundColor:
+                        "#FFFFFF",
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="btn"
+                    disabled={
+                      actionLoading ||
+                      propertiesLoading
+                    }
+                    style={{
+                      backgroundColor:
+                        "#111111",
+                      color: "#FFFFFF",
+                      border:
+                        "1px solid #111111",
+                    }}
+                  >
+                    {actionLoading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                        />
+
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <FaPlus className="me-2" />
+
+                        Create Report
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================= */}
       {/* VIEW MODAL */}
       {/* ================================================= */}
 
@@ -1174,6 +1901,7 @@ const FieldExecutiveSecurityReports = () => {
                           selectedReport.city ||
                           "-"
                         }
+
                         {selectedReport.state
                           ? `, ${selectedReport.state}`
                           : ""}
@@ -1338,6 +2066,9 @@ const FieldExecutiveSecurityReports = () => {
                   onClick={
                     handleCloseEdit
                   }
+                  disabled={
+                    actionLoading
+                  }
                   style={{
                     color: "#FFFFFF",
                   }}
@@ -1363,9 +2094,11 @@ const FieldExecutiveSecurityReports = () => {
                   <div className="alert alert-warning">
                     <FaExclamationTriangle className="me-2" />
 
-                    Only security reports belonging
-                    to the logged-in Field Executive
-                    can be updated.
+                    Only security reports
+                    belonging to the
+                    logged-in Field
+                    Executive can be
+                    updated.
                   </div>
 
                   {/* REPORT TYPE */}
@@ -1387,6 +2120,9 @@ const FieldExecutiveSecurityReports = () => {
                           e.target.value
                         )
                       }
+                      disabled={
+                        actionLoading
+                      }
                     />
                   </div>
 
@@ -1404,6 +2140,9 @@ const FieldExecutiveSecurityReports = () => {
                         setEditStatus(
                           e.target.value
                         )
+                      }
+                      disabled={
+                        actionLoading
                       }
                     >
                       <option value="Pending">
@@ -1447,6 +2186,9 @@ const FieldExecutiveSecurityReports = () => {
                           e.target.value
                         )
                       }
+                      disabled={
+                        actionLoading
+                      }
                     />
                   </div>
                 </div>
@@ -1459,6 +2201,9 @@ const FieldExecutiveSecurityReports = () => {
                     className="btn btn-light"
                     onClick={
                       handleCloseEdit
+                    }
+                    disabled={
+                      actionLoading
                     }
                   >
                     Cancel

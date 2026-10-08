@@ -95,12 +95,13 @@ import FieldExecutivePropertyDetails from "../pages/fieldExecutive/FieldExecutiv
 import FieldExecutiveVisits from "../pages/fieldExecutive/FieldExecutiveVisits";
 import FieldExecutiveVisitDetails from "../pages/fieldExecutive/FieldExecutiveVisitDetails";
 //import FieldExecutiveVisitDetails from "../pages/fieldExecutive/FieldExecutiveVisitDetails";
-import FieldExecutiveSecurityReports
-  from "../pages/fieldExecutive/FieldExecutiveSecurityReports";
-  import FieldExecutiveDocuments
-  from "../pages/fieldExecutive/FieldExecutiveDocuments";
-  import FieldExecutiveAppointments
-  from "../pages/fieldExecutive/FieldExecutiveAppointments";
+import FieldExecutiveSecurityReports from "../pages/fieldExecutive/FieldExecutiveSecurityReports";
+import FieldExecutiveDocuments from "../pages/fieldExecutive/FieldExecutiveDocuments";
+import FieldExecutiveAppointments from "../pages/fieldExecutive/FieldExecutiveAppointments";
+import FieldExecutiveNotifications from "../pages/fieldExecutive/FieldExecutiveNotifications";
+import FieldExecutiveLiveLocation from "../pages/fieldExecutive/FieldExecutiveLiveLocation";
+import SuperAdminLiveLocation from "../pages/superAdmin/SuperAdminLiveLocation";
+
 // =====================================================
 // AUTH
 // =====================================================
@@ -207,12 +208,9 @@ import AddSurveillanceCamera from "../pages/security-monitoring/surveillance-cam
 import ViewSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/ViewSurveillanceCamera";
 import EditSurveillanceCamera from "../pages/security-monitoring/surveillance-cameras/EditSurveillanceCamera";
 import FieldExecutiveRouteNavigation from "../pages/fieldExecutive/FieldExecutiveRouteNavigation";
-import FieldExecutivePropertyVerification
-  from "../pages/fieldExecutive/FieldExecutivePropertyVerification";
-  import FieldExecutiveSiteVisits
-  from "../pages/fieldExecutive/FieldExecutiveSiteVisits";
-  import FieldExecutiveVisitReports
-  from "../pages/fieldExecutive/FieldExecutiveVisitReports";
+import FieldExecutivePropertyVerification from "../pages/fieldExecutive/FieldExecutivePropertyVerification";
+import FieldExecutiveSiteVisits from "../pages/fieldExecutive/FieldExecutiveSiteVisits";
+import FieldExecutiveVisitReports from "../pages/fieldExecutive/FieldExecutiveVisitReports";
 // =====================================================
 // CUSTOMER SUPPORT
 // =====================================================
@@ -864,11 +862,13 @@ export default function AppRoutes() {
         />
         <Route path="backup" element={<SuperAdminBackup />} />
         <Route path="integrations" element={<SuperAdminIntegrations />} />
+
+        <Route path="live-location" element={<SuperAdminLiveLocation />} />
       </Route>
       <Route
-  path="/legal/dashboard"
-  element={<Navigate to="/legal-team/dashboard" replace />}
-/>
+        path="/legal/dashboard"
+        element={<Navigate to="/legal-team/dashboard" replace />}
+      />
       <Route
         path="/legal-team"
         element={
@@ -878,138 +878,71 @@ export default function AppRoutes() {
         }
       >
         <Route path="dashboard" element={<LegalTeamDashboard />} />
-         <Route
-    path="cases"
-    element={<LegalTeamCases />}
-  />
-   <Route
-    path="cases/view/:id"
-    element={<LegalTeamCaseDetails />}
-  />
-  <Route
-  path="consultations"
-  element={<LegalTeamConsultations />}
-/>
-<Route
-  path="consultations/view/:id"
-  element={<LegalTeamConsultationDetails />}
-/>
-<Route
-  path="appointments"
-  element={<LegalTeamAppointments />}
-/>
-<Route
-  path="appointments/view/:id"
-  element={<LegalTeamAppointmentDetails />}
-/>
-<Route
-  path="properties"
-  element={<LegalTeamProperties />}
-/>
-<Route
-  path="properties/view/:id"
-  element={<LegalTeamPropertyDetails />}
-/>
-<Route
-  path="documents"
-  element={<LegalTeamDocuments />}
-/>
-<Route
-  path="documents/view/:id"
-  element={<LegalTeamDocumentDetails />}
-/>
-<Route
-  path="notifications"
-  element={<LegalTeamNotifications />}
-/>
-<Route
-  path="notifications/view/:id"
-  element={<LegalTeamNotificationDetails />}
-/>
-<Route
-  path="reports"
-  element={<LegalTeamReports />}
-/>
-<Route
-  path="profile"
-  element={<LegalTeamProfile />}
-/>
+        <Route path="cases" element={<LegalTeamCases />} />
+        <Route path="cases/view/:id" element={<LegalTeamCaseDetails />} />
+        <Route path="consultations" element={<LegalTeamConsultations />} />
+        <Route
+          path="consultations/view/:id"
+          element={<LegalTeamConsultationDetails />}
+        />
+        <Route path="appointments" element={<LegalTeamAppointments />} />
+        <Route
+          path="appointments/view/:id"
+          element={<LegalTeamAppointmentDetails />}
+        />
+        <Route path="properties" element={<LegalTeamProperties />} />
+        <Route
+          path="properties/view/:id"
+          element={<LegalTeamPropertyDetails />}
+        />
+        <Route path="documents" element={<LegalTeamDocuments />} />
+        <Route
+          path="documents/view/:id"
+          element={<LegalTeamDocumentDetails />}
+        />
+        <Route path="notifications" element={<LegalTeamNotifications />} />
+        <Route
+          path="notifications/view/:id"
+          element={<LegalTeamNotificationDetails />}
+        />
+        <Route path="reports" element={<LegalTeamReports />} />
+        <Route path="profile" element={<LegalTeamProfile />} />
       </Route>
       <Route
-  path="/field"
-  element={
-    <ProtectedRoute
-      allowedRoles={["field_executive"]}
-    >
-      <FieldExecutiveLayout />
-    </ProtectedRoute>
-  }
->
-  <Route
-    path="dashboard"
-    element={<FieldExecutiveDashboard />}
-  />
-  <Route
-  path="properties"
-  element={<FieldExecutiveProperties />}
-/>
-<Route
-  path="properties/:id"
-  element={<FieldExecutivePropertyDetails />}
-/>
-<Route
-  path="visits"
-  element={<FieldExecutiveVisits />}
-/>
-<Route
-  path="visits/:id"
-  element={
-    <FieldExecutiveVisitDetails />
-  }
-/>
-<Route
-  path="route-navigation"
-  element={
-    <FieldExecutiveRouteNavigation />
-  }
-/>
-<Route
-  path="verification"
-  element={
-    <FieldExecutivePropertyVerification />
-  }
-/>
-<Route
-  path="site-visits"
-  element={
-    <FieldExecutiveSiteVisits />
-  }
-/>
-<Route
-  path="visit-reports"
-  element={
-    <FieldExecutiveVisitReports />
-  }
-/>
-<Route
-  path="security-reports"
-  element={
-    <FieldExecutiveSecurityReports />
-  }
-/>
-<Route
-  path="documents"
-  element={
-    <FieldExecutiveDocuments />
-  }
-/>
-<Route
-  path="appointments"
-  element={
-    <FieldExecutiveAppointments />
-  }
-/>
-</Route>
+        path="/field"
+        element={
+          <ProtectedRoute allowedRoles={["field_executive"]}>
+            <FieldExecutiveLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<FieldExecutiveDashboard />} />
+        <Route path="properties" element={<FieldExecutiveProperties />} />
+        <Route
+          path="properties/:id"
+          element={<FieldExecutivePropertyDetails />}
+        />
+        <Route path="visits" element={<FieldExecutiveVisits />} />
+        <Route path="visits/:id" element={<FieldExecutiveVisitDetails />} />
+        <Route
+          path="route-navigation"
+          element={<FieldExecutiveRouteNavigation />}
+        />
+        <Route
+          path="verification"
+          element={<FieldExecutivePropertyVerification />}
+        />
+        <Route path="site-visits" element={<FieldExecutiveSiteVisits />} />
+        <Route path="visit-reports" element={<FieldExecutiveVisitReports />} />
+        <Route
+          path="security-reports"
+          element={<FieldExecutiveSecurityReports />}
+        />
+        <Route path="documents" element={<FieldExecutiveDocuments />} />
+        <Route path="appointments" element={<FieldExecutiveAppointments />} />
+        <Route path="notifications" element={<FieldExecutiveNotifications />} />
+        <Route path="live-location" element={<FieldExecutiveLiveLocation />} />
+      </Route>
     </Routes>
   );
 }

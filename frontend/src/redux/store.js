@@ -54,6 +54,9 @@ import fieldExecutiveVerificationReducer
   from "./fieldExecutiveDocumentSlice";
   import fieldExecutiveAppointmentReducer
   from "./fieldExecutiveAppointmentSlice";
+  import fieldExecutiveNotificationReducer from "./fieldExecutiveNotificationSlice";
+  import fieldExecutiveLiveLocationReducer
+  from "./fieldExecutiveLiveLocationSlice";
 const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
@@ -119,6 +122,10 @@ const store = configureStore({
   fieldExecutiveDocumentReducer,
   fieldExecutiveAppointment:
   fieldExecutiveAppointmentReducer,
+  fieldExecutiveNotification:
+  fieldExecutiveNotificationReducer,
+  fieldExecutiveLiveLocation:
+  fieldExecutiveLiveLocationReducer,
   },
 });
 

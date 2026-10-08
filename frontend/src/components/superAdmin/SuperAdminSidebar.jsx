@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NavLink } from "react-router-dom";
 
@@ -21,6 +22,7 @@ import {
   FaLock,
   FaDatabase,
   FaPlug,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 
 const SuperAdminSidebar = () => {
@@ -132,6 +134,16 @@ const SuperAdminSidebar = () => {
       path: "/super-admin/integrations",
       icon: <FaPlug />,
     },
+
+    // =====================================================
+    // LIVE LOCATION
+    // =====================================================
+
+    {
+      name: "Live Location",
+      path: "/super-admin/live-location",
+      icon: <FaMapMarkerAlt />,
+    },
   ];
 
   return (
@@ -192,15 +204,24 @@ const SuperAdminSidebar = () => {
             to={item.path}
             className="text-decoration-none d-flex align-items-center"
             style={({ isActive }) => ({
-              color: isActive ? "#111111" : "#FFFFFF",
+              color: isActive
+                ? "#111111"
+                : "#FFFFFF",
+
               backgroundColor: isActive
                 ? "#C9A227"
                 : "transparent",
+
               padding: "11px 13px",
               marginBottom: "5px",
               borderRadius: "6px",
-              fontWeight: isActive ? "600" : "400",
-              transition: "all 0.2s ease",
+
+              fontWeight: isActive
+                ? "600"
+                : "400",
+
+              transition:
+                "all 0.2s ease",
             })}
           >
             <span
@@ -228,3 +249,4 @@ const SuperAdminSidebar = () => {
 };
 
 export default SuperAdminSidebar;
+

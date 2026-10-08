@@ -109,6 +109,13 @@ const fieldExecutiveGeoAttendanceRoutes =
   require(
     "./routes/fieldExecutive/fieldExecutiveAppointmentRoutes"
   );
+  const fieldExecutiveNotificationRoutes = require(
+  "./routes/fieldExecutive/fieldExecutiveNotificationRoutes"
+);
+const fieldExecutiveLiveLocationRoutes =
+  require("./routes/fieldExecutive/fieldExecutiveLiveLocationRoutes");
+  const liveLocationMonitorRoutes =
+  require("./routes/liveLocationMonitorRoutes");
 const app = express();
 
 app.disable("etag");
@@ -343,6 +350,18 @@ app.use(
 app.use(
   "/api/v1/field/appointments",
   fieldExecutiveAppointmentRoutes
+);
+app.use(
+  "/api/v1/field/notifications",
+  fieldExecutiveNotificationRoutes
+);
+app.use(
+  "/api/v1/field/live-location",
+  fieldExecutiveLiveLocationRoutes
+);
+app.use(
+  "/api/v1/live-location-monitor",
+  liveLocationMonitorRoutes
 );
 /* ------------------------- 404 Handler ------------------------- */
 

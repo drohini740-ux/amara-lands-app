@@ -1,4 +1,3 @@
-
 const pool = require("../../config/db");
 
 // =====================================================
@@ -158,6 +157,154 @@ const getSecurityReportById = async (req, res) => {
 };
 
 // =====================================================
+// CREATE SECURITY REPORT
+// =====================================================
+
+const createSecurityReport = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const {
+      property_id,
+      report_type,
+      description,
+      latitude,
+      longitude,
+    } = req.body;
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
+
+    if (!property_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Property ID is required.",
+      });
+    }
+
+    if (!report_type || !report_type.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Report type is required.",
+      });
+    }
+
+    if (!description || !description.trim()) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Report description is required.",
+      });
+    }
+
+    // =====================================================
+    // CHECK PROPERTY ASSIGNMENT
+    // =====================================================
+
+    const assignmentResult = await pool.query(
+      `
+      SELECT
+        sa.id,
+        p.id AS property_id,
+        p.property_name,
+        p.survey_number
+
+      FROM staff_assignments sa
+
+      INNER JOIN properties p
+        ON p.id = sa.property_id
+
+      WHERE sa.staff_id = $1
+        AND sa.property_id = $2
+
+      LIMIT 1
+      `,
+      [userId, property_id]
+    );
+
+    if (assignmentResult.rows.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not assigned to this property.",
+      });
+    }
+
+    // =====================================================
+    // CREATE SECURITY REPORT
+    // =====================================================
+
+    const result = await pool.query(
+      `
+      INSERT INTO security_reports
+      (
+        property_id,
+        user_id,
+        report_type,
+        description,
+        latitude,
+        longitude,
+        report_status
+      )
+      VALUES
+      (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        'Pending'
+      )
+      RETURNING
+        id,
+        property_id,
+        user_id,
+        report_type,
+        description,
+        latitude,
+        longitude,
+        report_status,
+        created_at,
+        assigned_to
+      `,
+      [
+        property_id,
+        userId,
+        report_type.trim(),
+        description.trim(),
+        latitude || null,
+        longitude || null,
+      ]
+    );
+
+    // =====================================================
+    // RESPONSE
+    // =====================================================
+
+    res.status(201).json({
+      success: true,
+      message:
+        "Security report created successfully.",
+      report: result.rows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Create Field Executive Security Report Error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Unable to create security report.",
+      error: error.message,
+    });
+  }
+};
+
+// =====================================================
 // UPDATE SECURITY REPORT
 // =====================================================
 
@@ -269,9 +416,14 @@ const updateSecurityReport = async (req, res) => {
   }
 };
 
+// =====================================================
+// EXPORTS
+// =====================================================
+
 module.exports = {
   getMySecurityReports,
   getSecurityReportById,
+  createSecurityReport,
   updateSecurityReport,
 };
 

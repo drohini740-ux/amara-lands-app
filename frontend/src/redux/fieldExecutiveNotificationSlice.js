@@ -5,18 +5,18 @@ import axios from "axios";
 const API_URL = "http://localhost:4000/api/v1";
 
 // =====================================================
-// FETCH MY SECURITY REPORTS
+// FETCH MY NOTIFICATIONS
 // =====================================================
 
-export const fetchFieldExecutiveSecurityReports =
+export const fetchFieldExecutiveNotifications =
   createAsyncThunk(
-    "fieldExecutiveSecurityReport/fetchReports",
+    "fieldExecutiveNotification/fetchNotifications",
     async (_, { rejectWithValue }) => {
       try {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `${API_URL}/field/security-reports`,
+          `${API_URL}/field/notifications`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -24,30 +24,28 @@ export const fetchFieldExecutiveSecurityReports =
           }
         );
 
-        return response.data.reports || [];
+        return response.data.notifications || [];
       } catch (error) {
         return rejectWithValue(
           error.response?.data?.message ||
-            "Unable to fetch security reports."
+            "Unable to fetch notifications."
         );
       }
     }
   );
 
 // =====================================================
-// CREATE SECURITY REPORT
+// CREATE NOTIFICATION
 // =====================================================
 
-export const createFieldExecutiveSecurityReport =
+export const createFieldExecutiveNotification =
   createAsyncThunk(
-    "fieldExecutiveSecurityReport/createReport",
+    "fieldExecutiveNotification/createNotification",
     async (
       {
-        property_id,
-        report_type,
-        description,
-        latitude,
-        longitude,
+        title,
+        message,
+        notification_type,
       },
       { rejectWithValue }
     ) => {
@@ -55,13 +53,11 @@ export const createFieldExecutiveSecurityReport =
         const token = localStorage.getItem("token");
 
         const response = await axios.post(
-          `${API_URL}/field/security-reports`,
+          `${API_URL}/field/notifications`,
           {
-            property_id,
-            report_type,
-            description,
-            latitude,
-            longitude,
+            title,
+            message,
+            notification_type,
           },
           {
             headers: {
@@ -70,29 +66,29 @@ export const createFieldExecutiveSecurityReport =
           }
         );
 
-        return response.data.report;
+        return response.data.notification;
       } catch (error) {
         return rejectWithValue(
           error.response?.data?.message ||
-            "Unable to create security report."
+            "Unable to create notification."
         );
       }
     }
   );
 
 // =====================================================
-// FETCH SECURITY REPORT BY ID
+// FETCH NOTIFICATION BY ID
 // =====================================================
 
-export const fetchFieldExecutiveSecurityReportById =
+export const fetchFieldExecutiveNotificationById =
   createAsyncThunk(
-    "fieldExecutiveSecurityReport/fetchReportById",
+    "fieldExecutiveNotification/fetchNotificationById",
     async (id, { rejectWithValue }) => {
       try {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `${API_URL}/field/security-reports/${id}`,
+          `${API_URL}/field/notifications/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -100,45 +96,34 @@ export const fetchFieldExecutiveSecurityReportById =
           }
         );
 
-        return response.data.report;
+        return response.data.notification;
       } catch (error) {
         return rejectWithValue(
           error.response?.data?.message ||
-            "Unable to fetch security report."
+            "Unable to fetch notification."
         );
       }
     }
   );
 
 // =====================================================
-// UPDATE SECURITY REPORT
+// UPDATE READ STATUS
 // =====================================================
 
-export const updateFieldExecutiveSecurityReport =
+export const updateFieldExecutiveNotificationReadStatus =
   createAsyncThunk(
-    "fieldExecutiveSecurityReport/updateReport",
+    "fieldExecutiveNotification/updateReadStatus",
     async (
-      {
-        id,
-        report_type,
-        description,
-        latitude,
-        longitude,
-        report_status,
-      },
+      { id, is_read },
       { rejectWithValue }
     ) => {
       try {
         const token = localStorage.getItem("token");
 
         const response = await axios.put(
-          `${API_URL}/field/security-reports/${id}`,
+          `${API_URL}/field/notifications/${id}/read`,
           {
-            report_type,
-            description,
-            latitude,
-            longitude,
-            report_status,
+            is_read,
           },
           {
             headers: {
@@ -147,11 +132,41 @@ export const updateFieldExecutiveSecurityReport =
           }
         );
 
-        return response.data.report;
+        return response.data.notification;
       } catch (error) {
         return rejectWithValue(
           error.response?.data?.message ||
-            "Unable to update security report."
+            "Unable to update notification."
+        );
+      }
+    }
+  );
+
+// =====================================================
+// DELETE NOTIFICATION
+// =====================================================
+
+export const deleteFieldExecutiveNotification =
+  createAsyncThunk(
+    "fieldExecutiveNotification/deleteNotification",
+    async (id, { rejectWithValue }) => {
+      try {
+        const token = localStorage.getItem("token");
+
+        await axios.delete(
+          `${API_URL}/field/notifications/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        return id;
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data?.message ||
+            "Unable to delete notification."
         );
       }
     }
@@ -162,8 +177,8 @@ export const updateFieldExecutiveSecurityReport =
 // =====================================================
 
 const initialState = {
-  reports: [],
-  selectedReport: null,
+  notifications: [],
+  selectedNotification: null,
 
   loading: false,
   detailsLoading: false,
@@ -180,49 +195,37 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const fieldExecutiveSecurityReportSlice =
+const fieldExecutiveNotificationSlice =
   createSlice({
-    name: "fieldExecutiveSecurityReport",
+    name: "fieldExecutiveNotification",
 
     initialState,
 
     reducers: {
-      // =================================================
-      // CLEAR SELECTED REPORT
-      // =================================================
-
-      clearSelectedSecurityReport: (state) => {
-        state.selectedReport = null;
+      clearSelectedNotification: (state) => {
+        state.selectedNotification = null;
         state.detailsError = null;
       },
 
-      // =================================================
-      // CLEAR ERROR
-      // =================================================
-
-      clearSecurityReportError: (state) => {
+      clearNotificationError: (state) => {
         state.error = null;
         state.detailsError = null;
         state.actionError = null;
       },
 
-      // =================================================
-      // CLEAR SUCCESS
-      // =================================================
-
-      clearSecurityReportSuccess: (state) => {
+      clearNotificationSuccess: (state) => {
         state.successMessage = null;
       },
     },
 
     extraReducers: (builder) => {
       // =================================================
-      // FETCH REPORTS
+      // FETCH NOTIFICATIONS
       // =================================================
 
       builder
         .addCase(
-          fetchFieldExecutiveSecurityReports.pending,
+          fetchFieldExecutiveNotifications.pending,
           (state) => {
             state.loading = true;
             state.error = null;
@@ -230,30 +233,30 @@ const fieldExecutiveSecurityReportSlice =
         )
 
         .addCase(
-          fetchFieldExecutiveSecurityReports.fulfilled,
+          fetchFieldExecutiveNotifications.fulfilled,
           (state, action) => {
             state.loading = false;
-            state.reports = action.payload;
+            state.notifications =
+              action.payload;
           }
         )
 
         .addCase(
-          fetchFieldExecutiveSecurityReports.rejected,
+          fetchFieldExecutiveNotifications.rejected,
           (state, action) => {
             state.loading = false;
             state.error =
-              action.payload ||
-              "Unable to fetch security reports.";
+              action.payload;
           }
         );
 
       // =================================================
-      // CREATE REPORT
+      // CREATE NOTIFICATION
       // =================================================
 
       builder
         .addCase(
-          createFieldExecutiveSecurityReport.pending,
+          createFieldExecutiveNotification.pending,
           (state) => {
             state.actionLoading = true;
             state.actionError = null;
@@ -262,73 +265,67 @@ const fieldExecutiveSecurityReportSlice =
         )
 
         .addCase(
-          createFieldExecutiveSecurityReport.fulfilled,
+          createFieldExecutiveNotification.fulfilled,
           (state, action) => {
             state.actionLoading = false;
 
-            // Add newly created report
-            // to the beginning of the list.
-            state.reports.unshift(
-              action.payload
-            );
+            state.notifications = [
+              action.payload,
+              ...state.notifications,
+            ];
 
             state.successMessage =
-              "Security report created successfully.";
+              "Notification created successfully.";
           }
         )
 
         .addCase(
-          createFieldExecutiveSecurityReport.rejected,
+          createFieldExecutiveNotification.rejected,
           (state, action) => {
             state.actionLoading = false;
-
             state.actionError =
-              action.payload ||
-              "Unable to create security report.";
+              action.payload;
           }
         );
 
       // =================================================
-      // FETCH REPORT BY ID
+      // FETCH NOTIFICATION BY ID
       // =================================================
 
       builder
         .addCase(
-          fetchFieldExecutiveSecurityReportById.pending,
+          fetchFieldExecutiveNotificationById.pending,
           (state) => {
             state.detailsLoading = true;
             state.detailsError = null;
-            state.selectedReport = null;
           }
         )
 
         .addCase(
-          fetchFieldExecutiveSecurityReportById.fulfilled,
+          fetchFieldExecutiveNotificationById.fulfilled,
           (state, action) => {
             state.detailsLoading = false;
-            state.selectedReport =
+            state.selectedNotification =
               action.payload;
           }
         )
 
         .addCase(
-          fetchFieldExecutiveSecurityReportById.rejected,
+          fetchFieldExecutiveNotificationById.rejected,
           (state, action) => {
             state.detailsLoading = false;
-
             state.detailsError =
-              action.payload ||
-              "Unable to fetch security report.";
+              action.payload;
           }
         );
 
       // =================================================
-      // UPDATE REPORT
+      // UPDATE READ STATUS
       // =================================================
 
       builder
         .addCase(
-          updateFieldExecutiveSecurityReport.pending,
+          updateFieldExecutiveNotificationReadStatus.pending,
           (state) => {
             state.actionLoading = true;
             state.actionError = null;
@@ -337,66 +334,101 @@ const fieldExecutiveSecurityReportSlice =
         )
 
         .addCase(
-          updateFieldExecutiveSecurityReport.fulfilled,
+          updateFieldExecutiveNotificationReadStatus.fulfilled,
           (state, action) => {
             state.actionLoading = false;
 
-            const updatedReport =
+            const updatedNotification =
               action.payload;
 
-            const index =
-              state.reports.findIndex(
-                (report) =>
-                  report.id ===
-                  updatedReport.id
+            state.notifications =
+              state.notifications.map(
+                (notification) =>
+                  notification.id ===
+                  updatedNotification.id
+                    ? updatedNotification
+                    : notification
               );
 
-            if (index !== -1) {
-              state.reports[index] =
-                updatedReport;
-            }
-
             if (
-              state.selectedReport?.id ===
-              updatedReport.id
+              state.selectedNotification?.id ===
+              updatedNotification.id
             ) {
-              state.selectedReport =
-                updatedReport;
+              state.selectedNotification =
+                updatedNotification;
             }
 
             state.successMessage =
-              "Security report updated successfully.";
+              updatedNotification.is_read
+                ? "Notification marked as read."
+                : "Notification marked as unread.";
           }
         )
 
         .addCase(
-          updateFieldExecutiveSecurityReport.rejected,
+          updateFieldExecutiveNotificationReadStatus.rejected,
+          (state, action) => {
+            state.actionLoading = false;
+            state.actionError =
+              action.payload;
+          }
+        );
+
+      // =================================================
+      // DELETE NOTIFICATION
+      // =================================================
+
+      builder
+        .addCase(
+          deleteFieldExecutiveNotification.pending,
+          (state) => {
+            state.actionLoading = true;
+            state.actionError = null;
+            state.successMessage = null;
+          }
+        )
+
+        .addCase(
+          deleteFieldExecutiveNotification.fulfilled,
           (state, action) => {
             state.actionLoading = false;
 
+            state.notifications =
+              state.notifications.filter(
+                (notification) =>
+                  notification.id !==
+                  action.payload
+              );
+
+            if (
+              state.selectedNotification?.id ===
+              action.payload
+            ) {
+              state.selectedNotification = null;
+            }
+
+            state.successMessage =
+              "Notification deleted successfully.";
+          }
+        )
+
+        .addCase(
+          deleteFieldExecutiveNotification.rejected,
+          (state, action) => {
+            state.actionLoading = false;
             state.actionError =
-              action.payload ||
-              "Unable to update security report.";
+              action.payload;
           }
         );
     },
   });
 
-// =====================================================
-// EXPORT REDUCER ACTIONS
-// =====================================================
-
 export const {
-  clearSelectedSecurityReport,
-  clearSecurityReportError,
-  clearSecurityReportSuccess,
+  clearSelectedNotification,
+  clearNotificationError,
+  clearNotificationSuccess,
 } =
-  fieldExecutiveSecurityReportSlice.actions;
+  fieldExecutiveNotificationSlice.actions;
 
-// =====================================================
-// EXPORT REDUCER
-// =====================================================
-
-export default
-  fieldExecutiveSecurityReportSlice.reducer;
+export default fieldExecutiveNotificationSlice.reducer;
 
