@@ -57,6 +57,15 @@ import fieldExecutiveVerificationReducer
   import fieldExecutiveNotificationReducer from "./fieldExecutiveNotificationSlice";
   import fieldExecutiveLiveLocationReducer
   from "./fieldExecutiveLiveLocationSlice";
+  import fieldExecutiveReportReducer
+  from "./fieldExecutiveReportSlice";
+  import fieldExecutiveProfileReducer
+  from "./fieldExecutiveProfileSlice";
+  import securityDashboardReducer
+  from "./securityDashboardSlice";
+  import securityPropertyReducer from "./securityPropertySlice";
+  import securityVisitReducer from "./securityVisitSlice";
+  import securityPatrolReducer from "./securityPatrolSlice";
 const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
@@ -126,6 +135,16 @@ const store = configureStore({
   fieldExecutiveNotificationReducer,
   fieldExecutiveLiveLocation:
   fieldExecutiveLiveLocationReducer,
+  fieldExecutiveReport:
+  fieldExecutiveReportReducer,
+  fieldExecutiveProfile:
+  fieldExecutiveProfileReducer,
+  fieldExecutiveProfile:
+  fieldExecutiveProfileReducer,
+  securityDashboard: securityDashboardReducer,
+  securityProperty: securityPropertyReducer,
+  securityVisit: securityVisitReducer,
+  securityPatrol: securityPatrolReducer,
   },
 });
 

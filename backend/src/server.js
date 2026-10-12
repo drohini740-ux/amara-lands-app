@@ -116,6 +116,18 @@ const fieldExecutiveLiveLocationRoutes =
   require("./routes/fieldExecutive/fieldExecutiveLiveLocationRoutes");
   const liveLocationMonitorRoutes =
   require("./routes/liveLocationMonitorRoutes");
+  const fieldExecutiveReportRoutes =
+  require("./routes/fieldExecutive/fieldExecutiveReportRoutes");
+  const fieldExecutiveProfileRoutes =
+  require("./routes/fieldExecutive/fieldExecutiveProfileRoutes");
+  const securityDashboardRoutes = require("./routes/security/securityDashboardRoutes");
+  const securityPropertyRoutes = require("./routes/security/securityPropertyRoutes");
+  const securityVisitRoutes = require(
+  "./routes/security/securityVisitRoutes"
+);
+const securityPatrolRoutes = require(
+  "./routes/security/securityPatrolRoutes"
+);
 const app = express();
 
 app.disable("etag");
@@ -362,6 +374,30 @@ app.use(
 app.use(
   "/api/v1/live-location-monitor",
   liveLocationMonitorRoutes
+);
+app.use(
+  "/api/v1/field/reports",
+  fieldExecutiveReportRoutes
+);
+app.use(
+  "/api/v1/field/profile",
+  fieldExecutiveProfileRoutes
+);
+app.use(
+  "/api/v1/security/dashboard",
+  securityDashboardRoutes
+);
+app.use(
+  "/api/v1/security/properties",
+  securityPropertyRoutes
+);
+app.use(
+  "/api/v1/security/visits",
+  securityVisitRoutes
+);
+app.use(
+  "/api/v1/security/patrols",
+  securityPatrolRoutes
 );
 /* ------------------------- 404 Handler ------------------------- */
 

@@ -42,7 +42,7 @@ import LiveCameraFeed from "../pages/admin/security/LiveCameraFeed";
 import IntrusionNotifications from "../pages/admin/security/IntrusionNotifications";
 import IntrusionNotificationView from "../pages/admin/security/IntrusionNotificationView";
 
-import SecurityDashboard from "../pages/admin/security/SecurityDashboard";
+import AdminSecurityDashboard from "../pages/admin/security/SecurityDashboard";
 import StaffAssignments from "../pages/admin/staff/StaffAssignments";
 import AddStaffAssignment from "../pages/admin/staff/AddStaffAssignment";
 import ViewStaffAssignment from "../pages/admin/staff/ViewStaffAssignment";
@@ -101,6 +101,14 @@ import FieldExecutiveAppointments from "../pages/fieldExecutive/FieldExecutiveAp
 import FieldExecutiveNotifications from "../pages/fieldExecutive/FieldExecutiveNotifications";
 import FieldExecutiveLiveLocation from "../pages/fieldExecutive/FieldExecutiveLiveLocation";
 import SuperAdminLiveLocation from "../pages/superAdmin/SuperAdminLiveLocation";
+import FieldExecutiveReports from "../pages/fieldExecutive/FieldExecutiveReports";
+import FieldExecutiveProfile from "../pages/fieldExecutive/FieldExecutiveProfile";
+import SecurityDashboard from "../pages/security/SecurityDashboard";
+import SecurityLayout from "../components/security/SecurityLayout";
+import SecurityProperties from "../pages/security/SecurityProperties";
+import SecurityPropertyDetails from "../pages/security/SecurityPropertyDetails";
+import SecurityVisits from "../pages/security/SecurityVisits";
+import SecurityVisitDetails from "../pages/security/SecurityVisitDetails";
 
 // =====================================================
 // AUTH
@@ -619,7 +627,7 @@ export default function AppRoutes() {
           path="/admin/security"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <SecurityDashboard />
+              <AdminSecurityDashboard/>
             </ProtectedRoute>
           }
         />
@@ -942,7 +950,22 @@ export default function AppRoutes() {
         <Route path="appointments" element={<FieldExecutiveAppointments />} />
         <Route path="notifications" element={<FieldExecutiveNotifications />} />
         <Route path="live-location" element={<FieldExecutiveLiveLocation />} />
+        <Route path="reports" element={<FieldExecutiveReports />} />
+        <Route path="profile" element={<FieldExecutiveProfile />} />
       </Route>
+      <Route path="/security" element={<SecurityLayout />}>
+  <Route path="dashboard" element={<SecurityDashboard />} />
+  <Route
+  path="properties"
+  element={<SecurityProperties />}
+/>
+<Route
+  path="properties/:id"
+  element={<SecurityPropertyDetails />}
+/>
+<Route path="visits" element={<SecurityVisits />} />
+<Route path="visits/:id" element={<SecurityVisitDetails />} />
+</Route>
     </Routes>
   );
 }
