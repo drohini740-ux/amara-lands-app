@@ -16,6 +16,7 @@ import {
   FaCalendarAlt,
   FaChartBar,
   FaUser,
+  FaHeadset,
 } from "react-icons/fa";
 
 const SecuritySidebar = () => {
@@ -86,6 +87,11 @@ const SecuritySidebar = () => {
       icon: <FaChartBar />,
     },
     {
+      name: "Support Tickets",
+      path: "/security/tickets",
+      icon: <FaHeadset />,
+    },
+    {
       name: "My Profile",
       path: "/security/profile",
       icon: <FaUser />,
@@ -105,10 +111,7 @@ const SecuritySidebar = () => {
         zIndex: 1000,
       }}
     >
-      {/* ================================================= */}
       {/* HEADER */}
-      {/* ================================================= */}
-
       <div
         className="p-4"
         style={{
@@ -136,10 +139,7 @@ const SecuritySidebar = () => {
         </small>
       </div>
 
-      {/* ================================================= */}
       {/* MENU */}
-      {/* ================================================= */}
-
       <div
         className="p-3"
         style={{
@@ -153,24 +153,15 @@ const SecuritySidebar = () => {
             to={item.path}
             className="text-decoration-none d-flex align-items-center"
             style={({ isActive }) => ({
-              color: isActive
-                ? "#111111"
-                : "#FFFFFF",
-
+              color: isActive ? "#111111" : "#FFFFFF",
               backgroundColor: isActive
                 ? "#C9A227"
                 : "transparent",
-
               padding: "11px 13px",
               marginBottom: "5px",
               borderRadius: "6px",
-
-              fontWeight: isActive
-                ? "600"
-                : "400",
-
-              transition:
-                "all 0.2s ease",
+              fontWeight: isActive ? "600" : "400",
+              transition: "all 0.2s ease",
             })}
           >
             <span
@@ -198,4 +189,3 @@ const SecuritySidebar = () => {
 };
 
 export default SecuritySidebar;
-

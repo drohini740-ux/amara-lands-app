@@ -121,6 +121,7 @@ const fieldExecutiveLiveLocationRoutes =
   const fieldExecutiveProfileRoutes =
   require("./routes/fieldExecutive/fieldExecutiveProfileRoutes");
   const securityDashboardRoutes = require("./routes/security/securityDashboardRoutes");
+  const securityAnalyticsRoutes = require("./routes/security/securityAnalyticsRoutes");
   const securityPropertyRoutes = require("./routes/security/securityPropertyRoutes");
   const securityVisitRoutes = require(
   "./routes/security/securityVisitRoutes"
@@ -128,6 +129,15 @@ const fieldExecutiveLiveLocationRoutes =
 const securityPatrolRoutes = require(
   "./routes/security/securityPatrolRoutes"
 );
+const securityPortalReportRoutes = require(
+  "./routes/security/securityReportRoutes"
+);
+const securityIncidentRoutes = require(
+  "./routes/security/securityIncidentRoutes"
+);
+const securityMotionDetectionAlertRoutes = require("./routes/security/motionDetectionAlertRoutes");
+const securitySurveillanceCameraRoutes = require("./routes/security/surveillanceCameraRoutes");
+const securityNotificationRoutes = require("./routes/security/securityNotificationRoutes");
 const app = express();
 
 app.disable("etag");
@@ -388,6 +398,10 @@ app.use(
   securityDashboardRoutes
 );
 app.use(
+  "/api/v1/security/analytics",
+  securityAnalyticsRoutes
+);
+app.use(
   "/api/v1/security/properties",
   securityPropertyRoutes
 );
@@ -399,6 +413,23 @@ app.use(
   "/api/v1/security/patrols",
   securityPatrolRoutes
 );
+app.use(
+  "/api/v1/security/reports",
+  securityPortalReportRoutes
+);
+app.use(
+  "/api/v1/security/incident-alerts",
+  securityIncidentRoutes
+);
+app.use(
+  "/api/v1/security/motion-alerts",
+  securityMotionDetectionAlertRoutes
+);
+app.use(
+  "/api/v1/surveillance-cameras",
+  securitySurveillanceCameraRoutes
+);
+app.use("/api/v1/notifications", securityNotificationRoutes);
 /* ------------------------- 404 Handler ------------------------- */
 
 app.use((req, res) => {

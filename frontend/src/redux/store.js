@@ -63,9 +63,13 @@ import fieldExecutiveVerificationReducer
   from "./fieldExecutiveProfileSlice";
   import securityDashboardReducer
   from "./securityDashboardSlice";
+  import securityAnalyticsReducer from "./securityAnalyticsSlice";
   import securityPropertyReducer from "./securityPropertySlice";
   import securityVisitReducer from "./securityVisitSlice";
   import securityPatrolReducer from "./securityPatrolSlice";
+  import securityPortalReportReducer from "./securityPortalReportSlice";
+  import securityIncidentReducer from "./securityIncidentSlice";
+  import securityMotionAlertReducer from "./securityMotionAlertSlice";
 const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
@@ -145,6 +149,11 @@ const store = configureStore({
   securityProperty: securityPropertyReducer,
   securityVisit: securityVisitReducer,
   securityPatrol: securityPatrolReducer,
+  securityPortalReport: securityPortalReportReducer,
+  securityIncident: securityIncidentReducer,
+  securityIncident: securityIncidentReducer,
+  securityMotionAlerts: securityMotionAlertReducer,
+  securityAnalytics: securityAnalyticsReducer,
   },
 });
 

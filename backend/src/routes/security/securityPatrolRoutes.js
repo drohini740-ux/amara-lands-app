@@ -1,18 +1,18 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
+const authMiddleware = require("../../middleware/authMiddleware");
 
 const {
   getSecurityPatrols,
   getSecurityPatrolById,
-} = require(
-  "../../controllers/security/securityPatrolController"
-);
+  createSecurityPatrol,
+  getAssignedPatrolProperties,
+  updateSecurityPatrol,
+  deleteSecurityPatrol,
+  getSecurityPatrolReports,
+} = require("../../controllers/security/securityPatrolController");
 
 // =====================================================
 // AUTHENTICATION
@@ -21,18 +21,49 @@ const {
 router.use(authMiddleware);
 
 // =====================================================
-// GET ALL PATROL LOGS FOR ASSIGNED PROPERTIES
-// GET /api/v1/security/patrols
+// LIST PATROLS
 // =====================================================
 
 router.get("/", getSecurityPatrols);
 
 // =====================================================
-// GET PATROL DETAILS
-// GET /api/v1/security/patrols/:id
+// ASSIGNED PROPERTIES
+// =====================================================
+
+router.get(
+  "/assigned-properties",
+  getAssignedPatrolProperties
+);
+
+// =====================================================
+// SECURITY PATROL REPORTS
+// IMPORTANT: KEEP BEFORE /:id
+// =====================================================
+
+router.get("/reports", getSecurityPatrolReports);
+
+// =====================================================
+// CREATE PATROL
+// =====================================================
+
+router.post("/", createSecurityPatrol);
+
+// =====================================================
+// VIEW PATROL DETAILS
 // =====================================================
 
 router.get("/:id", getSecurityPatrolById);
 
-module.exports = router;
+// =====================================================
+// EDIT PATROL
+// =====================================================
 
+router.put("/:id", updateSecurityPatrol);
+
+// =====================================================
+// DELETE PATROL
+// =====================================================
+
+router.delete("/:id", deleteSecurityPatrol);
+
+module.exports = router;

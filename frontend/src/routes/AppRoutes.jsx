@@ -109,7 +109,24 @@ import SecurityProperties from "../pages/security/SecurityProperties";
 import SecurityPropertyDetails from "../pages/security/SecurityPropertyDetails";
 import SecurityVisits from "../pages/security/SecurityVisits";
 import SecurityVisitDetails from "../pages/security/SecurityVisitDetails";
+import SecurityPatrols from "../pages/security/SecurityPatrols";
+import SecurityPatrolDetails from "../pages/security/SecurityPatrolDetails";
 
+import SecurityPortalReports from "../pages/security/SecurityReports";
+
+import SecurityIncidentAlerts from "../pages/security/SecurityIncidentAlerts";
+//import SecurityPortalReports from "../pages/security/SecurityReports";
+import SecurityMotionDetectionAlerts from "../pages/security/MotionDetectionAlerts";
+import CustomerSecurityReports from "../pages/security-monitoring/security-reports/SecurityReports";
+import SecuritySurveillanceCameras from "../pages/security/SurveillanceCameras";
+import SecurityLiveMonitoring from "../pages/security/SecurityLiveMonitoring";
+import SecurityNotifications from "../pages/security/SecurityNotifications";
+import SecurityDocuments from "../pages/security/SecurityDocuments";
+import SecurityAppointments from "../pages/security/SecurityAppointments";
+import SecurityAnalytics from "../pages/security/SecurityAnalytics";
+import SecurityTickets from "../pages/security/SecurityTickets";
+
+import SecurityMyProfile from "../pages/security/SecurityMyProfile";
 // =====================================================
 // AUTH
 // =====================================================
@@ -371,7 +388,7 @@ export default function AppRoutes() {
 
         {/* ================= SECURITY REPORTS ================= */}
 
-        <Route path="/security-reports" element={<SecurityReports />} />
+        <Route path="/security-reports" element={<CustomerSecurityReports />} />
 
         <Route path="/security-reports/add" element={<AddSecurityReport />} />
 
@@ -627,7 +644,7 @@ export default function AppRoutes() {
           path="/admin/security"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminSecurityDashboard/>
+              <AdminSecurityDashboard />
             </ProtectedRoute>
           }
         />
@@ -953,19 +970,101 @@ export default function AppRoutes() {
         <Route path="reports" element={<FieldExecutiveReports />} />
         <Route path="profile" element={<FieldExecutiveProfile />} />
       </Route>
-      <Route path="/security" element={<SecurityLayout />}>
-  <Route path="dashboard" element={<SecurityDashboard />} />
+     
+{/* =====================================================
+    SECURITY PORTAL
+===================================================== */}
+
+<Route
+  path="/security"
+  element={
+    <ProtectedRoute allowedRoles={["security"]}>
+      <SecurityLayout />
+    </ProtectedRoute>
+  }
+>
   <Route
-  path="properties"
-  element={<SecurityProperties />}
+    path="dashboard"
+    element={<SecurityDashboard />}
+  />
+
+  <Route
+    path="properties"
+    element={<SecurityProperties />}
+  />
+
+  <Route
+    path="properties/:id"
+    element={<SecurityPropertyDetails />}
+  />
+
+  <Route
+    path="visits"
+    element={<SecurityVisits />}
+  />
+
+  <Route
+    path="visits/:id"
+    element={<SecurityVisitDetails />}
+  />
+
+  <Route
+    path="patrols"
+    element={<SecurityPatrols />}
+  />
+
+  <Route
+    path="patrols/:id"
+    element={<SecurityPatrolDetails />}
+  />
+
+  <Route
+    path="reports"
+    element={<SecurityPortalReports />}
+  />
+  <Route
+  path="incidents"
+  element={<SecurityIncidentAlerts />}
 />
 <Route
-  path="properties/:id"
-  element={<SecurityPropertyDetails />}
+  path="/security/motion-alerts"
+  element={<SecurityMotionDetectionAlerts />}
 />
-<Route path="visits" element={<SecurityVisits />} />
-<Route path="visits/:id" element={<SecurityVisitDetails />} />
+<Route
+  path="/security/cameras"
+  element={<SecuritySurveillanceCameras />}
+/>
+<Route
+  path="/security/live-monitoring"
+  element={<SecurityLiveMonitoring />}
+/>
+<Route
+  path="/security/notifications"
+  element={<SecurityNotifications />}
+/>
+<Route
+  path="/security/documents"
+  element={<SecurityDocuments />}
+/>
+<Route
+  path="appointments"
+  element={<SecurityAppointments />}
+/>
+<Route
+  path="analytics"
+  element={<SecurityAnalytics />}
+/>
+<Route
+  path="tickets"
+  element={<SecurityTickets />}
+/>
+<Route path="tickets" element={<SecurityTickets />} />
+<Route
+  path="/security/profile"
+  element={<SecurityMyProfile />}
+/>
 </Route>
+
     </Routes>
   );
 }
