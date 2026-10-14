@@ -127,6 +127,7 @@ import SecurityAnalytics from "../pages/security/SecurityAnalytics";
 import SecurityTickets from "../pages/security/SecurityTickets";
 
 import SecurityMyProfile from "../pages/security/SecurityMyProfile";
+import SuperAdminProfile from "../pages/superAdmin/SuperAdminProfile";
 // =====================================================
 // AUTH
 // =====================================================
@@ -870,6 +871,7 @@ export default function AppRoutes() {
           element={<SuperAdminRolePermissions />}
         />
         <Route path="properties" element={<SuperAdminProperties />} />
+        <Route path="profile" element={<SuperAdminProfile />} />
         <Route path="legal" element={<SuperAdminLegal />} />
         <Route path="security" element={<SuperAdminSecurity />} />
         <Route path="appointments" element={<SuperAdminAppointments />} />

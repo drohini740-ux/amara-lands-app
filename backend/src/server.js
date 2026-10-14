@@ -65,6 +65,7 @@ const superAdminSettingsRoutes = require("./routes/superAdmin/superAdminSettings
 const superAdminSecuritySessionRoutes =
   require("./routes/superAdmin/superAdminSecuritySessionRoutes");
   const superAdminBackupRoutes = require("./routes/superAdmin/superAdminBackupRoutes");
+  const superAdminProfileRoutes = require("./routes/superAdmin/superAdminProfileRoutes");
   const superAdminIntegrationRoutes = require("./routes/superAdmin/superAdminIntegrationRoutes");
   const legalTeamCaseRoutes = require("./routes/legalTeam/legalTeamCaseRoutes");
   const legalTeamConsultationRoutes = require(
@@ -400,6 +401,10 @@ app.use(
 app.use(
   "/api/v1/security/analytics",
   securityAnalyticsRoutes
+);
+app.use(
+  "/api/v1/super-admin/profile",
+  superAdminProfileRoutes
 );
 app.use(
   "/api/v1/security/properties",
