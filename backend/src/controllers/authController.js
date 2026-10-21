@@ -4,6 +4,7 @@ const generateToken = require("../utils/generateToken");
 
 // ================= REGISTER =================
 
+
 const register = async (req, res) => {
   try {
     let {
@@ -15,29 +16,33 @@ const register = async (req, res) => {
       role,
     } = req.body;
 
-    // Trim values
     full_name = full_name?.trim();
     mobile = mobile?.trim();
     email = email?.trim().toLowerCase();
-    role = role?.trim().toLowerCase();
 
-    // ================= VALIDATION =================
+    // Public registration is for customers only.
+    const requestedRole = role?.trim().toLowerCase();
+
+    if (requestedRole && requestedRole !== "customer") {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Public registration is available for customers only.",
+      });
+    }
 
     if (
       !full_name ||
       !mobile ||
       !email ||
       !password ||
-      !confirm_password ||
-      !role
+      !confirm_password
     ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required.",
       });
     }
-
-    // ================= PASSWORD =================
 
     if (password !== confirm_password) {
       return res.status(400).json({
@@ -46,25 +51,15 @@ const register = async (req, res) => {
       });
     }
 
-    // ================= ALLOWED ROLES =================
-
-    const allowedRoles = [
-      "customer",
-      "field_executive",
-      "legal",
-      "security",
-      "admin",
-      "super_admin",
-    ];
-
-    if (!allowedRoles.includes(role)) {
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Invalid role selected.",
+        message: "Password must be at least 8 characters long.",
       });
     }
 
-    // ================= CHECK EXISTING USER =================
+    // Never trust the public request to assign a privileged role.
+    const safeRole = "customer";
 
     const userExists = await pool.query(
       `SELECT id FROM users WHERE email = $1 OR mobile = $2`,
@@ -78,45 +73,24 @@ const register = async (req, res) => {
       });
     }
 
-    // ================= HASH PASSWORD =================
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // ================= INSERT USER =================
 
     const result = await pool.query(
       `INSERT INTO users
-        (
-          full_name,
-          mobile,
-          email,
-          password,
-          role,
-          status
-        )
-       VALUES
-        ($1, $2, $3, $4, $5, $6)
-       RETURNING
-        id,
-        full_name,
-        mobile,
-        email,
-        role,
-        status`,
+        (full_name, mobile, email, password, role, status)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, full_name, mobile, email, role, status`,
       [
         full_name,
         mobile,
         email,
         hashedPassword,
-        role,
+        safeRole,
         "active",
       ]
     );
 
     const user = result.rows[0];
-
-    // ================= TOKEN =================
-
     const token = generateToken(user);
 
     return res.status(201).json({
@@ -125,17 +99,17 @@ const register = async (req, res) => {
       token,
       user,
     });
-
   } catch (error) {
-    console.error("Registration Error:", error);
+    // Do not send internal database errors to the client.
+    console.error("Customer registration failed.");
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
-      error: error.message,
+      message: "Unable to complete registration. Please try again.",
     });
   }
 };
+
 
 
 // ================= LOGIN =================

@@ -139,6 +139,7 @@ const securityIncidentRoutes = require(
 const securityMotionDetectionAlertRoutes = require("./routes/security/motionDetectionAlertRoutes");
 const securitySurveillanceCameraRoutes = require("./routes/security/surveillanceCameraRoutes");
 const securityNotificationRoutes = require("./routes/security/securityNotificationRoutes");
+const legalTeamDashboardRoutes = require("./routes/legalTeam/legalTeamDashboardRoutes");
 const app = express();
 
 app.disable("etag");
@@ -163,14 +164,11 @@ app.use(morgan("dev"));
 
 /* ---------------------- Static Uploads ------------------------ */
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-console.log("Current directory:", __dirname);
-
+// Serve uploaded files from one location
 const uploadPath = path.join(__dirname, "uploads");
+app.use("/uploads", express.static(uploadPath));
 
 console.log("Upload Path:", uploadPath);
-
-app.use("/uploads", express.static(uploadPath));
 /* --------------------------- Routes --------------------------- */
 
 app.get("/", (req, res) => {
@@ -193,7 +191,6 @@ app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/admin/invoices", invoiceRoutes);
-//app.use("/api/security-reports", securityReportRoutes);
 app.use("/api/v1/field-visits", fieldVisitRoutes);
 app.use("/api/v1/security-reports", securityReportRoutes);
 app.use("/api/v1/geo-tagged-reports", geoTaggedReportRoutes);
@@ -435,6 +432,7 @@ app.use(
   securitySurveillanceCameraRoutes
 );
 app.use("/api/v1/notifications", securityNotificationRoutes);
+app.use("/api/v1/legal-team/dashboard", legalTeamDashboardRoutes);
 /* ------------------------- 404 Handler ------------------------- */
 
 app.use((req, res) => {
@@ -445,13 +443,21 @@ app.use((req, res) => {
 });
 
 /* ---------------------- Global Error Handler ------------------- */
-
 app.use((err, req, res, next) => {
   console.error(err);
 
-  res.status(500).json({
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  const statusCode = err.statusCode || err.status || 500;
+
+  res.status(statusCode).json({
     success: false,
-    message: "Internal Server Error",
+    message:
+      statusCode >= 500
+        ? "Internal Server Error"
+        : err.message || "Request failed",
   });
 });
 

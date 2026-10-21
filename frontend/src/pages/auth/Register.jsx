@@ -1,3 +1,4 @@
+
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -12,35 +13,36 @@ export default function Register() {
     email: "",
     password: "",
     confirm_password: "",
-    role: "customer",
   });
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setForm((previous) => ({
+      ...previous,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    console.log("REGISTER DATA:", form);
+    if (form.password !== form.confirm_password) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    if (form.password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
 
     try {
       const res = await API.post("/auth/register", form);
 
-      toast.success(res.data.message);
-
+      toast.success(res.data.message || "Registration successful.");
       navigate("/login");
     } catch (err) {
-      console.error(
-        "REGISTER ERROR:",
-        err.response?.data || err
-      );
-
       toast.error(
-        err.response?.data?.message || "Registration Failed"
+        err.response?.data?.message || "Registration failed."
       );
     }
   };
@@ -48,25 +50,14 @@ export default function Register() {
   return (
     <div className="container-fluid vh-100">
       <div className="row h-100">
-
-        {/* ============================= */}
-        {/* LEFT SIDE - REGISTER */}
-        {/* ============================= */}
-
         <div className="col-lg-6 d-flex align-items-center justify-content-center">
-
           <div
             className="card p-5 shadow"
-            style={{ width: "500px" }}
+            style={{ width: "500px", maxWidth: "100%" }}
           >
-
-            <h2 className="fw-bold mb-4">
-              Create Account
-            </h2>
+            <h2 className="fw-bold mb-4">Create Account</h2>
 
             <form onSubmit={handleRegister}>
-
-              {/* FULL NAME */}
               <input
                 type="text"
                 className="form-control mb-3"
@@ -74,10 +65,10 @@ export default function Register() {
                 name="full_name"
                 value={form.full_name}
                 onChange={handleChange}
+                autoComplete="name"
                 required
               />
 
-              {/* MOBILE */}
               <input
                 type="tel"
                 className="form-control mb-3"
@@ -85,10 +76,10 @@ export default function Register() {
                 name="mobile"
                 value={form.mobile}
                 onChange={handleChange}
+                autoComplete="tel"
                 required
               />
 
-              {/* EMAIL */}
               <input
                 type="email"
                 className="form-control mb-3"
@@ -96,51 +87,22 @@ export default function Register() {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
+                autoComplete="email"
                 required
               />
 
-              {/* ROLE */}
-              <select
-                className="form-select mb-3"
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                required
-              >
-                <option value="customer">
-                  Customer
-                </option>
-
-                <option value="field_executive">
-                  Field Executive
-                </option>
-
-                <option value="legal">
-                  Legal Team
-                </option>
-
-                <option value="security">
-                  Security Team
-                </option>
-
-                {/* SUPER ADMIN */}
-                <option value="super_admin">
-                  Super Admin
-                </option>
-              </select>
-
-              {/* PASSWORD */}
               <input
                 type="password"
                 className="form-control mb-3"
-                placeholder="Password"
+                placeholder="Password (minimum 8 characters)"
                 name="password"
                 value={form.password}
                 onChange={handleChange}
+                autoComplete="new-password"
+                minLength={8}
                 required
               />
 
-              {/* CONFIRM PASSWORD */}
               <input
                 type="password"
                 className="form-control mb-4"
@@ -148,53 +110,34 @@ export default function Register() {
                 name="confirm_password"
                 value={form.confirm_password}
                 onChange={handleChange}
+                autoComplete="new-password"
+                minLength={8}
                 required
               />
 
-              {/* REGISTER BUTTON */}
               <button
                 type="submit"
                 className="btn btn-success w-100"
               >
                 Register
               </button>
-
             </form>
 
-            {/* LOGIN LINK */}
             <div className="text-center mt-4">
               Already have an account?
-
-              <Link
-                to="/login"
-                className="ms-2"
-              >
+              <Link to="/login" className="ms-2">
                 Login
               </Link>
             </div>
-
           </div>
-
         </div>
-
-        {/* ============================= */}
-        {/* RIGHT SIDE */}
-        {/* ============================= */}
 
         <div className="col-lg-6 bg-success text-white d-none d-lg-flex align-items-center justify-content-center">
-
           <div>
-            <h1 className="display-5">
-              Amara Lands
-            </h1>
-
-            <p>
-              Secure Land Management Solution
-            </p>
+            <h1 className="display-5">Amara Lands</h1>
+            <p>Secure Land Management Solution</p>
           </div>
-
         </div>
-
       </div>
     </div>
   );

@@ -1,51 +1,64 @@
+
 const jwt = require("jsonwebtoken");
 
+// =====================================================
+// AUTHENTICATION MIDDLEWARE
+// Verifies the JWT token for protected API routes.
+// =====================================================
+
 const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-    try {
+  // Check whether the Authorization header exists.
+  if (!authHeader) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required.",
+    });
+  }
 
-        console.log("Authorization Header:", req.headers.authorization);
-        console.log("JWT_SECRET:", process.env.JWT_SECRET);
+  // Require the format: Bearer <token>
+  const parts = authHeader.trim().split(/\s+/);
 
-        const authHeader = req.headers.authorization;
+  if (
+    parts.length !== 2 ||
+    parts[0].toLowerCase() !== "bearer" ||
+    !parts[1]
+  ) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid authentication token.",
+    });
+  }
 
-        if (!authHeader) {
-            return res.status(401).json({
-                success: false,
-                message: "Access Denied. No Token Provided."
-            });
-        }
+  // Ensure the JWT secret is configured.
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({
+      success: false,
+      message: "Authentication service is not configured.",
+    });
+  }
 
-        const token = authHeader.split(" ")[1];
+  try {
+    // Verify the token's signature and expiration.
+    const decoded = jwt.verify(parts[1], process.env.JWT_SECRET);
 
-        console.log("Token:", token);
+    // Make the authenticated user's information available
+    // to controllers and other middleware.
+    req.user = decoded;
 
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid Token"
-            });
-        }
+    return next();
+ } catch (error) {
+  console.error("JWT verification failed:", {
+    name: error.name,
+    message: error.message,
+  });
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        console.log("Decoded Token:", decoded);
-
-        req.user = decoded;
-
-        next();
-
-    } catch (error) {
-
-        console.log("JWT Error:", error.message);
-
-        return res.status(401).json({
-            success: false,
-            message: "Unauthorized"
-        });
-
-    }
-
+  return res.status(401).json({
+    success: false,
+    message: "Invalid or expired authentication token.",
+  });
+}
 };
 
 module.exports = authMiddleware;

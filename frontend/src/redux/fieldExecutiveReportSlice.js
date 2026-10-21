@@ -1,38 +1,61 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // FETCH FIELD EXECUTIVE REPORTS
 // =====================================================
 
-export const fetchFieldExecutiveReports =
-  createAsyncThunk(
-    "fieldExecutiveReport/fetchReports",
-    async (_, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
+export const fetchFieldExecutiveReports = createAsyncThunk(
+  "fieldExecutiveReport/fetchReports",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API.get("/field/reports");
+      const result = response.data;
 
-        const response = await axios.get(
-          `${API_URL}/field/reports`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data;
-      } catch (error) {
+      if (result?.success === false) {
         return rejectWithValue(
-          error.response?.data?.message ||
-            "Failed to fetch Field Executive reports."
+          result.message || "Failed to fetch Field Executive reports."
         );
       }
+
+      return result;
+    } catch (error) {
+      console.error(
+        "Field Executive Reports Error:",
+        error.response?.data || error.message
+      );
+
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch Field Executive reports."
+      );
     }
-  );
+  }
+);
+
+// =====================================================
+// INITIAL STATE
+// =====================================================
+
+const initialState = {
+  overview: {
+    total_assigned_properties: 0,
+    total_visits: 0,
+    completed_visits: 0,
+    pending_visits: 0,
+    total_security_reports: 0,
+  },
+
+  visitStatusBreakdown: [],
+  monthlyVisits: [],
+  securityReportStatus: [],
+  recentVisits: [],
+  assignedProperties: [],
+
+  loading: false,
+  error: null,
+};
 
 // =====================================================
 // SLICE
@@ -40,30 +63,7 @@ export const fetchFieldExecutiveReports =
 
 const fieldExecutiveReportSlice = createSlice({
   name: "fieldExecutiveReport",
-
-  initialState: {
-    overview: {
-      total_assigned_properties: 0,
-      total_visits: 0,
-      completed_visits: 0,
-      pending_visits: 0,
-      total_security_reports: 0,
-    },
-
-    visitStatusBreakdown: [],
-
-    monthlyVisits: [],
-
-    securityReportStatus: [],
-
-    recentVisits: [],
-
-    assignedProperties: [],
-
-    loading: false,
-
-    error: null,
-  },
+  initialState,
 
   reducers: {
     clearFieldExecutiveReportError: (state) => {
@@ -71,85 +71,55 @@ const fieldExecutiveReportSlice = createSlice({
     },
 
     clearFieldExecutiveReports: (state) => {
-      state.overview = {
-        total_assigned_properties: 0,
-        total_visits: 0,
-        completed_visits: 0,
-        pending_visits: 0,
-        total_security_reports: 0,
-      };
-
+      state.overview = { ...initialState.overview };
       state.visitStatusBreakdown = [];
       state.monthlyVisits = [];
       state.securityReportStatus = [];
       state.recentVisits = [];
       state.assignedProperties = [];
+      state.error = null;
     },
   },
 
   extraReducers: (builder) => {
     builder
+      .addCase(fetchFieldExecutiveReports.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
 
-      // =================================================
-      // FETCH REPORTS - PENDING
-      // =================================================
+      .addCase(fetchFieldExecutiveReports.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
 
-      .addCase(
-        fetchFieldExecutiveReports.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
+        const data = action.payload?.data ?? action.payload ?? {};
 
-      // =================================================
-      // FETCH REPORTS - SUCCESS
-      // =================================================
+        state.overview = {
+          ...initialState.overview,
+          ...(data.overview || {}),
+        };
 
-      .addCase(
-        fetchFieldExecutiveReports.fulfilled,
-        (state, action) => {
-          state.loading = false;
+        state.visitStatusBreakdown =
+          data.visit_status_breakdown || [];
 
-          const data =
-            action.payload?.data || {};
+        state.monthlyVisits = data.monthly_visits || [];
+        state.securityReportStatus = data.security_report_status || [];
+        state.recentVisits = data.recent_visits || [];
+        state.assignedProperties = data.assigned_properties || [];
+      })
 
-          state.overview =
-            data.overview || state.overview;
-
-          state.visitStatusBreakdown =
-            data.visit_status_breakdown || [];
-
-          state.monthlyVisits =
-            data.monthly_visits || [];
-
-          state.securityReportStatus =
-            data.security_report_status || [];
-
-          state.recentVisits =
-            data.recent_visits || [];
-
-          state.assignedProperties =
-            data.assigned_properties || [];
-        }
-      )
-
-      // =================================================
-      // FETCH REPORTS - ERROR
-      // =================================================
-
-      .addCase(
-        fetchFieldExecutiveReports.rejected,
-        (state, action) => {
-          state.loading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to fetch Field Executive reports.";
-        }
-      );
+      .addCase(fetchFieldExecutiveReports.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload ||
+          "Failed to fetch Field Executive reports.";
+      });
   },
 });
+
+// =====================================================
+// EXPORTS
+// =====================================================
 
 export const {
   clearFieldExecutiveReportError,
@@ -157,4 +127,3 @@ export const {
 } = fieldExecutiveReportSlice.actions;
 
 export default fieldExecutiveReportSlice.reducer;
-

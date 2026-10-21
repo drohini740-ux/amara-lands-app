@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API from "../../services/api";
 
 import {
   FaUsers,
@@ -14,7 +14,6 @@ import {
   FaKey,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminUsers = () => {
   const navigate = useNavigate();
@@ -34,38 +33,32 @@ const SuperAdminUsers = () => {
   // FETCH USERS
   // =====================================================
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchUsers = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get("/super-admin/users");
 
-      const response = await axios.get(`${API_URL}/super-admin/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    console.log("Super Admin Users Response:", response.data);
 
-      console.log("Super Admin Users Response:", response.data);
-
-      if (response.data?.success) {
-        setUsers(response.data.users || response.data.data || []);
-      } else {
-        setUsers([]);
-        setError(response.data?.message || "Failed to fetch users.");
-      }
-    } catch (err) {
-      console.error(
-        "Super Admin Users Error:",
-        err.response?.data || err.message,
-      );
-
-      setError(err.response?.data?.message || "Unable to load users.");
-    } finally {
-      setLoading(false);
+    if (response.data?.success) {
+      setUsers(response.data.users || response.data.data || []);
+    } else {
+      setUsers([]);
+      setError(response.data?.message || "Failed to fetch users.");
     }
-  };
+  } catch (err) {
+    console.error(
+      "Super Admin Users Error:",
+      err.response?.data || err.message
+    );
+
+    setError(err.response?.data?.message || "Unable to load users.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // LOAD USERS
@@ -151,19 +144,9 @@ const SuperAdminUsers = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
-        `${API_URL}/super-admin/users/${user.id}/status`,
-        {
-          status: newStatus,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
+      const response = await API.put(
+        `/super-admin/users/${user.id}/status`,
+        { status: newStatus }
       );
 
       console.log("Toggle User Status Response:", response.data);
@@ -198,15 +181,8 @@ const SuperAdminUsers = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.delete(
-        `${API_URL}/super-admin/users/${user.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+      const response = await API.delete(
+        `/super-admin/users/${user.id}`
       );
 
       console.log("Delete User Response:", response.data);
@@ -245,19 +221,9 @@ const SuperAdminUsers = () => {
     try {
       setResetLoading(true);
 
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
-        `${API_URL}/super-admin/users/${resetUser.id}/reset-password`,
-        {
-          password: newPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
+      const response = await API.put(
+        `/super-admin/users/${resetUser.id}/reset-password`,
+        { password: newPassword }
       );
 
       console.log("Reset Password Response:", response.data);

@@ -1,46 +1,40 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // FETCH FIELD EXECUTIVE DASHBOARD
 // =====================================================
 
-export const fetchFieldExecutiveDashboard =
-  createAsyncThunk(
-    "fieldExecutiveDashboard/fetchDashboard",
-    async (_, { rejectWithValue }) => {
-      try {
-        const token =
-          localStorage.getItem("token");
+export const fetchFieldExecutiveDashboard = createAsyncThunk(
+  "fieldExecutiveDashboard/fetchDashboard",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API.get("/field/dashboard");
+      const result = response.data;
 
-        const response = await axios.get(
-          `${API_URL}/field/dashboard`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.data?.success) {
-          return rejectWithValue(
-            response.data?.message ||
-              "Failed to fetch dashboard data."
-          );
-        }
-
-        return response.data.data;
-      } catch (error) {
+      if (result?.success === false) {
         return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to load Field Executive dashboard."
+          result.message || "Failed to fetch dashboard data."
         );
       }
+
+      // Support both { success: true, data: {...} }
+      // and a direct dashboard response.
+      return result?.data ?? result;
+    } catch (error) {
+      console.error(
+        "Field Executive Dashboard Error:",
+        error.response?.data || error.message
+      );
+
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to load Field Executive dashboard."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // INITIAL STATE
@@ -56,13 +50,10 @@ const initialState = {
   },
 
   upcoming_visits: [],
-
   recent_visits: [],
-
   assigned_properties: [],
 
   loading: false,
-
   error: null,
 };
 
@@ -70,81 +61,72 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const fieldExecutiveDashboardSlice =
-  createSlice({
-    name: "fieldExecutiveDashboard",
+const fieldExecutiveDashboardSlice = createSlice({
+  name: "fieldExecutiveDashboard",
+  initialState,
 
-    initialState,
+  reducers: {
+    clearDashboardError: (state) => {
+      state.error = null;
+    },
 
-    reducers: {
-      clearDashboardError: (state) => {
+    resetFieldExecutiveDashboard: () => initialState,
+  },
+
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchFieldExecutiveDashboard.pending, (state) => {
+        state.loading = true;
         state.error = null;
-      },
-    },
+      })
 
-    extraReducers: (builder) => {
-      builder
+      .addCase(
+        fetchFieldExecutiveDashboard.fulfilled,
+        (state, action) => {
+          state.loading = false;
+          state.error = null;
 
-        // ============================================
-        // PENDING
-        // ============================================
+          const data = action.payload || {};
 
-        .addCase(
-          fetchFieldExecutiveDashboard.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+          state.overview = {
+            ...initialState.overview,
+            ...(data.overview || {}),
+          };
 
-        // ============================================
-        // SUCCESS
-        // ============================================
+          state.upcoming_visits = Array.isArray(data.upcoming_visits)
+            ? data.upcoming_visits
+            : [];
 
-        .addCase(
-          fetchFieldExecutiveDashboard.fulfilled,
-          (state, action) => {
-            state.loading = false;
+          state.recent_visits = Array.isArray(data.recent_visits)
+            ? data.recent_visits
+            : [];
 
-            state.overview =
-              action.payload?.overview ||
-              state.overview;
+          state.assigned_properties = Array.isArray(
+            data.assigned_properties
+          )
+            ? data.assigned_properties
+            : [];
+        }
+      )
 
-            state.upcoming_visits =
-              action.payload?.upcoming_visits ||
-              [];
+      .addCase(
+        fetchFieldExecutiveDashboard.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error =
+            action.payload || "Unable to load dashboard.";
+        }
+      );
+  },
+});
 
-            state.recent_visits =
-              action.payload?.recent_visits ||
-              [];
-
-            state.assigned_properties =
-              action.payload?.assigned_properties ||
-              [];
-          }
-        )
-
-        // ============================================
-        // ERROR
-        // ============================================
-
-        .addCase(
-          fetchFieldExecutiveDashboard.rejected,
-          (state, action) => {
-            state.loading = false;
-
-            state.error =
-              action.payload ||
-              "Unable to load dashboard.";
-          }
-        );
-    },
-  });
+// =====================================================
+// EXPORTS
+// =====================================================
 
 export const {
   clearDashboardError,
-} =
-  fieldExecutiveDashboardSlice.actions;
+  resetFieldExecutiveDashboard,
+} = fieldExecutiveDashboardSlice.actions;
 
 export default fieldExecutiveDashboardSlice.reducer;
-

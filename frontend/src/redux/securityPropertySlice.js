@@ -1,8 +1,6 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // FETCH ASSIGNED PROPERTIES
@@ -12,19 +10,14 @@ export const fetchSecurityProperties = createAsyncThunk(
   "securityProperty/fetchSecurityProperties",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/security/properties`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get("/security/properties");
       return response.data;
     } catch (error) {
+      console.error(
+        "Security Properties Error:",
+        error.response?.data || error.message
+      );
+
       return rejectWithValue(
         error.response?.data?.message ||
           "Unable to fetch assigned properties."
@@ -72,7 +65,14 @@ const securityPropertySlice = createSlice({
 
       .addCase(fetchSecurityProperties.fulfilled, (state, action) => {
         state.loading = false;
-        state.properties = action.payload?.properties || [];
+        state.error = null;
+
+        const payload = action.payload || {};
+        const data = payload.data ?? payload;
+
+        state.properties = Array.isArray(data.properties)
+          ? data.properties
+          : [];
       })
 
       .addCase(fetchSecurityProperties.rejected, (state, action) => {
@@ -89,4 +89,3 @@ export const {
 } = securityPropertySlice.actions;
 
 export default securityPropertySlice.reducer;
-

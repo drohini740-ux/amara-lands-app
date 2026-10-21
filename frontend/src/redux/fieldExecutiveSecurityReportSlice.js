@@ -1,161 +1,109 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // FETCH MY SECURITY REPORTS
 // =====================================================
 
-export const fetchFieldExecutiveSecurityReports =
-  createAsyncThunk(
-    "fieldExecutiveSecurityReport/fetchReports",
-    async (_, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await axios.get(
-          `${API_URL}/field/security-reports`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data.reports || [];
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to fetch security reports."
-        );
-      }
+export const fetchFieldExecutiveSecurityReports = createAsyncThunk(
+  "fieldExecutiveSecurityReport/fetchReports",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API.get("/field/security-reports");
+      return response.data.reports || [];
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to fetch security reports."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // CREATE SECURITY REPORT
 // =====================================================
 
-export const createFieldExecutiveSecurityReport =
-  createAsyncThunk(
-    "fieldExecutiveSecurityReport/createReport",
-    async (
-      {
+export const createFieldExecutiveSecurityReport = createAsyncThunk(
+  "fieldExecutiveSecurityReport/createReport",
+  async (
+    { property_id, report_type, description, latitude, longitude },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await API.post("/field/security-reports", {
         property_id,
         report_type,
         description,
         latitude,
         longitude,
-      },
-      { rejectWithValue }
-    ) => {
-      try {
-        const token = localStorage.getItem("token");
+      });
 
-        const response = await axios.post(
-          `${API_URL}/field/security-reports`,
-          {
-            property_id,
-            report_type,
-            description,
-            latitude,
-            longitude,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data.report;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to create security report."
-        );
-      }
+      return response.data.report;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to create security report."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // FETCH SECURITY REPORT BY ID
 // =====================================================
 
-export const fetchFieldExecutiveSecurityReportById =
-  createAsyncThunk(
-    "fieldExecutiveSecurityReport/fetchReportById",
-    async (id, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await axios.get(
-          `${API_URL}/field/security-reports/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data.report;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to fetch security report."
-        );
-      }
+export const fetchFieldExecutiveSecurityReportById = createAsyncThunk(
+  "fieldExecutiveSecurityReport/fetchReportById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`/field/security-reports/${id}`);
+      return response.data.report;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to fetch security report."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // UPDATE SECURITY REPORT
 // =====================================================
 
-export const updateFieldExecutiveSecurityReport =
-  createAsyncThunk(
-    "fieldExecutiveSecurityReport/updateReport",
-    async (
-      {
-        id,
+export const updateFieldExecutiveSecurityReport = createAsyncThunk(
+  "fieldExecutiveSecurityReport/updateReport",
+  async (
+    {
+      id,
+      report_type,
+      description,
+      latitude,
+      longitude,
+      report_status,
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await API.put(`/field/security-reports/${id}`, {
         report_type,
         description,
         latitude,
         longitude,
         report_status,
-      },
-      { rejectWithValue }
-    ) => {
-      try {
-        const token = localStorage.getItem("token");
+      });
 
-        const response = await axios.put(
-          `${API_URL}/field/security-reports/${id}`,
-          {
-            report_type,
-            description,
-            latitude,
-            longitude,
-            report_status,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data.report;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to update security report."
-        );
-      }
+      return response.data.report;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to update security report."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // INITIAL STATE
@@ -164,15 +112,12 @@ export const updateFieldExecutiveSecurityReport =
 const initialState = {
   reports: [],
   selectedReport: null,
-
   loading: false,
   detailsLoading: false,
   actionLoading: false,
-
   error: null,
   detailsError: null,
   actionError: null,
-
   successMessage: null,
 };
 
@@ -180,223 +125,132 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const fieldExecutiveSecurityReportSlice =
-  createSlice({
-    name: "fieldExecutiveSecurityReport",
+const fieldExecutiveSecurityReportSlice = createSlice({
+  name: "fieldExecutiveSecurityReport",
+  initialState,
 
-    initialState,
-
-    reducers: {
-      // =================================================
-      // CLEAR SELECTED REPORT
-      // =================================================
-
-      clearSelectedSecurityReport: (state) => {
-        state.selectedReport = null;
-        state.detailsError = null;
-      },
-
-      // =================================================
-      // CLEAR ERROR
-      // =================================================
-
-      clearSecurityReportError: (state) => {
-        state.error = null;
-        state.detailsError = null;
-        state.actionError = null;
-      },
-
-      // =================================================
-      // CLEAR SUCCESS
-      // =================================================
-
-      clearSecurityReportSuccess: (state) => {
-        state.successMessage = null;
-      },
+  reducers: {
+    clearSelectedSecurityReport: (state) => {
+      state.selectedReport = null;
+      state.detailsError = null;
     },
 
-    extraReducers: (builder) => {
-      // =================================================
+    clearSecurityReportError: (state) => {
+      state.error = null;
+      state.detailsError = null;
+      state.actionError = null;
+    },
+
+    clearSecurityReportSuccess: (state) => {
+      state.successMessage = null;
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
       // FETCH REPORTS
-      // =================================================
+      .addCase(fetchFieldExecutiveSecurityReports.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFieldExecutiveSecurityReports.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reports = Array.isArray(action.payload)
+          ? action.payload
+          : [];
+      })
+      .addCase(fetchFieldExecutiveSecurityReports.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Unable to fetch security reports.";
+      })
 
-      builder
-        .addCase(
-          fetchFieldExecutiveSecurityReports.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          fetchFieldExecutiveSecurityReports.fulfilled,
-          (state, action) => {
-            state.loading = false;
-            state.reports = action.payload;
-          }
-        )
-
-        .addCase(
-          fetchFieldExecutiveSecurityReports.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload ||
-              "Unable to fetch security reports.";
-          }
-        );
-
-      // =================================================
       // CREATE REPORT
-      // =================================================
+      .addCase(createFieldExecutiveSecurityReport.pending, (state) => {
+        state.actionLoading = true;
+        state.actionError = null;
+        state.successMessage = null;
+      })
+      .addCase(createFieldExecutiveSecurityReport.fulfilled, (state, action) => {
+        state.actionLoading = false;
 
-      builder
-        .addCase(
-          createFieldExecutiveSecurityReport.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.actionError = null;
-            state.successMessage = null;
-          }
-        )
+        if (action.payload) {
+          state.reports.unshift(action.payload);
+        }
 
-        .addCase(
-          createFieldExecutiveSecurityReport.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
+        state.successMessage = "Security report created successfully.";
+      })
+      .addCase(createFieldExecutiveSecurityReport.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.actionError =
+          action.payload || "Unable to create security report.";
+      })
 
-            // Add newly created report
-            // to the beginning of the list.
-            state.reports.unshift(
-              action.payload
-            );
-
-            state.successMessage =
-              "Security report created successfully.";
-          }
-        )
-
-        .addCase(
-          createFieldExecutiveSecurityReport.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-
-            state.actionError =
-              action.payload ||
-              "Unable to create security report.";
-          }
-        );
-
-      // =================================================
       // FETCH REPORT BY ID
-      // =================================================
+      .addCase(fetchFieldExecutiveSecurityReportById.pending, (state) => {
+        state.detailsLoading = true;
+        state.detailsError = null;
+        state.selectedReport = null;
+      })
+      .addCase(
+        fetchFieldExecutiveSecurityReportById.fulfilled,
+        (state, action) => {
+          state.detailsLoading = false;
+          state.selectedReport = action.payload;
+        }
+      )
+      .addCase(
+        fetchFieldExecutiveSecurityReportById.rejected,
+        (state, action) => {
+          state.detailsLoading = false;
+          state.detailsError =
+            action.payload || "Unable to fetch security report.";
+        }
+      )
 
-      builder
-        .addCase(
-          fetchFieldExecutiveSecurityReportById.pending,
-          (state) => {
-            state.detailsLoading = true;
-            state.detailsError = null;
-            state.selectedReport = null;
-          }
-        )
-
-        .addCase(
-          fetchFieldExecutiveSecurityReportById.fulfilled,
-          (state, action) => {
-            state.detailsLoading = false;
-            state.selectedReport =
-              action.payload;
-          }
-        )
-
-        .addCase(
-          fetchFieldExecutiveSecurityReportById.rejected,
-          (state, action) => {
-            state.detailsLoading = false;
-
-            state.detailsError =
-              action.payload ||
-              "Unable to fetch security report.";
-          }
-        );
-
-      // =================================================
       // UPDATE REPORT
-      // =================================================
+      .addCase(updateFieldExecutiveSecurityReport.pending, (state) => {
+        state.actionLoading = true;
+        state.actionError = null;
+        state.successMessage = null;
+      })
+      .addCase(updateFieldExecutiveSecurityReport.fulfilled, (state, action) => {
+        state.actionLoading = false;
 
-      builder
-        .addCase(
-          updateFieldExecutiveSecurityReport.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.actionError = null;
-            state.successMessage = null;
+        const updatedReport = action.payload;
+
+        if (updatedReport) {
+          const index = state.reports.findIndex(
+            (report) => report.id === updatedReport.id
+          );
+
+          if (index !== -1) {
+            state.reports[index] = updatedReport;
           }
-        )
 
-        .addCase(
-          updateFieldExecutiveSecurityReport.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-
-            const updatedReport =
-              action.payload;
-
-            const index =
-              state.reports.findIndex(
-                (report) =>
-                  report.id ===
-                  updatedReport.id
-              );
-
-            if (index !== -1) {
-              state.reports[index] =
-                updatedReport;
-            }
-
-            if (
-              state.selectedReport?.id ===
-              updatedReport.id
-            ) {
-              state.selectedReport =
-                updatedReport;
-            }
-
-            state.successMessage =
-              "Security report updated successfully.";
+          if (state.selectedReport?.id === updatedReport.id) {
+            state.selectedReport = updatedReport;
           }
-        )
 
-        .addCase(
-          updateFieldExecutiveSecurityReport.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-
-            state.actionError =
-              action.payload ||
-              "Unable to update security report.";
-          }
-        );
-    },
-  });
+          state.successMessage = "Security report updated successfully.";
+        }
+      })
+      .addCase(updateFieldExecutiveSecurityReport.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.actionError =
+          action.payload || "Unable to update security report.";
+      });
+  },
+});
 
 // =====================================================
-// EXPORT REDUCER ACTIONS
+// EXPORTS
 // =====================================================
 
 export const {
   clearSelectedSecurityReport,
   clearSecurityReportError,
   clearSecurityReportSuccess,
-} =
-  fieldExecutiveSecurityReportSlice.actions;
+} = fieldExecutiveSecurityReportSlice.actions;
 
-// =====================================================
-// EXPORT REDUCER
-// =====================================================
-
-export default
-  fieldExecutiveSecurityReportSlice.reducer;
-
+export default fieldExecutiveSecurityReportSlice.reducer;

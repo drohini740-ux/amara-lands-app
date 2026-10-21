@@ -1,14 +1,6 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
-
-const getAuthConfig = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
+import API from "../services/api";
 
 // =====================================================
 // FETCH SECURITY PORTAL REPORTS
@@ -18,10 +10,7 @@ export const fetchSecurityPortalReports = createAsyncThunk(
   "securityPortalReport/fetchReports",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/security/reports`,
-        getAuthConfig()
-      );
+      const response = await API.get("/security/reports");
 
       const reports =
         response.data?.reports ??
@@ -46,10 +35,7 @@ export const fetchSecurityPortalReportById = createAsyncThunk(
   "securityPortalReport/fetchReportById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/security/reports/${id}`,
-        getAuthConfig()
-      );
+      const response = await API.get(`/security/reports/${id}`);
 
       return (
         response.data?.report ??
@@ -101,6 +87,7 @@ const securityPortalReportSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+      // FETCH REPORTS
       .addCase(fetchSecurityPortalReports.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -115,6 +102,7 @@ const securityPortalReportSlice = createSlice({
           action.payload || "Unable to fetch reports.";
       })
 
+      // FETCH REPORT DETAILS
       .addCase(fetchSecurityPortalReportById.pending, (state) => {
         state.detailsLoading = true;
         state.detailsError = null;

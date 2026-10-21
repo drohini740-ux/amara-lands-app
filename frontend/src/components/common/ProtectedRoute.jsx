@@ -1,14 +1,16 @@
+
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const location = useLocation();
 
-  const token = localStorage.getItem("token");
-  const userData = localStorage.getItem("user");
+  // Read the current tab's session
+  const token = sessionStorage.getItem("token");
+  const userData = sessionStorage.getItem("user");
 
-  // User is not logged in
-  if (!token) {
+  // Redirect users who are not logged in
+  if (!token || !userData) {
     return (
       <Navigate
         to="/login"
@@ -21,36 +23,24 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   let user = null;
 
   try {
-    user = userData ? JSON.parse(userData) : null;
+    user = JSON.parse(userData);
   } catch (error) {
-    console.error(
-      "Invalid user data in localStorage:",
-      error
-    );
+    console.error("Invalid user data in sessionStorage:", error);
 
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
 
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   const userRole = user?.role;
 
-  // Check role permission
+  // Check whether the user's role can access this portal
   if (
-    allowedRoles.length > 0 &&
-    !allowedRoles.includes(userRole)
+    !userRole ||
+    (allowedRoles.length > 0 && !allowedRoles.includes(userRole))
   ) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   return children;

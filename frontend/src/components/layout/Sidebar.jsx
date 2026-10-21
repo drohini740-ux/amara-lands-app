@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaBuilding,
@@ -9,79 +10,136 @@ import {
   FaUser,
   FaSignOutAlt,
   FaShieldAlt,
+  FaTimes,
 } from "react-icons/fa";
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }) {
+  const navigate = useNavigate();
+
+  const menuItems = [
+    { to: "/dashboard", label: "Dashboard", icon: FaHome },
+    { to: "/properties", label: "Properties", icon: FaBuilding },
+    { to: "/legal", label: "Legal", icon: FaBalanceScale },
+    { to: "/appointments", label: "Appointments", icon: FaCalendarAlt },
+    { to: "/payments", label: "Payments", icon: FaCreditCard },
+    {
+      to: "/security-reports",
+      label: "Security Monitoring",
+      icon: FaShieldAlt,
+    },
+    { to: "/support", label: "Support", icon: FaHeadset },
+    { to: "/profile", label: "Profile", icon: FaUser },
+  ];
+
+  const handleLogout = () => {
+    const confirmed = window.confirm("Are you sure you want to log out?");
+    if (!confirmed) return;
+
+    // Clear the usual authentication keys.
+    // Adjust these names if your existing login flow uses different keys.
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    navigate("/login", { replace: true });
+  };
+
   return (
-    <div
-      className="sidebar text-white p-3"
-      style={{ width: "260px", minHeight: "100vh" }}
+    <aside
+      className="d-flex flex-column text-white"
+      style={{
+        width: "260px",
+        minHeight: "100vh",
+        background: "#0B0B0B",
+        borderRight: "3px solid #D4AF37",
+        padding: "22px 16px",
+        flexShrink: 0,
+      }}
     >
-      <h2 className="text-center mb-4 fw-bold text-warning">Amara Lands</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4 px-2">
+        <div>
+          <h3
+            className="fw-bold mb-1"
+            style={{ color: "#D4AF37", letterSpacing: "1px" }}
+          >
+            AMARA LANDS
+          </h3>
+          <small style={{ color: "#BDBDBD" }}>Customer Portal</small>
+        </div>
 
-      <ul className="nav flex-column">
-        <li className="nav-item mb-2">
-          <NavLink to="/dashboard" className="nav-link">
-            <FaHome className="me-2" />
-            Dashboard
-          </NavLink>
-        </li>
+        {onClose && (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-light"
+            onClick={onClose}
+            aria-label="Close sidebar"
+          >
+            <FaTimes />
+          </button>
+        )}
+      </div>
 
-        <li className="nav-item mb-2">
-          <NavLink to="/properties" className="nav-link">
-            <FaBuilding className="me-2" />
-            Properties
-          </NavLink>
-        </li>
+      <div
+        className="small text-uppercase fw-semibold px-3 mb-3"
+        style={{ color: "#A8A8A8", letterSpacing: "1.5px" }}
+      >
+        Main Menu
+      </div>
 
-        <li className="nav-item mb-2">
-          <NavLink to="/legal" className="nav-link">
-            <FaBalanceScale className="me-2" />
-            Legal
-          </NavLink>
-        </li>
-
-        <li className="nav-item mb-2">
-          <NavLink to="/appointments" className="nav-link">
-            <FaCalendarAlt className="me-2" />
-            Appointments
-          </NavLink>
-        </li>
-
-        <li className="nav-item mb-2">
-          <NavLink to="/payments" className="nav-link">
-            <FaCreditCard className="me-2" />
-            Payments
-          </NavLink>
-        </li>
-       <li className="nav-item mb-2">
-  
-</li>
-<li className="nav-item mb-2">
-  <NavLink to="/security-reports" className="nav-link">
-    <FaShieldAlt className="me-2" />
-    Security Monitoring 
-  </NavLink>
-</li>
-        <li className="nav-item mb-2">
-          <NavLink to="/support" className="nav-link">
-            <FaHeadset className="me-2" />
-            Support
-          </NavLink>
-        </li>
-
-        <li className="nav-item mb-2">
-          <NavLink to="/profile" className="nav-link">
-            <FaUser className="me-2" />
-            Profile
-          </NavLink>
-        </li>
+      <ul className="nav flex-column gap-2">
+        {menuItems.map(({ to, label, icon: Icon }) => (
+          <li className="nav-item" key={to}>
+            <NavLink
+              to={to}
+              end={to === "/dashboard"}
+              onClick={onClose}
+              className="nav-link d-flex align-items-center"
+              style={({ isActive }) => ({
+                color: isActive ? "#111111" : "#E7E7E7",
+                background: isActive ? "#D4AF37" : "transparent",
+                borderRadius: "9px",
+                padding: "12px 14px",
+                fontWeight: isActive ? 700 : 500,
+                transition: "all 0.2s ease",
+                textDecoration: "none",
+              })}
+            >
+              <Icon className="me-3" size={17} />
+              <span>{label}</span>
+            </NavLink>
+          </li>
+        ))}
       </ul>
 
-      <button className="btn btn-primary w-100 mt-5">
-        <FaSignOutAlt className="me-2" />
-        Logout
-      </button>
-    </div>
+      <div className="mt-auto pt-4">
+        <div
+          className="mb-3"
+          style={{ borderTop: "1px solid #333333" }}
+        />
+
+        <button
+          type="button"
+          className="btn w-100 fw-semibold"
+          onClick={handleLogout}
+          style={{
+            background: "#D4AF37",
+            color: "#111111",
+            border: "1px solid #D4AF37",
+            borderRadius: "9px",
+            padding: "11px",
+          }}
+        >
+          <FaSignOutAlt className="me-2" />
+          Logout
+        </button>
+
+        <p className="text-center small mt-3 mb-0" style={{ color: "#888888" }}>
+          © 2026 Amara Lands
+        </p>
+      </div>
+    </aside>
   );
 }

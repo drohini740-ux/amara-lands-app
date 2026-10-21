@@ -1,3 +1,4 @@
+
 import { NavLink } from "react-router-dom";
 import {
   FaTachometerAlt,
@@ -5,7 +6,6 @@ import {
   FaBuilding,
   FaMoneyCheckAlt,
   FaChartBar,
-  FaClipboardList,
   FaBalanceScale,
   FaShieldAlt,
   FaUserTie,
@@ -13,169 +13,104 @@ import {
   FaSignOutAlt,
   FaUndo,
   FaFileInvoice,
+  FaUserCircle,
 } from "react-icons/fa";
 
 export default function AdminSidebar() {
+  const linkClass = ({ isActive }) =>
+    `nav-link ${isActive ? "active bg-warning text-dark fw-bold" : "text-white"}`;
+
   return (
     <div
       className="bg-dark text-white"
-      style={{
-        width: "260px",
-        minHeight: "100vh",
-      }}
+      style={{ width: "260px", minHeight: "100vh" }}
     >
-      {/* =========================
-          HEADER
-      ========================= */}
       <div className="p-4 border-bottom">
-        <h4 className="fw-bold text-center">
-          Amara Lands
-        </h4>
-
-        <small className="text-secondary">
-          Admin Panel
-        </small>
+        <h4 className="fw-bold text-center">Amara Lands</h4>
+        <small className="text-secondary">Admin Panel</small>
       </div>
 
-      {/* =========================
-          MENU
-      ========================= */}
       <ul className="nav flex-column p-2">
-
-        {/* Dashboard */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/dashboard"
-            className="nav-link text-white"
-          >
-            <FaTachometerAlt className="me-2" />
-            Dashboard
+          <NavLink to="/admin/dashboard" className={linkClass}>
+            <FaTachometerAlt className="me-2" /> Dashboard
           </NavLink>
         </li>
 
-        {/* User Management */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/users"
-            className="nav-link text-white"
-          >
-            <FaUsers className="me-2" />
-            User Management
+          <NavLink to="/admin/users" className={linkClass}>
+            <FaUsers className="me-2" /> User Management
           </NavLink>
         </li>
 
-        {/* Property Verification */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/properties"
-            className="nav-link text-white"
-          >
-            <FaBuilding className="me-2" />
-            Property Verification
+          <NavLink to="/admin/properties" className={linkClass}>
+            <FaBuilding className="me-2" /> Property Verification
           </NavLink>
         </li>
 
-        {/* Payment Management */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/payments"
-            className="nav-link text-white"
-          >
-            <FaMoneyCheckAlt className="me-2" />
-            Payment Management
+          <NavLink to="/admin/payments" className={linkClass}>
+            <FaMoneyCheckAlt className="me-2" /> Payment Management
           </NavLink>
         </li>
 
-        {/* Invoice Management */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/invoices"
-            className="nav-link text-white"
-          >
-            <FaFileInvoice className="me-2" />
-            Invoice Management
+          <NavLink to="/admin/invoices" className={linkClass}>
+            <FaFileInvoice className="me-2" /> Invoice Management
           </NavLink>
         </li>
 
-        {/* Refund Management */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/refunds"
-            className="nav-link text-white"
-          >
-            <FaUndo className="me-2" />
-            Refund Management
+          <NavLink to="/admin/refunds" className={linkClass}>
+            <FaUndo className="me-2" /> Refund Management
           </NavLink>
         </li>
 
-        {/* Analytics */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/analytics"
-            className="nav-link text-white"
-          >
-            <FaChartBar className="me-2" />
-            Analytics
+          <NavLink to="/admin/analytics" className={linkClass}>
+            <FaChartBar className="me-2" /> Analytics
           </NavLink>
         </li>
 
-        {/* Legal Management */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/legal"
-            className="nav-link text-white"
-          >
-            <FaBalanceScale className="me-2" />
-            Legal Management
+          <NavLink to="/admin/legal" className={linkClass}>
+            <FaBalanceScale className="me-2" /> Legal Management
           </NavLink>
         </li>
 
-        {/* Security Monitoring */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/security"
-            className="nav-link text-white"
-          >
-            <FaShieldAlt className="me-2" />
-            Security Monitoring
+          <NavLink to="/admin/security" className={linkClass}>
+            <FaShieldAlt className="me-2" /> Security Monitoring
           </NavLink>
         </li>
 
-        {/* Staff Assignment */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/staff"
-            className="nav-link text-white"
-          >
-            <FaUserTie className="me-2" />
-            Staff Assignment
+          <NavLink to="/admin/staff" className={linkClass}>
+            <FaUserTie className="me-2" /> Staff Assignment
           </NavLink>
         </li>
 
-        {/* Settings */}
         <li className="nav-item">
-          <NavLink
-            to="/admin/settings"
-            className="nav-link text-white"
-          >
-            <FaCog className="me-2" />
-            Settings
+          <NavLink to="/admin/settings" className={linkClass}>
+            <FaCog className="me-2" /> Settings
+          </NavLink>
+        </li>
+
+        {/* Admin Profile */}
+        <li className="nav-item">
+          <NavLink to="/admin/profile" className={linkClass}>
+            <FaUserCircle className="me-2" /> My Profile
           </NavLink>
         </li>
 
         <hr className="text-secondary" />
 
-        {/* Logout */}
         <li className="nav-item">
-          <NavLink
-            to="/login"
-            className="nav-link text-danger"
-          >
-            <FaSignOutAlt className="me-2" />
-            Logout
+          <NavLink to="/login" className="nav-link text-danger">
+            <FaSignOutAlt className="me-2" /> Logout
           </NavLink>
         </li>
-
       </ul>
     </div>
   );

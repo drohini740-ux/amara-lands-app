@@ -1,22 +1,6 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
-
-// =====================================================
-// GET TOKEN
-// =====================================================
-
-const getAuthConfig = () => {
-  const token = localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
+import API from "../services/api";
 
 // =====================================================
 // RECORD GEO ATTENDANCE
@@ -26,14 +10,24 @@ export const recordGeoAttendance = createAsyncThunk(
   "fieldExecutiveGeoAttendance/recordGeoAttendance",
   async (attendanceData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${API_URL}/field/geo-attendance`,
-        attendanceData,
-        getAuthConfig()
+      const response = await API.post(
+        "/field/geo-attendance",
+        attendanceData
       );
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Unable to record geo attendance."
+        );
+      }
 
       return response.data;
     } catch (error) {
+      console.error(
+        "Record Geo Attendance Error:",
+        error.response?.data || error.message
+      );
+
       return rejectWithValue(
         error.response?.data?.message ||
           "Unable to record geo attendance."
@@ -50,13 +44,21 @@ export const fetchMyGeoAttendance = createAsyncThunk(
   "fieldExecutiveGeoAttendance/fetchMyGeoAttendance",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/field/geo-attendance`,
-        getAuthConfig()
-      );
+      const response = await API.get("/field/geo-attendance");
+
+      if (response.data?.success === false) {
+        return rejectWithValue(
+          response.data.message || "Unable to fetch geo attendance."
+        );
+      }
 
       return response.data;
     } catch (error) {
+      console.error(
+        "Fetch Geo Attendance Error:",
+        error.response?.data || error.message
+      );
+
       return rejectWithValue(
         error.response?.data?.message ||
           "Unable to fetch geo attendance."
@@ -69,25 +71,39 @@ export const fetchMyGeoAttendance = createAsyncThunk(
 // GET GEO ATTENDANCE BY VISIT
 // =====================================================
 
-export const fetchGeoAttendanceByVisit =
-  createAsyncThunk(
-    "fieldExecutiveGeoAttendance/fetchGeoAttendanceByVisit",
-    async (visitId, { rejectWithValue }) => {
-      try {
-        const response = await axios.get(
-          `${API_URL}/field/geo-attendance/visit/${visitId}`,
-          getAuthConfig()
-        );
+export const fetchGeoAttendanceByVisit = createAsyncThunk(
+  "fieldExecutiveGeoAttendance/fetchGeoAttendanceByVisit",
+  async (visitId, { rejectWithValue }) => {
+    try {
+      if (!visitId) {
+        return rejectWithValue("Visit ID is required.");
+      }
 
-        return response.data;
-      } catch (error) {
+      const response = await API.get(
+        `/field/geo-attendance/visit/${encodeURIComponent(visitId)}`
+      );
+
+      if (response.data?.success === false) {
         return rejectWithValue(
-          error.response?.data?.message ||
+          response.data.message ||
             "Unable to fetch visit geo attendance."
         );
       }
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Fetch Visit Geo Attendance Error:",
+        error.response?.data || error.message
+      );
+
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to fetch visit geo attendance."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // INITIAL STATE
@@ -104,130 +120,99 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const fieldExecutiveGeoAttendanceSlice =
-  createSlice({
-    name: "fieldExecutiveGeoAttendance",
+const fieldExecutiveGeoAttendanceSlice = createSlice({
+  name: "fieldExecutiveGeoAttendance",
+  initialState,
 
-    initialState,
-
-    reducers: {
-      clearGeoAttendanceError: (state) => {
-        state.error = null;
-      },
-
-      clearVisitAttendance: (state) => {
-        state.visitAttendance = [];
-      },
+  reducers: {
+    clearGeoAttendanceError: (state) => {
+      state.error = null;
     },
 
-    extraReducers: (builder) => {
-      // -------------------------------------------------
+    clearVisitAttendance: (state) => {
+      state.visitAttendance = [];
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
       // RECORD GEO ATTENDANCE
-      // -------------------------------------------------
+      .addCase(recordGeoAttendance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(recordGeoAttendance.fulfilled, (state, action) => {
+        state.loading = false;
 
-      builder
-        .addCase(
-          recordGeoAttendance.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+        const payload = action.payload?.data ?? action.payload;
+        const record = payload?.attendance ?? payload;
 
-        .addCase(
-          recordGeoAttendance.fulfilled,
-          (state, action) => {
-            state.loading = false;
+        if (record && !Array.isArray(record) && record.id != null) {
+          state.attendance.unshift(record);
+        }
+      })
+      .addCase(recordGeoAttendance.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Unable to record geo attendance.";
+      })
 
-            if (action.payload?.data) {
-              state.attendance.unshift(
-                action.payload.data
-              );
-            }
-          }
-        )
-
-        .addCase(
-          recordGeoAttendance.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload ||
-              "Unable to record geo attendance.";
-          }
-        );
-
-      // -------------------------------------------------
       // GET MY GEO ATTENDANCE
-      // -------------------------------------------------
+      .addCase(fetchMyGeoAttendance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyGeoAttendance.fulfilled, (state, action) => {
+        state.loading = false;
 
-      builder
-        .addCase(
-          fetchMyGeoAttendance.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+        const payload = action.payload?.data ?? action.payload;
 
-        .addCase(
-          fetchMyGeoAttendance.fulfilled,
-          (state, action) => {
-            state.loading = false;
-            state.attendance =
-              action.payload?.data || [];
-          }
-        )
+        state.attendance = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.attendance)
+            ? payload.attendance
+            : [];
+      })
+      .addCase(fetchMyGeoAttendance.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Unable to fetch geo attendance.";
+      })
 
-        .addCase(
-          fetchMyGeoAttendance.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload ||
-              "Unable to fetch geo attendance.";
-          }
-        );
-
-      // -------------------------------------------------
       // GET GEO ATTENDANCE BY VISIT
-      // -------------------------------------------------
+      .addCase(fetchGeoAttendanceByVisit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGeoAttendanceByVisit.fulfilled, (state, action) => {
+        state.loading = false;
 
-      builder
-        .addCase(
-          fetchGeoAttendanceByVisit.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+        const payload = action.payload?.data ?? action.payload;
 
-        .addCase(
-          fetchGeoAttendanceByVisit.fulfilled,
-          (state, action) => {
-            state.loading = false;
-            state.visitAttendance =
-              action.payload?.data || [];
-          }
-        )
+        state.visitAttendance = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.attendance)
+            ? payload.attendance
+            : payload
+              ? [payload]
+              : [];
+      })
+      .addCase(fetchGeoAttendanceByVisit.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload ||
+          "Unable to fetch visit geo attendance.";
+      });
+  },
+});
 
-        .addCase(
-          fetchGeoAttendanceByVisit.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload ||
-              "Unable to fetch visit geo attendance.";
-          }
-        );
-    },
-  });
+// =====================================================
+// EXPORTS
+// =====================================================
 
 export const {
   clearGeoAttendanceError,
   clearVisitAttendance,
-} =
-  fieldExecutiveGeoAttendanceSlice.actions;
+} = fieldExecutiveGeoAttendanceSlice.actions;
 
 export default fieldExecutiveGeoAttendanceSlice.reducer;
-

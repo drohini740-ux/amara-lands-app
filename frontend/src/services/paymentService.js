@@ -20,3 +20,6 @@ export const createOrder = (data) =>
 
 export const verifyPayment = (data) =>
   api.post("/payments/verify-payment", data);
+
+export const getMyPayments = () =>
+  api.get("/payments/my");

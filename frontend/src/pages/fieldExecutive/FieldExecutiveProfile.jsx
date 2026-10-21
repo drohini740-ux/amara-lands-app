@@ -1,733 +1,950 @@
 
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-  FaIdBadge,
-  FaCalendarAlt,
-  FaEdit,
-  FaSave,
-  FaTimes,
-  FaSync,
-  FaCheckCircle,
-  FaInfoCircle,
-} from "react-icons/fa";
-
-import {
-  fetchFieldExecutiveProfile,
-  updateFieldExecutiveProfile,
-  clearFieldExecutiveProfileUpdateSuccess,
-} from "../../redux/fieldExecutiveProfileSlice";
+import api from "../../services/api";
 
 const FieldExecutiveProfile = () => {
-  const dispatch = useDispatch();
+  const [user, setUser] = useState(null);
 
-  const {
-    profile,
-    loading,
-    updateLoading,
-    error,
-    updateSuccess,
-  } = useSelector(
-    (state) => state.fieldExecutiveProfile
-  );
-
-  const [isEditing, setIsEditing] = useState(false);
-
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     full_name: "",
-    mobile: "",
     email: "",
+    mobile: "",
   });
 
-  // =====================================================
-  // FETCH PROFILE
-  // =====================================================
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
-  useEffect(() => {
-    dispatch(fetchFieldExecutiveProfile());
-  }, [dispatch]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
-  // =====================================================
-  // SET FORM DATA
-  // =====================================================
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    if (profile) {
-      setFormData({
+  // Load logged-in Field Executive profile
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await api.get("/users/profile");
+      const profile = response.data.user;
+
+      setUser(profile);
+
+      setForm({
         full_name: profile.full_name || "",
-        mobile: profile.mobile || "",
         email: profile.email || "",
+        mobile: profile.mobile || "",
       });
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to load your profile. Please check your login."
+      );
+    } finally {
+      setLoading(false);
     }
-  }, [profile]);
+  };
 
-  // =====================================================
-  // HANDLE INPUT
-  // =====================================================
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  // Keep the form synchronized with user input
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
 
-    setFormData((previous) => ({
+    setForm((previous) => ({
       ...previous,
       [name]: value,
     }));
   };
 
-  // =====================================================
-  // START EDIT
-  // =====================================================
-
-  const handleEdit = () => {
-    if (profile) {
-      setFormData({
-        full_name: profile.full_name || "",
-        mobile: profile.mobile || "",
-        email: profile.email || "",
-      });
-    }
-
-    dispatch(clearFieldExecutiveProfileUpdateSuccess());
-
-    setIsEditing(true);
-  };
-
-  // =====================================================
-  // CANCEL EDIT
-  // =====================================================
-
-  const handleCancel = () => {
-    if (profile) {
-      setFormData({
-        full_name: profile.full_name || "",
-        mobile: profile.mobile || "",
-        email: profile.email || "",
-      });
-    }
-
-    dispatch(clearFieldExecutiveProfileUpdateSuccess());
-
-    setIsEditing(false);
-  };
-
-  // =====================================================
-  // SAVE PROFILE
-  // =====================================================
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const result = await dispatch(
-      updateFieldExecutiveProfile({
-        full_name: formData.full_name.trim(),
-        mobile: formData.mobile.trim(),
-        email: formData.email.trim(),
-      })
-    );
+  // Save personal information
+  const handleSaveProfile = async (event) => {
+    event.preventDefault();
 
     if (
-      updateFieldExecutiveProfile.fulfilled.match(
-        result
-      )
+      !form.full_name.trim() ||
+      !form.email.trim() ||
+      !form.mobile.trim()
     ) {
-      setIsEditing(false);
+      setError("Please fill in your name, email, and mobile number.");
+      return;
     }
-  };
-
-  // =====================================================
-  // FORMAT DATE
-  // =====================================================
-
-  const formatDate = (date) => {
-    if (!date) return "-";
 
     try {
-      return new Date(date).toLocaleDateString(
-        "en-IN",
-        {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        }
+      setSaving(true);
+      setError("");
+      setSuccess("");
+
+      const response = await api.put("/users/profile", {
+        full_name: form.full_name.trim(),
+        email: form.email.trim(),
+        mobile: form.mobile.trim(),
+      });
+
+      const updatedUser = response.data.user;
+
+      setUser((previous) => ({
+        ...previous,
+        ...updatedUser,
+      }));
+
+      setForm({
+        full_name: updatedUser.full_name || "",
+        email: updatedUser.email || "",
+        mobile: updatedUser.mobile || "",
+      });
+
+      setEditing(false);
+      setSuccess(
+        response.data.message || "Profile updated successfully."
       );
-    } catch {
-      return "-";
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to update your profile."
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
-  // =====================================================
-  // REFRESH
-  // =====================================================
+  // Upload a profile picture
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
 
-  const handleRefresh = () => {
-    dispatch(fetchFieldExecutiveProfile());
+    if (!file) return;
+
+    setError("");
+    setSuccess("");
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setError("Please select a JPG, PNG, WEBP, or GIF image.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image size must be 5 MB or less.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("profile", file);
+
+      const response = await api.post(
+        "/users/profile/upload",
+        formData
+      );
+
+      const updatedImage = response.data.profile_image;
+
+      setUser((previous) => ({
+        ...previous,
+        ...(response.data.user || {}),
+        profile_image:
+          updatedImage ||
+          response.data.user?.profile_image ||
+          previous.profile_image,
+      }));
+
+      setSuccess(
+        response.data.message || "Profile picture updated successfully."
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to upload your profile picture."
+      );
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
   };
 
-  // =====================================================
-  // LOADING
-  // =====================================================
+  // Change password
+  const handlePasswordChange = async (event) => {
+    event.preventDefault();
 
-  if (loading && !profile) {
+    if (
+      !passwordForm.currentPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmPassword
+    ) {
+      setError("Please fill in all password fields.");
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      setError("Your new password must contain at least 8 characters.");
+      return;
+    }
+
+    if (
+      passwordForm.newPassword !==
+      passwordForm.confirmPassword
+    ) {
+      setError("New password and confirm password do not match.");
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      setError("");
+      setSuccess("");
+
+      const response = await api.put(
+        "/users/change-password",
+        passwordForm
+      );
+
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      setShowPasswordForm(false);
+
+      setSuccess(
+        response.data.message || "Password changed successfully."
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to change your password."
+      );
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  // Build a usable URL for stored profile image paths
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "";
+
+    if (/^https?:\/\//i.test(imagePath)) {
+      return imagePath;
+    }
+
+    const baseURL = (
+      api.defaults.baseURL || "http://localhost:4000/api/v1"
+    )
+      .replace(/\/api\/v1\/?$/, "")
+      .replace(/\/$/, "");
+
+    return `${baseURL}${
+      imagePath.startsWith("/") ? "" : "/"
+    }${imagePath}`;
+  };
+
+  const initials = (user?.full_name || "Field Executive")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
+  if (loading) {
     return (
-      <div className="text-center py-5">
-        <div
-          className="spinner-border"
-          style={{
-            color: "#C9A227",
-          }}
-        />
-
-        <p className="mt-3 text-muted">
-          Loading profile...
-        </p>
+      <div className="field-profile-page">
+        <style>{profileStyles}</style>
+        <div className="profile-loading">
+          Loading your profile...
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* ================================================= */}
+    <div className="field-profile-page">
+      <style>{profileStyles}</style>
+
       {/* HEADER */}
-      {/* ================================================= */}
-
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="profile-header">
         <div>
-          <h3
-            className="mb-1"
-            style={{
-              fontWeight: "700",
-              color: "#111111",
-            }}
-          >
-            My Profile
-          </h3>
+          <span className="profile-eyebrow">
+            AMARA LANDS · FIELD EXECUTIVE
+          </span>
 
-          <p
-            className="mb-0"
-            style={{
-              color: "#777777",
-            }}
-          >
-            View and manage your Field Executive profile.
+          <h1>My Profile</h1>
+
+          <p>
+            Manage your personal information and account security.
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="header-actions">
           <button
             type="button"
-            className="btn"
-            onClick={handleRefresh}
-            disabled={loading || updateLoading}
-            style={{
-              border: "1px solid #C9A227",
-              color: "#C9A227",
-              backgroundColor: "#FFFFFF",
-            }}
+            className="secondary-button"
+            onClick={loadProfile}
+            disabled={loading}
           >
-            <FaSync
-              className="me-2"
-              style={{
-                animation:
-                  loading
-                    ? "spin 1s linear infinite"
-                    : "none",
-              }}
-            />
             Refresh
           </button>
 
-          {!isEditing && (
+          {!editing && (
             <button
               type="button"
-              className="btn"
-              onClick={handleEdit}
-              style={{
-                backgroundColor: "#111111",
-                color: "#FFFFFF",
-                border: "1px solid #111111",
+              className="gold-button"
+              onClick={() => {
+                setEditing(true);
+                setError("");
+                setSuccess("");
               }}
             >
-              <FaEdit className="me-2" />
               Edit Profile
             </button>
           )}
         </div>
       </div>
 
-      {/* ================================================= */}
-      {/* ERROR */}
-      {/* ================================================= */}
-
+      {/* MESSAGES */}
       {error && (
-        <div className="alert alert-danger">
+        <div className="profile-message error" role="alert">
           {error}
         </div>
       )}
 
-      {/* ================================================= */}
-      {/* SUCCESS */}
-      {/* ================================================= */}
-
-      {updateSuccess && (
-        <div
-          className="alert d-flex align-items-center"
-          style={{
-            backgroundColor: "#DFF5E3",
-            border: "1px solid #A8D5B5",
-            color: "#198754",
-          }}
-        >
-          <FaCheckCircle className="me-2" />
-          Profile updated successfully.
+      {success && (
+        <div className="profile-message success" role="status">
+          {success}
         </div>
       )}
 
-      {profile && (
-        <div className="row g-4">
-          {/* ================================================= */}
+      {user && (
+        <div className="profile-layout">
           {/* PROFILE CARD */}
-          {/* ================================================= */}
-
-          <div className="col-lg-4">
-            <div className="card border-0 shadow-sm">
-              <div
-                className="card-body text-center p-4"
-                style={{
-                  borderTop:
-                    "4px solid #C9A227",
-                }}
-              >
-                {/* AVATAR */}
-
-                <div
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                    backgroundColor: "#111111",
-                    color: "#C9A227",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 20px",
-                    fontSize: "42px",
+          <section className="profile-card identity-card">
+            <div className="avatar">
+              {user.profile_image ? (
+                <img
+                  key={user.profile_image}
+                  src={getImageUrl(user.profile_image)}
+                  alt="Field Executive profile"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
                   }}
-                >
-                  {profile.profile_image ? (
-                    <img
-                      src={profile.profile_image}
-                      alt="Profile"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : (
-                    <FaUser />
-                  )}
-                </div>
-
-                <h4
-                  className="mb-1"
-                  style={{
-                    fontWeight: "700",
-                  }}
-                >
-                  {profile.full_name || "-"}
-                </h4>
-
-                <p
-                  className="mb-3"
-                  style={{
-                    color: "#777777",
-                  }}
-                >
-                  Field Executive
-                </p>
-
-                {/* STATUS */}
-
-                <span
-                  className="badge px-3 py-2"
-                  style={{
-                    backgroundColor:
-                      String(profile.status)
-                        .toLowerCase() ===
-                      "active"
-                        ? "#DFF5E3"
-                        : "#F8D7DA",
-
-                    color:
-                      String(profile.status)
-                        .toLowerCase() ===
-                      "active"
-                        ? "#198754"
-                        : "#842029",
-                  }}
-                >
-                  <FaCheckCircle className="me-2" />
-                  {profile.status || "-"}
-                </span>
-
-                <hr className="my-4" />
-
-                {/* USER ID */}
-
-                <div className="text-start mb-3">
-                  <small className="text-muted">
-                    <FaIdBadge className="me-2" />
-                    User ID
-                  </small>
-
-                  <div className="fw-semibold mt-1">
-                    #{profile.id}
-                  </div>
-                </div>
-
-                {/* ROLE */}
-
-                <div className="text-start mb-3">
-                  <small className="text-muted">
-                    <FaUser className="me-2" />
-                    Role
-                  </small>
-
-                  <div className="fw-semibold mt-1">
-                    Field Executive
-                  </div>
-                </div>
-
-                {/* CREATED */}
-
-                <div className="text-start">
-                  <small className="text-muted">
-                    <FaCalendarAlt className="me-2" />
-                    Account Created
-                  </small>
-
-                  <div className="fw-semibold mt-1">
-                    {formatDate(
-                      profile.created_at
-                    )}
-                  </div>
-                </div>
-              </div>
+                />
+              ) : (
+                initials
+              )}
             </div>
-          </div>
 
-          {/* ================================================= */}
-          {/* PROFILE INFORMATION */}
-          {/* ================================================= */}
+            <h2>{user.full_name || "Field Executive"}</h2>
 
-          <div className="col-lg-8">
-            <div className="card border-0 shadow-sm">
-              <div
-                className="card-header bg-white py-3"
-                style={{
-                  borderBottom:
-                    "2px solid #C9A227",
-                }}
-              >
-                <strong>
-                  <FaInfoCircle
-                    className="me-2"
-                    style={{
-                      color: "#C9A227",
-                    }}
+            <p className="identity-role">Field Executive</p>
+
+            <span
+              className={`status-pill ${
+                String(user.status).toLowerCase() === "active"
+                  ? "active"
+                  : "inactive"
+              }`}
+            >
+              {user.status || "Unknown"}
+            </span>
+
+            {/* PROFILE PICTURE UPLOAD */}
+            <label
+              className={`upload-button ${
+                uploading ? "upload-disabled" : ""
+              }`}
+            >
+              {uploading
+                ? "Uploading picture..."
+                : "Change Profile Picture"}
+
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleImageUpload}
+                disabled={uploading}
+                hidden
+              />
+            </label>
+
+            <p className="upload-hint">
+              JPG, PNG, WEBP, or GIF · Maximum 5 MB
+            </p>
+
+            <div className="identity-divider" />
+
+            <div className="identity-detail">
+              <span>Role</span>
+              <strong>Field Executive</strong>
+            </div>
+
+            <div className="identity-detail">
+              <span>Account ID</span>
+              <strong>{user.id || "—"}</strong>
+            </div>
+
+            <div className="identity-detail">
+              <span>Joined</span>
+              <strong>
+                {user.created_at
+                  ? new Date(user.created_at).toLocaleDateString(
+                      "en-IN"
+                    )
+                  : "—"}
+              </strong>
+            </div>
+          </section>
+
+          {/* PERSONAL INFORMATION */}
+          <section className="profile-card details-card">
+            <div className="section-heading">
+              <div>
+                <h2>Personal Information</h2>
+                <p>Update your contact information.</p>
+              </div>
+
+              <span className="gold-line" />
+            </div>
+
+            <form onSubmit={handleSaveProfile}>
+              <div className="profile-form">
+                <div className="form-field">
+                  <label htmlFor="field-full-name">
+                    Full Name
+                  </label>
+
+                  <input
+                    id="field-full-name"
+                    name="full_name"
+                    value={form.full_name}
+                    onChange={handleFormChange}
+                    disabled={!editing || saving}
+                    required
+                    maxLength={150}
+                    placeholder="Enter your full name"
                   />
-                  Personal Information
-                </strong>
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="field-email">
+                    Email Address
+                  </label>
+
+                  <input
+                    id="field-email"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleFormChange}
+                    disabled={!editing || saving}
+                    required
+                    maxLength={254}
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="field-mobile">
+                    Mobile Number
+                  </label>
+
+                  <input
+                    id="field-mobile"
+                    name="mobile"
+                    type="tel"
+                    value={form.mobile}
+                    onChange={handleFormChange}
+                    disabled={!editing || saving}
+                    required
+                    maxLength={20}
+                    placeholder="Enter your mobile number"
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="field-role">
+                    Account Role
+                  </label>
+
+                  <input
+                    id="field-role"
+                    value="Field Executive"
+                    disabled
+                  />
+                </div>
               </div>
 
-              <div className="card-body p-4">
-                <form onSubmit={handleSubmit}>
-                  <div className="row g-4">
-                    {/* FULL NAME */}
+              {editing && (
+                <div className="profile-actions">
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    disabled={saving}
+                    onClick={() => {
+                      setForm({
+                        full_name: user.full_name || "",
+                        email: user.email || "",
+                        mobile: user.mobile || "",
+                      });
 
-                    <div className="col-md-6">
-                      <label
-                        className="form-label fw-semibold"
-                        htmlFor="full_name"
-                      >
-                        Full Name
-                      </label>
+                      setEditing(false);
+                      setError("");
+                      setSuccess("");
+                    }}
+                  >
+                    Cancel
+                  </button>
 
-                      {isEditing ? (
-                        <div className="input-group">
-                          <span className="input-group-text bg-white">
-                            <FaUser
-                              style={{
-                                color:
-                                  "#C9A227",
-                              }}
-                            />
-                          </span>
+                  <button
+                    type="submit"
+                    className="gold-button"
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              )}
+            </form>
+          </section>
 
-                          <input
-                            id="full_name"
-                            type="text"
-                            name="full_name"
-                            className="form-control"
-                            value={
-                              formData.full_name
-                            }
-                            onChange={
-                              handleChange
-                            }
-                            required
-                          />
-                        </div>
-                      ) : (
-                        <div className="p-3 bg-light rounded">
-                          {profile.full_name ||
-                            "-"}
-                        </div>
-                      )}
-                    </div>
+          {/* ACCOUNT SECURITY */}
+          <section className="profile-card security-card">
+            <div className="security-icon">◆</div>
 
-                    {/* MOBILE */}
-
-                    <div className="col-md-6">
-                      <label
-                        className="form-label fw-semibold"
-                        htmlFor="mobile"
-                      >
-                        Mobile Number
-                      </label>
-
-                      {isEditing ? (
-                        <div className="input-group">
-                          <span className="input-group-text bg-white">
-                            <FaPhone
-                              style={{
-                                color:
-                                  "#C9A227",
-                              }}
-                            />
-                          </span>
-
-                          <input
-                            id="mobile"
-                            type="tel"
-                            name="mobile"
-                            className="form-control"
-                            value={
-                              formData.mobile
-                            }
-                            onChange={
-                              handleChange
-                            }
-                            required
-                          />
-                        </div>
-                      ) : (
-                        <div className="p-3 bg-light rounded">
-                          {profile.mobile ||
-                            "-"}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* EMAIL */}
-
-                    <div className="col-md-6">
-                      <label
-                        className="form-label fw-semibold"
-                        htmlFor="email"
-                      >
-                        Email Address
-                      </label>
-
-                      {isEditing ? (
-                        <div className="input-group">
-                          <span className="input-group-text bg-white">
-                            <FaEnvelope
-                              style={{
-                                color:
-                                  "#C9A227",
-                              }}
-                            />
-                          </span>
-
-                          <input
-                            id="email"
-                            type="email"
-                            name="email"
-                            className="form-control"
-                            value={
-                              formData.email
-                            }
-                            onChange={
-                              handleChange
-                            }
-                            required
-                          />
-                        </div>
-                      ) : (
-                        <div className="p-3 bg-light rounded">
-                          {profile.email ||
-                            "-"}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ROLE */}
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Role
-                      </label>
-
-                      <div className="p-3 bg-light rounded">
-                        Field Executive
-                      </div>
-                    </div>
-
-                    {/* STATUS */}
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Account Status
-                      </label>
-
-                      <div className="p-3 bg-light rounded">
-                        <span
-                          className="badge"
-                          style={{
-                            backgroundColor:
-                              String(
-                                profile.status
-                              ).toLowerCase() ===
-                              "active"
-                                ? "#DFF5E3"
-                                : "#F8D7DA",
-
-                            color:
-                              String(
-                                profile.status
-                              ).toLowerCase() ===
-                              "active"
-                                ? "#198754"
-                                : "#842029",
-                          }}
-                        >
-                          {profile.status ||
-                            "-"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* CREATED DATE */}
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Account Created
-                      </label>
-
-                      <div className="p-3 bg-light rounded">
-                        {formatDate(
-                          profile.created_at
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ================================================= */}
-                  {/* EDIT ACTIONS */}
-                  {/* ================================================= */}
-
-                  {isEditing && (
-                    <div className="d-flex justify-content-end gap-2 mt-4 pt-4 border-top">
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={
-                          handleCancel
-                        }
-                        disabled={
-                          updateLoading
-                        }
-                        style={{
-                          border:
-                            "1px solid #111111",
-                          color: "#111111",
-                          backgroundColor:
-                            "#FFFFFF",
-                        }}
-                      >
-                        <FaTimes className="me-2" />
-                        Cancel
-                      </button>
-
-                      <button
-                        type="submit"
-                        className="btn"
-                        disabled={
-                          updateLoading
-                        }
-                        style={{
-                          backgroundColor:
-                            "#111111",
-                          color: "#FFFFFF",
-                          border:
-                            "1px solid #111111",
-                        }}
-                      >
-                        {updateLoading ? (
-                          <>
-                            <span
-                              className="spinner-border spinner-border-sm me-2"
-                            />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <FaSave className="me-2" />
-                            Save Changes
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </form>
-              </div>
+            <div className="security-copy">
+              <h2>Account Security</h2>
+              <p>
+                Change your password regularly to help keep your
+                account secure.
+              </p>
             </div>
-          </div>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                setShowPasswordForm((previous) => !previous);
+                setError("");
+                setSuccess("");
+              }}
+            >
+              {showPasswordForm
+                ? "Close Password Form"
+                : "Change Password"}
+            </button>
+
+            {showPasswordForm && (
+              <form
+                className="password-form"
+                onSubmit={handlePasswordChange}
+              >
+                <div className="form-field full-width">
+                  <label htmlFor="field-current-password">
+                    Current Password
+                  </label>
+
+                  <input
+                    id="field-current-password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={passwordForm.currentPassword}
+                    onChange={(event) =>
+                      setPasswordForm((previous) => ({
+                        ...previous,
+                        currentPassword: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="field-new-password">
+                    New Password
+                  </label>
+
+                  <input
+                    id="field-new-password"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    value={passwordForm.newPassword}
+                    onChange={(event) =>
+                      setPasswordForm((previous) => ({
+                        ...previous,
+                        newPassword: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="field-confirm-password">
+                    Confirm New Password
+                  </label>
+
+                  <input
+                    id="field-confirm-password"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    value={passwordForm.confirmPassword}
+                    onChange={(event) =>
+                      setPasswordForm((previous) => ({
+                        ...previous,
+                        confirmPassword: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="gold-button password-submit"
+                  disabled={changingPassword}
+                >
+                  {changingPassword
+                    ? "Updating..."
+                    : "Update Password"}
+                </button>
+              </form>
+            )}
+          </section>
         </div>
       )}
-
-      {/* ================================================= */}
-      {/* INFORMATION NOTE */}
-      {/* ================================================= */}
-
-      <div
-        className="alert mt-4"
-        style={{
-          backgroundColor: "#FFFDF5",
-          border: "1px solid #E6D48A",
-          color: "#555555",
-        }}
-      >
-        <FaInfoCircle
-          className="me-2"
-          style={{
-            color: "#C9A227",
-          }}
-        />
-
-        You can update your name, mobile number and
-        email address. Your role and account status are
-        managed by the administrator.
-      </div>
     </div>
   );
 };
 
-export default FieldExecutiveProfile;
+const profileStyles = `
+.field-profile-page {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 30px;
+  background: #f7f7f5;
+  color: #171717;
+  font-family: Arial, sans-serif;
+}
+.field-profile-page * {
+  box-sizing: border-box;
+}
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.profile-eyebrow {
+  color: #a78317;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.profile-header h1 {
+  margin: 9px 0;
+  font-size: 30px;
+}
+.profile-header p, .section-heading p {
+  color: #777;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.6;
+}
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.8fr) minmax(0, 2fr);
+  gap: 22px;
+}
+.profile-card {
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #e9e6dc;
+  border-radius: 14px;
+  padding: 26px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.035);
+}
+.identity-card {
+  text-align: center;
+}
+.avatar {
+  width: 96px;
+  height: 96px;
+  margin: 4px auto 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #171717;
+  border: 4px solid #d2b24c;
+  color: #f1d77d;
+  font-size: 30px;
+  font-weight: 700;
+  overflow: hidden;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.identity-card h2 {
+  font-size: 19px;
+  margin: 0 0 7px;
+  overflow-wrap: anywhere;
+}
+.identity-role {
+  font-size: 13px;
+  color: #777;
+  margin: 0 0 15px;
+}
+.status-pill {
+  display: inline-block;
+  padding: 6px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.status-pill.active {
+  background: #e7f5e9;
+  color: #26743b;
+}
+.status-pill.inactive {
+  background: #fce8e6;
+  color: #a32d25;
+}
+.upload-button {
+  display: block;
+  margin: 18px auto 0;
+  color: #8b6b0d;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.upload-button:hover {
+  text-decoration: underline;
+}
+.upload-disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.upload-hint {
+  margin: 8px 0 0;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.identity-divider {
+  height: 1px;
+  background: #eee;
+  margin: 24px 0;
+}
+.identity-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  text-align: left;
+  font-size: 13px;
+}
+.identity-detail span {
+  color: #777;
+}
+.identity-detail strong {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+.section-heading h2, .security-copy h2 {
+  margin: 0 0 8px;
+  font-size: 19px;
+}
+.gold-line {
+  width: 45px;
+  height: 3px;
+  background: #c9a227;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.profile-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.form-field label {
+  font-size: 13px;
+  font-weight: 700;
+}
+.form-field input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #dedede;
+  border-radius: 7px;
+  font-size: 14px;
+  background: #fff;
+  color: #222;
+}
+.form-field input:disabled {
+  background: #f7f7f7;
+  color: #555;
+}
+.form-field input:focus {
+  outline: 2px solid #e6d69e;
+  border-color: #c9a227;
+}
+.gold-button, .secondary-button {
+  border-radius: 7px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.gold-button {
+  background: #c9a227;
+  color: #171717;
+  border: 1px solid #c9a227;
+}
+.gold-button:hover {
+  background: #b28c15;
+}
+.secondary-button {
+  background: #fff;
+  border: 1px solid #d7d7d7;
+  color: #222;
+}
+.secondary-button:hover {
+  border-color: #c9a227;
+}
+.gold-button:disabled, .secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 26px;
+}
+.security-card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.security-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #171717;
+  color: #d8b744;
+}
+.security-copy {
+  flex: 1;
+  min-width: 180px;
+}
+.security-copy p {
+  color: #777;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+.password-form {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding-top: 12px;
+}
+.password-form .full-width {
+  grid-column: 1 / -1;
+}
+.password-submit {
+  justify-self: start;
+}
+.profile-message {
+  margin-bottom: 18px;
+  padding: 13px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.profile-message.error {
+  color: #922c25;
+  background: #fce8e6;
+}
+.profile-message.success {
+  color: #72530b;
+  background: #fff5d8;
+}
+.profile-loading {
+  padding: 50px;
+  text-align: center;
+}
+@media (max-width: 800px) {
+  .field-profile-page { padding: 18px; }
+  .profile-layout { grid-template-columns: 1fr; }
+  .security-card { grid-column: auto; }
+}
+@media (max-width: 520px) {
+  .profile-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .profile-form, .password-form {
+    grid-template-columns: 1fr;
+  }
+  .password-form .full-width {
+    grid-column: auto;
+  }
+  .profile-card { padding: 20px; }
+  .security-card .secondary-button { width: 100%; }
+}
+`;
 
+export default FieldExecutiveProfile;

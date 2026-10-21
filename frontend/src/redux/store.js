@@ -70,6 +70,7 @@ import fieldExecutiveVerificationReducer
   import securityPortalReportReducer from "./securityPortalReportSlice";
   import securityIncidentReducer from "./securityIncidentSlice";
   import securityMotionAlertReducer from "./securityMotionAlertSlice";
+  import legalTeamReducer from "./legalTeamSlice";
 const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
@@ -154,6 +155,7 @@ const store = configureStore({
   securityIncident: securityIncidentReducer,
   securityMotionAlerts: securityMotionAlertReducer,
   securityAnalytics: securityAnalyticsReducer,
+  legalTeam: legalTeamReducer,
   },
 });
 

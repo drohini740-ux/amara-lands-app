@@ -1,8 +1,6 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // GET MEDIA FOR VISIT
@@ -12,22 +10,11 @@ export const fetchVisitMedia = createAsyncThunk(
   "fieldExecutiveMedia/fetchVisitMedia",
   async (visitId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/field/media/visit/${visitId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(`/field/media/visit/${visitId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          "Unable to load visit media."
+        error.response?.data?.message || "Unable to load visit media."
       );
     }
   }
@@ -39,36 +26,25 @@ export const fetchVisitMedia = createAsyncThunk(
 
 export const uploadVisitMedia = createAsyncThunk(
   "fieldExecutiveMedia/uploadVisitMedia",
-  async (
-    { visitId, file, caption },
-    { rejectWithValue }
-  ) => {
+  async ({ visitId, file, caption }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
       const formData = new FormData();
-
       formData.append("file", file);
 
       if (caption) {
         formData.append("caption", caption);
       }
 
-      const response = await axios.post(
-        `${API_URL}/field/media/visit/${visitId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      // Shared API handles authentication and FormData headers.
+      const response = await API.post(
+        `/field/media/visit/${visitId}`,
+        formData
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          "Unable to upload media."
+        error.response?.data?.message || "Unable to upload media."
       );
     }
   }
@@ -82,16 +58,7 @@ export const deleteVisitMedia = createAsyncThunk(
   "fieldExecutiveMedia/deleteVisitMedia",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.delete(
-        `${API_URL}/field/media/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await API.delete(`/field/media/${id}`);
 
       return {
         id,
@@ -99,8 +66,7 @@ export const deleteVisitMedia = createAsyncThunk(
       };
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          "Unable to delete media."
+        error.response?.data?.message || "Unable to delete media."
       );
     }
   }
@@ -144,131 +110,73 @@ const fieldExecutiveMediaSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // ===================================================
-    // FETCH MEDIA
-    // ===================================================
-
     builder
-      .addCase(
-        fetchVisitMedia.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
+      // FETCH MEDIA
+      .addCase(fetchVisitMedia.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchVisitMedia.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const result = action.payload?.data;
+        state.media = Array.isArray(result)
+          ? result
+          : Array.isArray(action.payload?.media)
+            ? action.payload.media
+            : [];
+      })
+      .addCase(fetchVisitMedia.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Unable to load visit media.";
+      })
+
+      // UPLOAD MEDIA
+      .addCase(uploadVisitMedia.pending, (state) => {
+        state.uploadLoading = true;
+        state.uploadError = null;
+      })
+      .addCase(uploadVisitMedia.fulfilled, (state, action) => {
+        state.uploadLoading = false;
+
+        const uploadedMedia =
+          action.payload?.data ?? action.payload?.media;
+
+        if (uploadedMedia) {
+          state.media.unshift(uploadedMedia);
         }
-      )
+      })
+      .addCase(uploadVisitMedia.rejected, (state, action) => {
+        state.uploadLoading = false;
+        state.uploadError =
+          action.payload || "Unable to upload media.";
+      })
 
-      .addCase(
-        fetchVisitMedia.fulfilled,
-        (state, action) => {
-          state.loading = false;
-
-          state.media =
-            action.payload?.data || [];
-        }
-      )
-
-      .addCase(
-        fetchVisitMedia.rejected,
-        (state, action) => {
-          state.loading = false;
-
-          state.error =
-            action.payload ||
-            "Unable to load visit media.";
-        }
-      );
-
-    // ===================================================
-    // UPLOAD MEDIA
-    // ===================================================
-
-    builder
-      .addCase(
-        uploadVisitMedia.pending,
-        (state) => {
-          state.uploadLoading = true;
-          state.uploadError = null;
-        }
-      )
-
-      .addCase(
-        uploadVisitMedia.fulfilled,
-        (state, action) => {
-          state.uploadLoading = false;
-
-          const uploadedMedia =
-            action.payload?.data;
-
-          if (uploadedMedia) {
-            state.media.unshift(
-              uploadedMedia
-            );
-          }
-        }
-      )
-
-      .addCase(
-        uploadVisitMedia.rejected,
-        (state, action) => {
-          state.uploadLoading = false;
-
-          state.uploadError =
-            action.payload ||
-            "Unable to upload media.";
-        }
-      );
-
-    // ===================================================
-    // DELETE MEDIA
-    // ===================================================
-
-    builder
-      .addCase(
-        deleteVisitMedia.pending,
-        (state) => {
-          state.deleteLoading = true;
-          state.deleteError = null;
-        }
-      )
-
-      .addCase(
-        deleteVisitMedia.fulfilled,
-        (state, action) => {
-          state.deleteLoading = false;
-
-          state.media =
-            state.media.filter(
-              (item) =>
-                item.id !== action.payload.id
-            );
-        }
-      )
-
-      .addCase(
-        deleteVisitMedia.rejected,
-        (state, action) => {
-          state.deleteLoading = false;
-
-          state.deleteError =
-            action.payload ||
-            "Unable to delete media.";
-        }
-      );
+      // DELETE MEDIA
+      .addCase(deleteVisitMedia.pending, (state) => {
+        state.deleteLoading = true;
+        state.deleteError = null;
+      })
+      .addCase(deleteVisitMedia.fulfilled, (state, action) => {
+        state.deleteLoading = false;
+        state.media = state.media.filter(
+          (item) => item.id !== action.payload.id
+        );
+      })
+      .addCase(deleteVisitMedia.rejected, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError =
+          action.payload || "Unable to delete media.";
+      });
   },
 });
 
 // =====================================================
-// EXPORT ACTIONS
+// EXPORT ACTIONS AND REDUCER
 // =====================================================
 
-export const {
-  clearMediaError,
-  clearVisitMedia,
-} =
+export const { clearMediaError, clearVisitMedia } =
   fieldExecutiveMediaSlice.actions;
-
-// =====================================================
-// EXPORT REDUCER
-// =====================================================
 
 export default fieldExecutiveMediaSlice.reducer;

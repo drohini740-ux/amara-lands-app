@@ -1,28 +1,18 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // Fetch Security Reports & Analytics
 export const fetchSecurityAnalytics = createAsyncThunk(
   "securityAnalytics/fetchSecurityAnalytics",
   async (filters = {}, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/security/analytics`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            from: filters.from || undefined,
-            to: filters.to || undefined,
-          },
-        }
-      );
+      const response = await API.get("/security/analytics", {
+        params: {
+          from: filters.from || undefined,
+          to: filters.to || undefined,
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -71,7 +61,7 @@ const securityAnalyticsSlice = createSlice({
     clearSecurityAnalyticsError: (state) => {
       state.error = null;
     },
-    resetSecurityAnalytics: () => initialState,
+    resetSecurityAnalytics: () => ({ ...initialState }),
   },
   extraReducers: (builder) => {
     builder
@@ -83,7 +73,8 @@ const securityAnalyticsSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        const data = action.payload?.data || {};
+        const payload = action.payload || {};
+        const data = payload.data || payload;
 
         state.overview = {
           ...initialState.overview,
@@ -98,8 +89,8 @@ const securityAnalyticsSlice = createSlice({
         state.monthlyReportTrend = data.monthly_report_trend || [];
 
         state.filters = {
-          from: action.payload?.filters?.from || "",
-          to: action.payload?.filters?.to || "",
+          from: payload.filters?.from || "",
+          to: payload.filters?.to || "",
         };
       })
       .addCase(fetchSecurityAnalytics.rejected, (state, action) => {

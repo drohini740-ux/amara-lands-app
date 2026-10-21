@@ -1,71 +1,76 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL =
-  "http://localhost:4000/api/v1/field/properties";
+import API from "../services/api";
 
 // =====================================================
 // FETCH MY ASSIGNED PROPERTIES
 // =====================================================
 
-export const fetchFieldExecutiveProperties =
-  createAsyncThunk(
-    "fieldExecutiveProperty/fetchProperties",
-    async (_, { rejectWithValue }) => {
-      try {
-        const token =
-          localStorage.getItem("token");
+export const fetchFieldExecutiveProperties = createAsyncThunk(
+  "fieldExecutiveProperty/fetchProperties",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API.get("/field/properties");
+      const result = response.data;
 
-        const response = await axios.get(
-          API_URL,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data;
-      } catch (error) {
+      if (result?.success === false) {
         return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to fetch assigned properties."
+          result.message || "Unable to fetch assigned properties."
         );
       }
+
+      return result?.data ?? result;
+    } catch (error) {
+      console.error(
+        "Fetch Field Executive Properties Error:",
+        error.response?.data || error.message
+      );
+
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to fetch assigned properties."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // FETCH PROPERTY BY ID
 // =====================================================
 
-export const fetchFieldExecutivePropertyById =
-  createAsyncThunk(
-    "fieldExecutiveProperty/fetchPropertyById",
-    async (id, { rejectWithValue }) => {
-      try {
-        const token =
-          localStorage.getItem("token");
+export const fetchFieldExecutivePropertyById = createAsyncThunk(
+  "fieldExecutiveProperty/fetchPropertyById",
+  async (id, { rejectWithValue }) => {
+    try {
+      if (!id) {
+        return rejectWithValue("Property ID is required.");
+      }
 
-        const response = await axios.get(
-          `${API_URL}/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      const response = await API.get(
+        `/field/properties/${encodeURIComponent(id)}`
+      );
+      const result = response.data;
 
-        return response.data;
-      } catch (error) {
+      if (result?.success === false) {
         return rejectWithValue(
-          error.response?.data?.message ||
-            "Unable to fetch property details."
+          result.message || "Unable to fetch property details."
         );
       }
+
+      return result?.data ?? result;
+    } catch (error) {
+      console.error(
+        "Fetch Field Executive Property Details Error:",
+        error.response?.data || error.message
+      );
+
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Unable to fetch property details."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // INITIAL STATE
@@ -86,102 +91,95 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const fieldExecutivePropertySlice =
-  createSlice({
-    name: "fieldExecutiveProperty",
-    initialState,
+const fieldExecutivePropertySlice = createSlice({
+  name: "fieldExecutiveProperty",
+  initialState,
 
-    reducers: {
-      clearSelectedProperty: (state) => {
-        state.selectedProperty = null;
-        state.detailsError = null;
-      },
+  reducers: {
+    clearSelectedProperty: (state) => {
+      state.selectedProperty = null;
+      state.detailsError = null;
+    },
 
-      clearPropertyError: (state) => {
+    clearPropertyError: (state) => {
+      state.error = null;
+      state.detailsError = null;
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      // FETCH ALL ASSIGNED PROPERTIES
+      .addCase(fetchFieldExecutiveProperties.pending, (state) => {
+        state.loading = true;
         state.error = null;
+      })
+
+      .addCase(
+        fetchFieldExecutiveProperties.fulfilled,
+        (state, action) => {
+          state.loading = false;
+          state.error = null;
+
+          const payload = action.payload;
+
+          state.properties = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload?.properties)
+              ? payload.properties
+              : [];
+        }
+      )
+
+      .addCase(
+        fetchFieldExecutiveProperties.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error =
+            action.payload || "Unable to fetch assigned properties.";
+        }
+      )
+
+      // FETCH PROPERTY DETAILS
+      .addCase(fetchFieldExecutivePropertyById.pending, (state) => {
+        state.detailsLoading = true;
         state.detailsError = null;
-      },
-    },
+      })
 
-    extraReducers: (builder) => {
-      // =================================================
-      // FETCH ALL PROPERTIES
-      // =================================================
+      .addCase(
+        fetchFieldExecutivePropertyById.fulfilled,
+        (state, action) => {
+          state.detailsLoading = false;
+          state.detailsError = null;
 
-      builder
-        .addCase(
-          fetchFieldExecutiveProperties.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+          const payload = action.payload;
 
-        .addCase(
-          fetchFieldExecutiveProperties.fulfilled,
-          (state, action) => {
-            state.loading = false;
+          state.selectedProperty =
+            payload?.property ??
+            payload?.properties ??
+            payload ??
+            null;
+        }
+      )
 
-            state.properties =
-              action.payload?.properties || [];
-          }
-        )
+      .addCase(
+        fetchFieldExecutivePropertyById.rejected,
+        (state, action) => {
+          state.detailsLoading = false;
+          state.detailsError =
+            action.payload || "Unable to fetch property details.";
+        }
+      );
+  },
+});
 
-        .addCase(
-          fetchFieldExecutiveProperties.rejected,
-          (state, action) => {
-            state.loading = false;
-
-            state.error =
-              action.payload ||
-              "Unable to fetch assigned properties.";
-
-            state.properties = [];
-          }
-        );
-
-      // =================================================
-      // FETCH PROPERTY BY ID
-      // =================================================
-
-      builder
-        .addCase(
-          fetchFieldExecutivePropertyById.pending,
-          (state) => {
-            state.detailsLoading = true;
-            state.detailsError = null;
-          }
-        )
-
-        .addCase(
-          fetchFieldExecutivePropertyById.fulfilled,
-          (state, action) => {
-            state.detailsLoading = false;
-
-            state.selectedProperty =
-              action.payload?.property || null;
-          }
-        )
-
-        .addCase(
-          fetchFieldExecutivePropertyById.rejected,
-          (state, action) => {
-            state.detailsLoading = false;
-
-            state.detailsError =
-              action.payload ||
-              "Unable to fetch property details.";
-
-            state.selectedProperty = null;
-          }
-        );
-    },
-  });
+// =====================================================
+// EXPORTS
+// =====================================================
 
 export const {
   clearSelectedProperty,
   clearPropertyError,
-} =
-  fieldExecutivePropertySlice.actions;
+} = fieldExecutivePropertySlice.actions;
 
 export default fieldExecutivePropertySlice.reducer;

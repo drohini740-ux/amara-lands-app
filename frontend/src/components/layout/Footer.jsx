@@ -1,7 +1,22 @@
+
 export default function Footer() {
   return (
-    <div className="text-center py-3 border-top mt-4">
-      © 2026 Amara Lands. All Rights Reserved.
-    </div>
+    <footer
+      className="text-center mt-auto"
+      style={{
+        background: "#FFFFFF",
+        borderTop: "2px solid #D4AF37",
+        padding: "18px 12px",
+        color: "#555555",
+      }}
+    >
+      <p className="mb-1 fw-semibold" style={{ color: "#111111" }}>
+        AMARA LANDS
+      </p>
+
+      <small>
+        © {new Date().getFullYear()} Amara Lands. All Rights Reserved.
+      </small>
+    </footer>
   );
 }

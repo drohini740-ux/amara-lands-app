@@ -1,32 +1,40 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1/security/incident-alerts";
-
-const getAuthConfig = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
+import API from "../services/api";
 
 // =====================================================
-// FETCH INTRUSION INCIDENTS
+// RESPONSE HELPERS
+// =====================================================
+
+const getErrorMessage = (error, fallback) =>
+  error.response?.data?.message || fallback;
+
+const getIncidentId = (item) =>
+  item?.incident_id ?? item?.id;
+
+const getAlertId = (item) =>
+  item?.alert_id ?? item?.motion_alert_id ?? item?.id;
+
+// =====================================================
+// FETCH SECURITY INCIDENTS
 // =====================================================
 
 export const fetchSecurityIncidents = createAsyncThunk(
   "securityIncident/fetchIncidents",
   async (filters = {}, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/incidents`, {
-        ...getAuthConfig(),
-        params: filters,
-      });
+      const response = await API.get(
+        "/security/incident-alerts/incidents",
+        { params: filters }
+      );
 
-      return response.data?.incidents || [];
+      const data = response.data?.data ?? response.data;
+      return Array.isArray(data?.incidents)
+        ? data.incidents
+        : [];
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Unable to fetch incidents."
+        getErrorMessage(error, "Unable to fetch incidents.")
       );
     }
   }
@@ -40,15 +48,16 @@ export const fetchSecurityIncidentById = createAsyncThunk(
   "securityIncident/fetchIncidentById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/incidents/${id}`,
-        getAuthConfig()
+      const response = await API.get(
+        `/security/incident-alerts/incidents/${id}`
       );
 
-      return response.data?.incident || null;
+      const data = response.data?.data ?? response.data;
+
+      return data?.incident ?? null;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Unable to fetch incident details."
+        getErrorMessage(error, "Unable to fetch incident details.")
       );
     }
   }
@@ -62,16 +71,17 @@ export const updateSecurityIncidentStatus = createAsyncThunk(
   "securityIncident/updateIncidentStatus",
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${API_URL}/incidents/${id}/status`,
-        { status },
-        getAuthConfig()
+      const response = await API.put(
+        `/security/incident-alerts/incidents/${id}/status`,
+        { status }
       );
 
-      return response.data?.incident;
+      const data = response.data?.data ?? response.data;
+
+      return data?.incident ?? null;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Unable to update incident status."
+        getErrorMessage(error, "Unable to update incident status.")
       );
     }
   }
@@ -85,15 +95,19 @@ export const fetchMotionAlerts = createAsyncThunk(
   "securityIncident/fetchMotionAlerts",
   async (filters = {}, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/motion-alerts`, {
-        ...getAuthConfig(),
-        params: filters,
-      });
+      const response = await API.get(
+        "/security/incident-alerts/motion-alerts",
+        { params: filters }
+      );
 
-      return response.data?.alerts || [];
+      const data = response.data?.data ?? response.data;
+
+      return Array.isArray(data?.alerts)
+        ? data.alerts
+        : [];
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Unable to fetch motion alerts."
+        getErrorMessage(error, "Unable to fetch motion alerts.")
       );
     }
   }
@@ -107,15 +121,19 @@ export const fetchMotionAlertById = createAsyncThunk(
   "securityIncident/fetchMotionAlertById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/motion-alerts/${id}`,
-        getAuthConfig()
+      const response = await API.get(
+        `/security/incident-alerts/motion-alerts/${id}`
       );
 
-      return response.data?.alert || null;
+      const data = response.data?.data ?? response.data;
+
+      return data?.alert ?? null;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Unable to fetch motion alert details."
+        getErrorMessage(
+          error,
+          "Unable to fetch motion alert details."
+        )
       );
     }
   }
@@ -129,16 +147,20 @@ export const updateMotionAlertStatus = createAsyncThunk(
   "securityIncident/updateMotionAlertStatus",
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${API_URL}/motion-alerts/${id}/status`,
-        { status },
-        getAuthConfig()
+      const response = await API.put(
+        `/security/incident-alerts/motion-alerts/${id}/status`,
+        { status }
       );
 
-      return response.data?.alert;
+      const data = response.data?.data ?? response.data;
+
+      return data?.alert ?? null;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Unable to update motion alert status."
+        getErrorMessage(
+          error,
+          "Unable to update motion alert status."
+        )
       );
     }
   }
@@ -187,8 +209,9 @@ const securityIncidentSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // INCIDENT LIST
     builder
+
+      // INCIDENT LIST
       .addCase(fetchSecurityIncidents.pending, (state) => {
         state.incidentsLoading = true;
         state.error = null;
@@ -199,11 +222,11 @@ const securityIncidentSlice = createSlice({
       })
       .addCase(fetchSecurityIncidents.rejected, (state, action) => {
         state.incidentsLoading = false;
-        state.error = action.payload || "Unable to fetch incidents.";
-      });
+        state.error =
+          action.payload || "Unable to fetch incidents.";
+      })
 
-    // INCIDENT DETAILS
-    builder
+      // INCIDENT DETAILS
       .addCase(fetchSecurityIncidentById.pending, (state) => {
         state.detailsLoading = true;
         state.detailsError = null;
@@ -216,10 +239,9 @@ const securityIncidentSlice = createSlice({
         state.detailsLoading = false;
         state.detailsError =
           action.payload || "Unable to fetch incident details.";
-      });
+      })
 
-    // UPDATE INCIDENT
-    builder
+      // UPDATE INCIDENT STATUS
       .addCase(updateSecurityIncidentStatus.pending, (state) => {
         state.actionLoading = true;
         state.actionError = null;
@@ -227,13 +249,25 @@ const securityIncidentSlice = createSlice({
       .addCase(updateSecurityIncidentStatus.fulfilled, (state, action) => {
         state.actionLoading = false;
 
-        if (action.payload) {
+        const updated = action.payload;
+
+        if (updated) {
+          const updatedId = getIncidentId(updated);
+
           state.incidents = state.incidents.map((item) =>
-            item.id === action.payload.id ? action.payload : item
+            String(getIncidentId(item)) === String(updatedId)
+              ? { ...item, ...updated }
+              : item
           );
 
-          if (state.selectedIncident?.id === action.payload.id) {
-            state.selectedIncident = action.payload;
+          if (
+            String(getIncidentId(state.selectedIncident)) ===
+            String(updatedId)
+          ) {
+            state.selectedIncident = {
+              ...state.selectedIncident,
+              ...updated,
+            };
           }
         }
       })
@@ -241,10 +275,9 @@ const securityIncidentSlice = createSlice({
         state.actionLoading = false;
         state.actionError =
           action.payload || "Unable to update incident status.";
-      });
+      })
 
-    // MOTION ALERT LIST
-    builder
+      // MOTION ALERT LIST
       .addCase(fetchMotionAlerts.pending, (state) => {
         state.alertsLoading = true;
         state.error = null;
@@ -255,11 +288,11 @@ const securityIncidentSlice = createSlice({
       })
       .addCase(fetchMotionAlerts.rejected, (state, action) => {
         state.alertsLoading = false;
-        state.error = action.payload || "Unable to fetch motion alerts.";
-      });
+        state.error =
+          action.payload || "Unable to fetch motion alerts.";
+      })
 
-    // MOTION ALERT DETAILS
-    builder
+      // MOTION ALERT DETAILS
       .addCase(fetchMotionAlertById.pending, (state) => {
         state.detailsLoading = true;
         state.detailsError = null;
@@ -272,10 +305,9 @@ const securityIncidentSlice = createSlice({
         state.detailsLoading = false;
         state.detailsError =
           action.payload || "Unable to fetch motion alert details.";
-      });
+      })
 
-    // UPDATE MOTION ALERT
-    builder
+      // UPDATE MOTION ALERT STATUS
       .addCase(updateMotionAlertStatus.pending, (state) => {
         state.actionLoading = true;
         state.actionError = null;
@@ -283,13 +315,25 @@ const securityIncidentSlice = createSlice({
       .addCase(updateMotionAlertStatus.fulfilled, (state, action) => {
         state.actionLoading = false;
 
-        if (action.payload) {
+        const updated = action.payload;
+
+        if (updated) {
+          const updatedId = getAlertId(updated);
+
           state.motionAlerts = state.motionAlerts.map((item) =>
-            item.id === action.payload.id ? action.payload : item
+            String(getAlertId(item)) === String(updatedId)
+              ? { ...item, ...updated }
+              : item
           );
 
-          if (state.selectedMotionAlert?.id === action.payload.id) {
-            state.selectedMotionAlert = action.payload;
+          if (
+            String(getAlertId(state.selectedMotionAlert)) ===
+            String(updatedId)
+          ) {
+            state.selectedMotionAlert = {
+              ...state.selectedMotionAlert,
+              ...updated,
+            };
           }
         }
       })
@@ -300,6 +344,10 @@ const securityIncidentSlice = createSlice({
       });
   },
 });
+
+// =====================================================
+// EXPORT ACTIONS
+// =====================================================
 
 export const {
   clearSelectedSecurityIncident,

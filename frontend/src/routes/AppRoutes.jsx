@@ -9,6 +9,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/admin/dashboard/AdminDashboard";
 
 import Users from "../pages/admin/users/Users";
+import AdminProfile from "../pages/admin/AdminProfile";
 import AddUser from "../pages/admin/users/AddUser";
 import ViewUser from "../pages/admin/users/ViewUser";
 import EditUser from "../pages/admin/users/EditUser";
@@ -754,6 +755,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/admin/profile" element={<AdminProfile />} />
 
         {/* =================================================
             SECURITY REPORTS

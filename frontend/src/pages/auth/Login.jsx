@@ -26,9 +26,14 @@ export default function Login() {
 
       console.log("LOGIN RESPONSE:", res.data);
 
-      localStorage.setItem("token", res.data.token);
-
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      sessionStorage.setItem("token", res.data.token);
+      console.log("LOGIN CHECK:", {
+  success: res.data.success,
+  tokenExists: Boolean(res.data.token),
+  tokenParts: res.data.token?.split(".").length,
+  role: res.data.user?.role,
+});
+      sessionStorage.setItem("user", JSON.stringify(res.data.user));
 
       toast.success("Login Successful");
 
@@ -61,7 +66,8 @@ export default function Login() {
 
         default:
           toast.error("Unauthorized User");
-          localStorage.clear();
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("user");
           navigate("/login");
       }
     } catch (err) {

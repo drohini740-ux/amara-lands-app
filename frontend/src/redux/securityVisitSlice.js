@@ -1,30 +1,20 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL = "http://localhost:4000/api/v1";
-
-// =====================================================
-// FETCH SECURITY VISITS
-// =====================================================
-
+// Fetch Security Visits
 export const fetchSecurityVisits = createAsyncThunk(
   "securityVisit/fetchSecurityVisits",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/security/visits`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get("/security/visits");
       return response.data;
     } catch (error) {
+      console.error(
+        "Security Visits Error:",
+        error.response?.data || error.message
+      );
+
       return rejectWithValue(
         error.response?.data?.message ||
           "Unable to fetch Security visits."
@@ -33,27 +23,19 @@ export const fetchSecurityVisits = createAsyncThunk(
   }
 );
 
-// =====================================================
-// FETCH SECURITY VISIT DETAILS
-// =====================================================
-
+// Fetch Security Visit Details
 export const fetchSecurityVisitById = createAsyncThunk(
   "securityVisit/fetchSecurityVisitById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/security/visits/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(`/security/visits/${id}`);
       return response.data;
     } catch (error) {
+      console.error(
+        "Security Visit Details Error:",
+        error.response?.data || error.message
+      );
+
       return rejectWithValue(
         error.response?.data?.message ||
           "Unable to fetch visit details."
@@ -62,25 +44,17 @@ export const fetchSecurityVisitById = createAsyncThunk(
   }
 );
 
-// =====================================================
-// INITIAL STATE
-// =====================================================
-
+// Initial State
 const initialState = {
   visits: [],
   selectedVisit: null,
-
   loading: false,
   detailsLoading: false,
-
   error: null,
   detailsError: null,
 };
 
-// =====================================================
-// SLICE
-// =====================================================
-
+// Slice
 const securityVisitSlice = createSlice({
   name: "securityVisit",
   initialState,
@@ -99,10 +73,6 @@ const securityVisitSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // ===============================================
-      // FETCH VISITS
-      // ===============================================
-
       .addCase(fetchSecurityVisits.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -110,7 +80,14 @@ const securityVisitSlice = createSlice({
 
       .addCase(fetchSecurityVisits.fulfilled, (state, action) => {
         state.loading = false;
-        state.visits = action.payload?.visits || [];
+        state.error = null;
+
+        const payload = action.payload || {};
+        const data = payload.data ?? payload;
+
+        state.visits = Array.isArray(data.visits)
+          ? data.visits
+          : [];
       })
 
       .addCase(fetchSecurityVisits.rejected, (state, action) => {
@@ -118,10 +95,6 @@ const securityVisitSlice = createSlice({
         state.error =
           action.payload || "Unable to fetch Security visits.";
       })
-
-      // ===============================================
-      // FETCH VISIT DETAILS
-      // ===============================================
 
       .addCase(fetchSecurityVisitById.pending, (state) => {
         state.detailsLoading = true;
@@ -131,7 +104,12 @@ const securityVisitSlice = createSlice({
 
       .addCase(fetchSecurityVisitById.fulfilled, (state, action) => {
         state.detailsLoading = false;
-        state.selectedVisit = action.payload?.visit || null;
+        state.detailsError = null;
+
+        const payload = action.payload || {};
+        const data = payload.data ?? payload;
+
+        state.selectedVisit = data.visit || null;
       })
 
       .addCase(fetchSecurityVisitById.rejected, (state, action) => {
@@ -142,14 +120,10 @@ const securityVisitSlice = createSlice({
   },
 });
 
-// =====================================================
-// EXPORTS
-// =====================================================
-
+// Exports
 export const {
   clearSelectedSecurityVisit,
   clearSecurityVisitErrors,
 } = securityVisitSlice.actions;
 
 export default securityVisitSlice.reducer;
-
