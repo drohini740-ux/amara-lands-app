@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL =
-  "http://localhost:4000/api/v1/super-admin/security-sessions";
+const API_URL = "/super-admin/security-sessions";
 
 // =====================================================
 // GET ALL SESSIONS
@@ -12,14 +11,7 @@ export const fetchSecuritySessions = createAsyncThunk(
   "superAdminSecuritySession/fetchSecuritySessions",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(API_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await API.get(API_URL);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -38,17 +30,7 @@ export const fetchSecuritySessionById = createAsyncThunk(
   "superAdminSecuritySession/fetchSecuritySessionById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(`${API_URL}/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -67,18 +49,9 @@ export const updateSecuritySessionStatus = createAsyncThunk(
   "superAdminSecuritySession/updateSecuritySessionStatus",
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}/status`,
-        {
-          status,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { status }
       );
 
       return response.data;
@@ -99,16 +72,9 @@ export const forceLogoutSecuritySession = createAsyncThunk(
   "superAdminSecuritySession/forceLogoutSecuritySession",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}/force-logout`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        {}
       );
 
       return response.data;
@@ -129,18 +95,10 @@ export const deleteSecuritySession = createAsyncThunk(
   "superAdminSecuritySession/deleteSecuritySession",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      await API.delete(`${API_URL}/${id}`);
 
-      const response = await axios.delete(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      return response.data;
+      // Return ID so the session can be removed from state.
+      return id;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -157,10 +115,8 @@ export const deleteSecuritySession = createAsyncThunk(
 const initialState = {
   sessions: [],
   selectedSession: null,
-
   loading: false,
   actionLoading: false,
-
   error: null,
 };
 
@@ -183,228 +139,156 @@ const superAdminSecuritySessionSlice = createSlice({
   },
 
   extraReducers: (builder) => {
+    // FETCH ALL
+
     builder
+      .addCase(fetchSecuritySessions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSecuritySessions.fulfilled, (state, action) => {
+        state.loading = false;
+        state.sessions = action.payload?.data || [];
+      })
+      .addCase(fetchSecuritySessions.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Failed to fetch security sessions.";
+      });
 
-      // =================================================
-      // FETCH ALL
-      // =================================================
+    // FETCH BY ID
 
-      .addCase(
-        fetchSecuritySessions.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
+    builder
+      .addCase(fetchSecuritySessionById.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchSecuritySessionById.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        state.selectedSession = action.payload?.data || null;
+      })
+      .addCase(fetchSecuritySessionById.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload || "Failed to fetch session.";
+      });
 
-      .addCase(
-        fetchSecuritySessions.fulfilled,
-        (state, action) => {
-          state.loading = false;
+    // UPDATE STATUS
 
-          state.sessions =
-            action.payload?.data || [];
-        }
-      )
-
-      .addCase(
-        fetchSecuritySessions.rejected,
-        (state, action) => {
-          state.loading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to fetch security sessions.";
-        }
-      )
-
-      // =================================================
-      // FETCH BY ID
-      // =================================================
-
-      .addCase(
-        fetchSecuritySessionById.pending,
-        (state) => {
-          state.actionLoading = true;
-          state.error = null;
-        }
-      )
-
-      .addCase(
-        fetchSecuritySessionById.fulfilled,
-        (state, action) => {
-          state.actionLoading = false;
-
-          state.selectedSession =
-            action.payload?.data || null;
-        }
-      )
-
-      .addCase(
-        fetchSecuritySessionById.rejected,
-        (state, action) => {
-          state.actionLoading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to fetch session.";
-        }
-      )
-
-      // =================================================
-      // UPDATE STATUS
-      // =================================================
-
-      .addCase(
-        updateSecuritySessionStatus.pending,
-        (state) => {
-          state.actionLoading = true;
-          state.error = null;
-        }
-      )
-
+    builder
+      .addCase(updateSecuritySessionStatus.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
       .addCase(
         updateSecuritySessionStatus.fulfilled,
         (state, action) => {
           state.actionLoading = false;
 
-          const updatedSession =
-            action.payload?.data;
+          const updatedSession = action.payload?.data;
+          if (!updatedSession) return;
 
-          if (updatedSession) {
-            const index =
-              state.sessions.findIndex(
-                (session) =>
-                  session.id ===
-                  updatedSession.id
-              );
+          const index = state.sessions.findIndex(
+            (session) => session.id === updatedSession.id
+          );
 
-            if (index !== -1) {
-              state.sessions[index] = {
-                ...state.sessions[index],
-                ...updatedSession,
-              };
-            }
+          if (index !== -1) {
+            state.sessions[index] = {
+              ...state.sessions[index],
+              ...updatedSession,
+            };
+          }
 
-            state.selectedSession =
-              updatedSession;
+          if (state.selectedSession?.id === updatedSession.id) {
+            state.selectedSession = {
+              ...state.selectedSession,
+              ...updatedSession,
+            };
           }
         }
       )
-
       .addCase(
         updateSecuritySessionStatus.rejected,
         (state, action) => {
           state.actionLoading = false;
-
           state.error =
-            action.payload ||
-            "Failed to update session status.";
+            action.payload || "Failed to update session status.";
         }
-      )
+      );
 
-      // =================================================
-      // FORCE LOGOUT
-      // =================================================
+    // FORCE LOGOUT
 
-      .addCase(
-        forceLogoutSecuritySession.pending,
-        (state) => {
-          state.actionLoading = true;
-          state.error = null;
-        }
-      )
-
+    builder
+      .addCase(forceLogoutSecuritySession.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
       .addCase(
         forceLogoutSecuritySession.fulfilled,
         (state, action) => {
           state.actionLoading = false;
 
-          const updatedSession =
-            action.payload?.data;
+          const updatedSession = action.payload?.data;
+          if (!updatedSession) return;
 
-          if (updatedSession) {
-            const index =
-              state.sessions.findIndex(
-                (session) =>
-                  session.id ===
-                  updatedSession.id
-              );
+          const index = state.sessions.findIndex(
+            (session) => session.id === updatedSession.id
+          );
 
-            if (index !== -1) {
-              state.sessions[index] = {
-                ...state.sessions[index],
-                ...updatedSession,
-              };
-            }
+          if (index !== -1) {
+            state.sessions[index] = {
+              ...state.sessions[index],
+              ...updatedSession,
+            };
+          }
 
-            state.selectedSession =
-              updatedSession;
+          if (state.selectedSession?.id === updatedSession.id) {
+            state.selectedSession = {
+              ...state.selectedSession,
+              ...updatedSession,
+            };
           }
         }
       )
-
       .addCase(
         forceLogoutSecuritySession.rejected,
         (state, action) => {
           state.actionLoading = false;
-
           state.error =
-            action.payload ||
-            "Failed to force logout session.";
-        }
-      )
-
-      // =================================================
-      // DELETE
-      // =================================================
-
-      .addCase(
-        deleteSecuritySession.pending,
-        (state) => {
-          state.actionLoading = true;
-          state.error = null;
-        }
-      )
-
-      .addCase(
-        deleteSecuritySession.fulfilled,
-        (state, action) => {
-          state.actionLoading = false;
-
-          const deletedSession =
-            action.payload?.data;
-
-          if (deletedSession) {
-            state.sessions =
-              state.sessions.filter(
-                (session) =>
-                  session.id !==
-                  deletedSession.id
-              );
-          }
-
-          state.selectedSession = null;
-        }
-      )
-
-      .addCase(
-        deleteSecuritySession.rejected,
-        (state, action) => {
-          state.actionLoading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to delete session.";
+            action.payload || "Failed to force logout session.";
         }
       );
+
+    // DELETE
+
+    builder
+      .addCase(deleteSecuritySession.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteSecuritySession.fulfilled, (state, action) => {
+        state.actionLoading = false;
+
+        const deletedId = action.payload;
+
+        state.sessions = state.sessions.filter(
+          (session) => session.id !== deletedId
+        );
+
+        if (state.selectedSession?.id === deletedId) {
+          state.selectedSession = null;
+        }
+      })
+      .addCase(deleteSecuritySession.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error =
+          action.payload || "Failed to delete session.";
+      });
   },
 });
 
 export const {
   clearSelectedSecuritySession,
   clearSecuritySessionError,
-} =
-  superAdminSecuritySessionSlice.actions;
+} = superAdminSecuritySessionSlice.actions;
 
 export default superAdminSecuritySessionSlice.reducer;

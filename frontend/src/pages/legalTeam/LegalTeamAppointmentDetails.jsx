@@ -16,7 +16,7 @@ import {
   FaMoneyBillWave,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 const LegalTeamAppointmentDetails = () => {
   const { id } = useParams();
@@ -32,46 +32,44 @@ const LegalTeamAppointmentDetails = () => {
   // FETCH APPOINTMENT
   // =====================================================
 
-  const fetchAppointment = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchAppointment = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(
+      `/legal-team/appointments/${id}`
+    );
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/appointments/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(
+      "Legal Team Appointment Details Response:",
+      response.data
+    );
 
-      if (response.data?.success) {
-        setAppointment(
-          response.data.appointment
-        );
-      } else {
-        setError(
-          response.data?.message ||
-            "Appointment not found."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Team Appointment Details Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setAppointment(response.data.appointment);
+    } else {
+      setAppointment(null);
       setError(
-        err.response?.data?.message ||
-          "Unable to load appointment."
+        response.data?.message ||
+          "Appointment not found."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Team Appointment Details Error:",
+      err.response?.data || err.message
+    );
+
+    setAppointment(null);
+    setError(
+      err.response?.data?.message ||
+        "Unable to load appointment."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchAppointment();

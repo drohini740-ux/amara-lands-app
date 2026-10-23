@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -12,7 +12,7 @@ import {
   FaTag,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const LegalTeamNotificationDetails = () => {
   const navigate = useNavigate();
@@ -30,46 +30,44 @@ const LegalTeamNotificationDetails = () => {
   // FETCH NOTIFICATION
   // =====================================================
 
-  const fetchNotification = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchNotification = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(
+      `/legal-team/notifications/${id}`
+    );
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/notifications/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(
+      "Legal Team Notification Details Response:",
+      response.data
+    );
 
-      if (response.data?.success) {
-        setNotification(
-          response.data.notification
-        );
-      } else {
-        setError(
-          response.data?.message ||
-            "Failed to fetch notification."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Notification Details Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setNotification(response.data.notification);
+    } else {
+      setNotification(null);
       setError(
-        err.response?.data?.message ||
-          "Unable to load notification."
+        response.data?.message ||
+          "Failed to fetch notification."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Notification Details Error:",
+      err.response?.data || err.message
+    );
+
+    setNotification(null);
+    setError(
+      err.response?.data?.message ||
+        "Unable to load notification."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchNotification();
@@ -79,51 +77,47 @@ const LegalTeamNotificationDetails = () => {
   // MARK AS READ
   // =====================================================
 
-  const markAsRead = async () => {
-    if (!notification || notification.is_read) {
-      return;
-    }
+ const markAsRead = async () => {
+  if (!notification || notification.is_read) {
+    return;
+  }
 
-    try {
-      setActionLoading(true);
-      setError("");
+  try {
+    setActionLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.put(
+      `/legal-team/notifications/${id}/read`,
+      {}
+    );
 
-      const response = await axios.put(
-        `${API_URL}/legal-team/notifications/${id}/read`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    if (response.data?.success) {
+      setNotification(
+        response.data.notification || {
+          ...notification,
+          is_read: true,
         }
       );
-
-      if (response.data?.success) {
-        setNotification(
-          response.data.notification
-        );
-      } else {
-        setError(
-          response.data?.message ||
-            "Failed to mark notification as read."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Mark Notification Read Error:",
-        err.response?.data || err.message
-      );
-
+    } else {
       setError(
-        err.response?.data?.message ||
-          "Unable to update notification."
+        response.data?.message ||
+          "Failed to mark notification as read."
       );
-    } finally {
-      setActionLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Mark Notification Read Error:",
+      err.response?.data || err.message
+    );
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to update notification."
+    );
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   // =====================================================
   // FORMAT DATE

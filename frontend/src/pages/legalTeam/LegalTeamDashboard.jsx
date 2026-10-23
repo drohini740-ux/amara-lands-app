@@ -1,6 +1,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../../services/api";
 
 import {
   FaGavel,
@@ -13,7 +14,7 @@ import {
   FaSyncAlt,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1/legal-team/dashboard";
+//const API_URL = "http://localhost:4000/api/v1/legal-team/dashboard";
 
 const LegalTeamDashboard = () => {
   const navigate = useNavigate();
@@ -32,55 +33,44 @@ const LegalTeamDashboard = () => {
   const [error, setError] = useState("");
 
   // Fetch dashboard information from the backend.
-  const fetchDashboard = useCallback(async () => {
-    setLoading(true);
-    setError("");
+ 
+const fetchDashboard = useCallback(async () => {
+  setLoading(true);
+  setError("");
 
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const response = await API.get("/legal-team/dashboard");
+    const result = response.data;
 
-      if (!token) {
-        throw new Error(
-          "Authentication token not found. Please log in again."
-        );
-      }
-
-      const response = await fetch(API_URL, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Unable to load dashboard information."
-        );
-      }
-
-      setDashboard({
-        totalCases: result.dashboard?.totalCases ?? 0,
-        activeCases: result.dashboard?.activeCases ?? 0,
-        pendingCases: result.dashboard?.pendingCases ?? 0,
-        closedCases: result.dashboard?.closedCases ?? 0,
-        rejectedCases: result.dashboard?.rejectedCases ?? 0,
-        upcomingAppointments:
-          result.dashboard?.upcomingAppointments ?? [],
-        recentCases: result.dashboard?.recentCases ?? [],
-      });
-    } catch (err) {
-      console.error("Legal Team Dashboard Error:", err);
-      setError(
-        err.message ||
-          "Unable to connect to the server. Please try again."
+    if (!result.success) {
+      throw new Error(
+        result.message || "Unable to load dashboard information."
       );
-    } finally {
-      setLoading(false);
     }
-  }, []);
+
+    setDashboard({
+      totalCases: result.dashboard?.totalCases ?? 0,
+      activeCases: result.dashboard?.activeCases ?? 0,
+      pendingCases: result.dashboard?.pendingCases ?? 0,
+      closedCases: result.dashboard?.closedCases ?? 0,
+      rejectedCases: result.dashboard?.rejectedCases ?? 0,
+      upcomingAppointments:
+        result.dashboard?.upcomingAppointments ?? [],
+      recentCases: result.dashboard?.recentCases ?? [],
+    });
+  } catch (err) {
+    console.error("Legal Team Dashboard Error:", err);
+
+    setError(
+      err.response?.data?.message ||
+        err.message ||
+        "Unable to connect to the server. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   useEffect(() => {
     fetchDashboard();

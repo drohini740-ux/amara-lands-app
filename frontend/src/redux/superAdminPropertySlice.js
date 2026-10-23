@@ -1,142 +1,110 @@
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import API from "../services/api";
 
-const API_URL = "http://localhost:4000/api/v1/super-admin/properties";
+const API_URL = "/super-admin/properties";
 
-// Get all properties
+// ======================================================
+// GET ALL PROPERTIES
+// ======================================================
 export const fetchSuperAdminProperties = createAsyncThunk(
   "superAdminProperty/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.get(API_URL);
+      const data = response.data;
 
-      const response = await fetch(API_URL, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || "Failed to fetch properties");
-      }
-
-      return data.properties || data.property || data.data?.properties || [];
+      return (
+        data.properties ||
+        data.property ||
+        data.data?.properties ||
+        []
+      );
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch properties"
+      );
     }
   }
 );
 
-// Get property by ID
+// ======================================================
+// GET PROPERTY BY ID
+// ======================================================
 export const fetchSuperAdminPropertyById = createAsyncThunk(
   "superAdminProperty/fetchById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.get(`${API_URL}/${id}`);
+      const data = response.data;
 
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || "Failed to fetch property");
-      }
-
-      return data.property;
+      return data.property || data.data?.property || data.data || data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch property"
+      );
     }
   }
 );
 
-// Verify property
+// ======================================================
+// VERIFY PROPERTY
+// ======================================================
 export const verifySuperAdminProperty = createAsyncThunk(
   "superAdminProperty/verify",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.put(`${API_URL}/${id}/verify`);
+      const data = response.data;
 
-      const response = await fetch(`${API_URL}/${id}/verify`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || "Failed to verify property");
-      }
-
-      return data.property;
+      return data.property || data.data?.property || data.data || data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to verify property"
+      );
     }
   }
 );
 
-// Reject property
+// ======================================================
+// REJECT PROPERTY
+// ======================================================
 export const rejectSuperAdminProperty = createAsyncThunk(
   "superAdminProperty/reject",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.put(`${API_URL}/${id}/reject`);
+      const data = response.data;
 
-      const response = await fetch(`${API_URL}/${id}/reject`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || "Failed to reject property");
-      }
-
-      return data.property;
+      return data.property || data.data?.property || data.data || data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to reject property"
+      );
     }
   }
 );
 
-// Delete property
+// ======================================================
+// DELETE PROPERTY
+// ======================================================
 export const deleteSuperAdminProperty = createAsyncThunk(
   "superAdminProperty/delete",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || "Failed to delete property");
-      }
-
+      await API.delete(`${API_URL}/${id}`);
       return id;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete property"
+      );
     }
   }
 );
 
+// ======================================================
+// INITIAL STATE
+// ======================================================
 const initialState = {
   properties: [],
   selectedProperty: null,
@@ -144,6 +112,9 @@ const initialState = {
   error: null,
 };
 
+// ======================================================
+// SLICE
+// ======================================================
 const superAdminPropertySlice = createSlice({
   name: "superAdminProperty",
   initialState,
@@ -151,7 +122,6 @@ const superAdminPropertySlice = createSlice({
     clearSelectedProperty: (state) => {
       state.selectedProperty = null;
     },
-
     clearPropertyError: (state) => {
       state.error = null;
     },
@@ -159,84 +129,91 @@ const superAdminPropertySlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
-      // Get all
+      // GET ALL
       .addCase(fetchSuperAdminProperties.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(fetchSuperAdminProperties.fulfilled, (state, action) => {
         state.loading = false;
-        state.properties = action.payload;
+        state.properties = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
-
       .addCase(fetchSuperAdminProperties.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || action.error.message;
       })
 
-      // Get by ID
+      // GET BY ID
       .addCase(fetchSuperAdminPropertyById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(fetchSuperAdminPropertyById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedProperty = action.payload;
       })
-
       .addCase(fetchSuperAdminPropertyById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || action.error.message;
       })
 
-      // Verify
+      // VERIFY
       .addCase(verifySuperAdminProperty.fulfilled, (state, action) => {
         const updatedProperty = action.payload;
+        if (!updatedProperty?.id) return;
 
         const index = state.properties.findIndex(
           (property) => property.id === updatedProperty.id
         );
 
         if (index !== -1) {
-          state.properties[index].verification_status =
-            updatedProperty.verification_status;
-
-          state.properties[index].verified_by =
-            updatedProperty.verified_by;
+          state.properties[index] = {
+            ...state.properties[index],
+            ...updatedProperty,
+          };
         }
 
-        state.selectedProperty = {
-          ...state.selectedProperty,
-          ...updatedProperty,
-        };
+        if (state.selectedProperty?.id === updatedProperty.id) {
+          state.selectedProperty = {
+            ...state.selectedProperty,
+            ...updatedProperty,
+          };
+        }
+      })
+      .addCase(verifySuperAdminProperty.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
       })
 
-      // Reject
+      // REJECT
       .addCase(rejectSuperAdminProperty.fulfilled, (state, action) => {
         const updatedProperty = action.payload;
+        if (!updatedProperty?.id) return;
 
         const index = state.properties.findIndex(
           (property) => property.id === updatedProperty.id
         );
 
         if (index !== -1) {
-          state.properties[index].verification_status =
-            updatedProperty.verification_status;
-
-          state.properties[index].verified_by =
-            updatedProperty.verified_by;
+          state.properties[index] = {
+            ...state.properties[index],
+            ...updatedProperty,
+          };
         }
 
-        state.selectedProperty = {
-          ...state.selectedProperty,
-          ...updatedProperty,
-        };
+        if (state.selectedProperty?.id === updatedProperty.id) {
+          state.selectedProperty = {
+            ...state.selectedProperty,
+            ...updatedProperty,
+          };
+        }
+      })
+      .addCase(rejectSuperAdminProperty.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
       })
 
-      // Delete
+      // DELETE
       .addCase(deleteSuperAdminProperty.fulfilled, (state, action) => {
         state.properties = state.properties.filter(
           (property) => property.id !== action.payload
@@ -246,16 +223,9 @@ const superAdminPropertySlice = createSlice({
           state.selectedProperty = null;
         }
       })
-
-      // General errors
-      .addMatcher(
-        (action) =>
-          action.type.startsWith("superAdminProperty/") &&
-          action.type.endsWith("/rejected"),
-        (state, action) => {
-          state.error = action.payload;
-        }
-      );
+      .addCase(deleteSuperAdminProperty.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
+      });
   },
 });
 

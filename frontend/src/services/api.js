@@ -8,53 +8,27 @@ const API = axios.create({
   },
 });
 
-// Attach the token belonging to the current browser tab.
+// =====================================================
+// AUTHENTICATION INTERCEPTOR
+// =====================================================
+
 API.interceptors.request.use(
   (config) => {
+    // Get the JWT token from the current browser tab.
     const token = sessionStorage.getItem("token");
-    console.log("AUTH TOKEN CHECK:", {
-  url: config.url,
-  storedTokenParts: token ? token.split(".").length : 0,
-  storedTokenLength: token?.length ?? 0,
-  authorizationExists: Boolean(
-    config.headers?.Authorization ||
-    config.headers?.authorization
-  ),
-});
 
-    // Temporary debugging: never log the actual token.
-    let userRole = null;
+    config.headers = config.headers || {};
 
-    try {
-      const user = JSON.parse(
-        sessionStorage.getItem("user") || "null"
-      );
-      userRole = user?.role ?? null;
-    } catch {
-      userRole = "Invalid session user data";
-    }
-
-    console.log("API AUTH DEBUG:", {
-      url: config.url,
-      method: config.method,
-      hasToken: Boolean(token),
-      tokenLength: token?.length ?? 0,
-      userRole,
-    });
-
-    // Add the current tab's token to the request.
+    // Attach the token to the request.
     if (token) {
-      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      // Do not send an old or default Authorization header.
-      if (config.headers) {
-        delete config.headers.Authorization;
-        delete config.headers.authorization;
-      }
+      delete config.headers.Authorization;
+      delete config.headers.authorization;
     }
 
-    // Let the browser set the multipart boundary for uploads.
+    // Support file uploads using FormData.
+    // The browser will automatically set the multipart boundary.
     if (
       typeof FormData !== "undefined" &&
       config.data instanceof FormData

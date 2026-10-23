@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../services/api";
 
 import {
   FaBuilding,
@@ -13,7 +13,7 @@ import {
   FaHourglassHalf,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 const LegalTeamProperties = () => {
   const navigate = useNavigate();
@@ -30,47 +30,37 @@ const LegalTeamProperties = () => {
   // FETCH PROPERTIES
   // =====================================================
 
-  const fetchProperties = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchProperties = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get("/legal-team/properties");
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/properties`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log("Legal Team Properties Response:", response.data);
 
-      if (response.data?.success) {
-        setProperties(
-          response.data.properties || []
-        );
-      } else {
-        setProperties([]);
-        setError(
-          response.data?.message ||
-            "Failed to fetch properties."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Team Properties Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setProperties(response.data.properties || []);
+    } else {
+      setProperties([]);
       setError(
-        err.response?.data?.message ||
-          "Unable to load properties."
+        response.data?.message || "Failed to fetch properties."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Team Properties Error:",
+      err.response?.data || err.message
+    );
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to load properties."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchProperties();

@@ -1,56 +1,43 @@
-import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/v1/live-snapshots";
+import API from "../api";
 
-// Get JWT token
-const getAuthConfig = () => {
-  const token = localStorage.getItem("token");
+const API_URL = "/live-snapshots";
 
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  };
-};
-
-// Get all live snapshots
+// ======================================================
+// GET ALL LIVE SNAPSHOTS
+// ======================================================
 const getLiveSnapshots = async () => {
-  const response = await axios.get(API_URL, getAuthConfig());
+  const response = await API.get(API_URL);
   return response.data;
 };
 
-// Get single live snapshot
+// ======================================================
+// GET SINGLE LIVE SNAPSHOT
+// ======================================================
 const getLiveSnapshot = async (id) => {
-  const response = await axios.get(
-    `${API_URL}/${id}`,
-    getAuthConfig()
-  );
-
+  const response = await API.get(`${API_URL}/${id}`);
   return response.data;
 };
 
-// Create live snapshot
+// ======================================================
+// CREATE LIVE SNAPSHOT
+// ======================================================
 const createLiveSnapshot = async (snapshotData) => {
-  const response = await axios.post(
-    API_URL,
-    snapshotData,
-    getAuthConfig()
-  );
-
+  const response = await API.post(API_URL, snapshotData);
   return response.data;
 };
 
-// Delete live snapshot
+// ======================================================
+// DELETE LIVE SNAPSHOT
+// ======================================================
 const deleteLiveSnapshot = async (id) => {
-  const response = await axios.delete(
-    `${API_URL}/${id}`,
-    getAuthConfig()
-  );
-
+  const response = await API.delete(`${API_URL}/${id}`);
   return response.data;
 };
 
+// ======================================================
+// EXPORT SERVICE
+// ======================================================
 const liveSnapshotService = {
   getLiveSnapshots,
   getLiveSnapshot,

@@ -1,10 +1,10 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminEditUser = () => {
   const navigate = useNavigate();
@@ -26,57 +26,39 @@ const SuperAdminEditUser = () => {
   // FETCH USER
   // =====================================================
 
-  const fetchUser = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchUser = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(`/super-admin/users/${id}`);
 
-      const response = await axios.get(
-        `${API_URL}/super-admin/users/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log("Super Admin User Response:", response.data);
 
-      console.log(
-        "Super Admin User Response:",
-        response.data
-      );
+    if (response.data?.success) {
+      const user = response.data.user;
 
-      if (response.data?.success) {
-        const user = response.data.user;
-
-        setFormData({
-          full_name: user.full_name || "",
-          mobile: user.mobile || "",
-          email: user.email || "",
-          role: user.role || "customer",
-          status: user.status || "active",
-        });
-      } else {
-        setError(
-          response.data?.message ||
-            "Failed to fetch user."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "FETCH SUPER ADMIN USER ERROR:",
-        err.response?.data || err.message
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Unable to load user."
-      );
-    } finally {
-      setLoading(false);
+      setFormData({
+        full_name: user.full_name || "",
+        mobile: user.mobile || "",
+        email: user.email || "",
+        role: user.role || "customer",
+        status: user.status || "active",
+      });
+    } else {
+      setError(response.data?.message || "Failed to fetch user.");
     }
-  };
+  } catch (err) {
+    console.error(
+      "FETCH SUPER ADMIN USER ERROR:",
+      err.response?.data || err.message
+    );
+
+    setError(err.response?.data?.message || "Unable to load user.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // LOAD USER

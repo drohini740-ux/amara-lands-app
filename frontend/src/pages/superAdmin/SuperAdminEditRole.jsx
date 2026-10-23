@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminEditRole = () => {
   const navigate = useNavigate();
@@ -15,50 +15,27 @@ const SuperAdminEditRole = () => {
   const [error, setError] = useState("");
 
   const fetchRole = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(`/super-admin/roles/${id}`);
 
-      const response = await axios.get(
-        `${API_URL}/super-admin/roles/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log("Get Role Response:", response.data);
 
-      console.log(
-        "Get Role Response:",
-        response.data
-      );
-
-      if (response.data?.success) {
-        setRoleName(
-          response.data.role?.role_name || ""
-        );
-      } else {
-        setError(
-          response.data?.message ||
-            "Failed to fetch role."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "FETCH ROLE ERROR:",
-        err.response?.data || err.message
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Unable to load role."
-      );
-    } finally {
-      setLoading(false);
+    if (response.data?.success) {
+      setRoleName(response.data.role?.role_name || "");
+    } else {
+      setError(response.data?.message || "Failed to fetch role.");
     }
-  };
+  } catch (err) {
+    console.error("FETCH ROLE ERROR:", err.response?.data || err.message);
+
+    setError(err.response?.data?.message || "Unable to load role.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchRole();

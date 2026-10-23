@@ -1,23 +1,11 @@
-import axios from "axios";
+import API from "../api";
 
-const API_URL =
-  "http://localhost:4000/api/v1/admin/security-monitoring/dashboard";
+const API_URL = "/admin/security-monitoring/dashboard";
 
-const getAuthConfig = () => {
-  const token = localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
-
+// ======================================================
+// GET SECURITY MONITORING DASHBOARD
+// ======================================================
 export const getSecurityMonitoringDashboard = async () => {
-  const response = await axios.get(
-    API_URL,
-    getAuthConfig()
-  );
-
+  const response = await API.get(API_URL);
   return response.data;
 };

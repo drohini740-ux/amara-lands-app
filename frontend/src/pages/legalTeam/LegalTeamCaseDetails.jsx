@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -16,7 +16,7 @@ import {
   FaUser,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 const LegalTeamCaseDetails = () => {
   const navigate = useNavigate();
@@ -30,50 +30,43 @@ const LegalTeamCaseDetails = () => {
   // FETCH CASE DETAILS
   // =====================================================
 
-  const fetchCaseDetails = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchCaseDetails = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(
+      `/legal-team/cases/${id}`
+    );
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/cases/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(
+      "Legal Case Details Response:",
+      response.data
+    );
 
-      console.log(
-        "Legal Case Details Response:",
-        response.data
-      );
-
-      if (response.data?.success) {
-        setCaseData(response.data.case);
-      } else {
-        setError(
-          response.data?.message ||
-            "Unable to load case details."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Case Details Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setCaseData(response.data.case);
+    } else {
+      setCaseData(null);
       setError(
-        err.response?.data?.message ||
+        response.data?.message ||
           "Unable to load case details."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Case Details Error:",
+      err.response?.data || err.message
+    );
 
+    setError(
+      err.response?.data?.message ||
+        "Unable to load case details."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   // =====================================================
   // LOAD CASE
   // =====================================================

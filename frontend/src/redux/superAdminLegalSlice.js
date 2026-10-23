@@ -1,36 +1,24 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const API_URL =
-  "http://localhost:4000/api/v1/super-admin/legal";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import API from "../services/api";
+
+const API_URL = "/super-admin/legal";
 
 // =====================================================
 // GET ALL LEGAL CASES
 // =====================================================
-
 export const fetchSuperAdminLegalCases = createAsyncThunk(
   "superAdminLegal/fetchCases",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.get(`${API_URL}/cases`);
+      const data = response.data;
 
-      const response = await fetch(`${API_URL}/cases`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(
-          data.message || "Failed to fetch legal cases."
-        );
-      }
-
-      return data.cases || [];
+      return data.cases || data.data?.cases || [];
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch legal cases."
+      );
     }
   }
 );
@@ -38,31 +26,18 @@ export const fetchSuperAdminLegalCases = createAsyncThunk(
 // =====================================================
 // GET LEGAL CASE BY ID
 // =====================================================
-
 export const fetchSuperAdminLegalCaseById = createAsyncThunk(
   "superAdminLegal/fetchCaseById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.get(`${API_URL}/cases/${id}`);
+      const data = response.data;
 
-      const response = await fetch(`${API_URL}/cases/${id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(
-          data.message || "Failed to fetch legal case."
-        );
-      }
-
-      return data.case;
+      return data.case || data.data?.case || data.data || data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch legal case."
+      );
     }
   }
 );
@@ -70,70 +45,41 @@ export const fetchSuperAdminLegalCaseById = createAsyncThunk(
 // =====================================================
 // UPDATE LEGAL CASE STATUS
 // =====================================================
+export const updateSuperAdminLegalCaseStatus = createAsyncThunk(
+  "superAdminLegal/updateCaseStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await API.put(
+        `${API_URL}/cases/${id}/status`,
+        { status }
+      );
+      const data = response.data;
 
-export const updateSuperAdminLegalCaseStatus =
-  createAsyncThunk(
-    "superAdminLegal/updateCaseStatus",
-    async ({ id, status }, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          `${API_URL}/cases/${id}/status`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return rejectWithValue(
-            data.message ||
-              "Failed to update legal case status."
-          );
-        }
-
-        return data.case;
-      } catch (error) {
-        return rejectWithValue(error.message);
-      }
+      return data.case || data.data?.case || data.data || data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update legal case status."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // DELETE LEGAL CASE
 // =====================================================
-
 export const deleteSuperAdminLegalCase = createAsyncThunk(
   "superAdminLegal/deleteCase",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
+      const response = await API.delete(`${API_URL}/cases/${id}`);
+      const data = response.data;
 
-      const response = await fetch(`${API_URL}/cases/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(
-          data.message || "Failed to delete legal case."
-        );
-      }
-
-      return data.case;
+      return data.case || data.data?.case || { id };
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete legal case."
+      );
     }
   }
 );
@@ -141,92 +87,60 @@ export const deleteSuperAdminLegalCase = createAsyncThunk(
 // =====================================================
 // GET ALL LEGAL CONSULTATIONS
 // =====================================================
+export const fetchSuperAdminLegalConsultations = createAsyncThunk(
+  "superAdminLegal/fetchConsultations",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${API_URL}/consultations`);
+      const data = response.data;
 
-export const fetchSuperAdminLegalConsultations =
-  createAsyncThunk(
-    "superAdminLegal/fetchConsultations",
-    async (_, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          `${API_URL}/consultations`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return rejectWithValue(
-            data.message ||
-              "Failed to fetch legal consultations."
-          );
-        }
-
-        return data.consultations || [];
-      } catch (error) {
-        return rejectWithValue(error.message);
-      }
+      return data.consultations || data.data?.consultations || [];
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch legal consultations."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // UPDATE CONSULTATION STATUS
 // =====================================================
+export const updateSuperAdminConsultationStatus = createAsyncThunk(
+  "superAdminLegal/updateConsultationStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await API.put(
+        `${API_URL}/consultations/${id}/status`,
+        { status }
+      );
+      const data = response.data;
 
-export const updateSuperAdminConsultationStatus =
-  createAsyncThunk(
-    "superAdminLegal/updateConsultationStatus",
-    async ({ id, status }, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          `${API_URL}/consultations/${id}/status`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return rejectWithValue(
-            data.message ||
-              "Failed to update consultation status."
-          );
-        }
-
-        return data.consultation;
-      } catch (error) {
-        return rejectWithValue(error.message);
-      }
+      return (
+        data.consultation ||
+        data.data?.consultation ||
+        data.data ||
+        data
+      );
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update consultation status."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // INITIAL STATE
 // =====================================================
-
 const initialState = {
   cases: [],
   consultations: [],
-
   selectedCase: null,
-
   loading: false,
   consultationsLoading: false,
-
   error: null,
   consultationsError: null,
 };
@@ -234,7 +148,6 @@ const initialState = {
 // =====================================================
 // SLICE
 // =====================================================
-
 const superAdminLegalSlice = createSlice({
   name: "superAdminLegal",
   initialState,
@@ -251,172 +164,139 @@ const superAdminLegalSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // =================================================
-    // FETCH CASES
-    // =================================================
-
     builder
+      // FETCH CASES
+      .addCase(fetchSuperAdminLegalCases.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSuperAdminLegalCases.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cases = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(fetchSuperAdminLegalCases.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+
+      // FETCH CASE BY ID
+      .addCase(fetchSuperAdminLegalCaseById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSuperAdminLegalCaseById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedCase = action.payload;
+      })
+      .addCase(fetchSuperAdminLegalCaseById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+
+      // UPDATE CASE STATUS
       .addCase(
-        fetchSuperAdminLegalCases.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
+        updateSuperAdminLegalCaseStatus.fulfilled,
+        (state, action) => {
+          const updatedCase = action.payload;
+          if (!updatedCase?.id) return;
+
+          const index = state.cases.findIndex(
+            (item) => item.id === updatedCase.id
+          );
+
+          if (index !== -1) {
+            state.cases[index] = {
+              ...state.cases[index],
+              ...updatedCase,
+            };
+          }
+
+          if (state.selectedCase?.id === updatedCase.id) {
+            state.selectedCase = {
+              ...state.selectedCase,
+              ...updatedCase,
+            };
+          }
         }
       )
 
-      .addCase(
-        fetchSuperAdminLegalCases.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.cases = action.payload;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminLegalCases.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload;
-        }
-      );
-
-    // =================================================
-    // FETCH CASE BY ID
-    // =================================================
-
-    builder
-      .addCase(
-        fetchSuperAdminLegalCaseById.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminLegalCaseById.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.selectedCase = action.payload;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminLegalCaseById.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload;
-        }
-      );
-
-    // =================================================
-    // UPDATE CASE STATUS
-    // =================================================
-
-    builder.addCase(
-      updateSuperAdminLegalCaseStatus.fulfilled,
-      (state, action) => {
-        const updatedCase = action.payload;
-
-        const index = state.cases.findIndex(
-          (item) => item.id === updatedCase.id
-        );
-
-        if (index !== -1) {
-          state.cases[index] = {
-            ...state.cases[index],
-            status: updatedCase.status,
-          };
-        }
-
-        if (
-          state.selectedCase &&
-          state.selectedCase.id === updatedCase.id
-        ) {
-          state.selectedCase.status =
-            updatedCase.status;
-        }
-      }
-    );
-
-    // =================================================
-    // DELETE CASE
-    // =================================================
-
-    builder.addCase(
-      deleteSuperAdminLegalCase.fulfilled,
-      (state, action) => {
+      // DELETE CASE
+      .addCase(deleteSuperAdminLegalCase.fulfilled, (state, action) => {
         const deletedCase = action.payload;
+        const deletedId =
+          deletedCase && typeof deletedCase === "object"
+            ? deletedCase.id
+            : deletedCase;
 
         state.cases = state.cases.filter(
-          (item) => item.id !== deletedCase.id
+          (item) => item.id !== deletedId
         );
 
-        if (
-          state.selectedCase &&
-          state.selectedCase.id === deletedCase.id
-        ) {
+        if (state.selectedCase?.id === deletedId) {
           state.selectedCase = null;
         }
-      }
-    );
+      })
 
-    // =================================================
-    // FETCH CONSULTATIONS
-    // =================================================
-
-    builder
-      .addCase(
-        fetchSuperAdminLegalConsultations.pending,
-        (state) => {
-          state.consultationsLoading = true;
-          state.consultationsError = null;
-        }
-      )
-
+      // FETCH CONSULTATIONS
+      .addCase(fetchSuperAdminLegalConsultations.pending, (state) => {
+        state.consultationsLoading = true;
+        state.consultationsError = null;
+      })
       .addCase(
         fetchSuperAdminLegalConsultations.fulfilled,
         (state, action) => {
           state.consultationsLoading = false;
-          state.consultations = action.payload;
+          state.consultations = Array.isArray(action.payload)
+            ? action.payload
+            : [];
         }
       )
-
       .addCase(
         fetchSuperAdminLegalConsultations.rejected,
         (state, action) => {
           state.consultationsLoading = false;
-          state.consultationsError = action.payload;
+          state.consultationsError =
+            action.payload || action.error.message;
         }
-      );
+      )
 
-    // =================================================
-    // UPDATE CONSULTATION STATUS
-    // =================================================
+      // UPDATE CONSULTATION STATUS
+      .addCase(
+        updateSuperAdminConsultationStatus.fulfilled,
+        (state, action) => {
+          const updatedConsultation = action.payload;
+          if (!updatedConsultation?.id) return;
 
-    builder.addCase(
-      updateSuperAdminConsultationStatus.fulfilled,
-      (state, action) => {
-        const updatedConsultation = action.payload;
+          const index = state.consultations.findIndex(
+            (item) => item.id === updatedConsultation.id
+          );
 
-        const index = state.consultations.findIndex(
-          (item) => item.id === updatedConsultation.id
-        );
-
-        if (index !== -1) {
-          state.consultations[index] = {
-            ...state.consultations[index],
-            status: updatedConsultation.status,
-          };
+          if (index !== -1) {
+            state.consultations[index] = {
+              ...state.consultations[index],
+              ...updatedConsultation,
+            };
+          }
         }
-      }
-    );
+      )
+      .addCase(
+        updateSuperAdminConsultationStatus.rejected,
+        (state, action) => {
+          state.consultationsError =
+            action.payload || action.error.message;
+        }
+      )
+      .addCase(
+        updateSuperAdminLegalCaseStatus.rejected,
+        (state, action) => {
+          state.error = action.payload || action.error.message;
+        }
+      )
+      .addCase(deleteSuperAdminLegalCase.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
+      });
   },
 });
-
-// =====================================================
-// EXPORT
-// =====================================================
 
 export const {
   clearSelectedCase,

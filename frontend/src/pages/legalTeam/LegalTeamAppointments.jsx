@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -13,7 +13,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const LegalTeamAppointments = () => {
   const navigate = useNavigate();
@@ -30,47 +30,41 @@ const LegalTeamAppointments = () => {
   // FETCH APPOINTMENTS
   // =====================================================
 
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchAppointments = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get("/legal-team/appointments");
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/appointments`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(
+      "Legal Team Appointments Response:",
+      response.data
+    );
 
-      if (response.data?.success) {
-        setAppointments(
-          response.data.appointments || []
-        );
-      } else {
-        setAppointments([]);
-        setError(
-          response.data?.message ||
-            "Failed to fetch appointments."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Team Appointments Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setAppointments(response.data.appointments || []);
+    } else {
+      setAppointments([]);
       setError(
-        err.response?.data?.message ||
-          "Unable to load appointments."
+        response.data?.message ||
+          "Failed to fetch appointments."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Team Appointments Error:",
+      err.response?.data || err.message
+    );
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to load appointments."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // LOAD

@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL =
-  "http://localhost:4000/api/v1/super-admin/backup";
+const API_URL = "/super-admin/backup";
 
 // =====================================================
 // GET ALL BACKUPS
@@ -12,14 +11,7 @@ export const fetchBackups = createAsyncThunk(
   "superAdminBackup/fetchBackups",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(API_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await API.get(API_URL);
       return response.data.data || [];
     } catch (error) {
       return rejectWithValue(
@@ -38,17 +30,7 @@ export const fetchBackupById = createAsyncThunk(
   "superAdminBackup/fetchBackupById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(`${API_URL}/${id}`);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -67,19 +49,7 @@ export const createBackup = createAsyncThunk(
   "superAdminBackup/createBackup",
   async (backupData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        API_URL,
-        backupData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await API.post(API_URL, backupData);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -98,19 +68,9 @@ export const updateBackupStatus = createAsyncThunk(
   "superAdminBackup/updateBackupStatus",
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}/status`,
-        {
-          status,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        { status }
       );
 
       return response.data.data;
@@ -131,14 +91,7 @@ export const deleteBackup = createAsyncThunk(
   "superAdminBackup/deleteBackup",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.delete(`${API_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await API.delete(`${API_URL}/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(
@@ -233,7 +186,9 @@ const superAdminBackupSlice = createSlice({
       .addCase(createBackup.fulfilled, (state, action) => {
         state.actionLoading = false;
 
-        state.backups.unshift(action.payload);
+        if (action.payload) {
+          state.backups.unshift(action.payload);
+        }
       })
 
       .addCase(createBackup.rejected, (state, action) => {
@@ -254,20 +209,26 @@ const superAdminBackupSlice = createSlice({
       .addCase(updateBackupStatus.fulfilled, (state, action) => {
         state.actionLoading = false;
 
+        const updatedBackup = action.payload;
+
+        if (!updatedBackup) return;
+
         const index = state.backups.findIndex(
-          (backup) =>
-            backup.id === action.payload.id
+          (backup) => backup.id === updatedBackup.id
         );
 
         if (index !== -1) {
-          state.backups[index] = action.payload;
+          state.backups[index] = {
+            ...state.backups[index],
+            ...updatedBackup,
+          };
         }
 
-        if (
-          state.selectedBackup?.id ===
-          action.payload.id
-        ) {
-          state.selectedBackup = action.payload;
+        if (state.selectedBackup?.id === updatedBackup.id) {
+          state.selectedBackup = {
+            ...state.selectedBackup,
+            ...updatedBackup,
+          };
         }
       })
 
@@ -290,13 +251,12 @@ const superAdminBackupSlice = createSlice({
         state.actionLoading = false;
 
         state.backups = state.backups.filter(
-          (backup) =>
-            backup.id !== action.payload
+          (backup) => Number(backup.id) !== Number(action.payload)
         );
 
         if (
-          state.selectedBackup?.id ===
-          action.payload
+          Number(state.selectedBackup?.id) ===
+          Number(action.payload)
         ) {
           state.selectedBackup = null;
         }

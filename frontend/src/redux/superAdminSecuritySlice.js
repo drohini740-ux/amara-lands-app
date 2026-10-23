@@ -7,9 +7,11 @@ const API_URL =
 // HELPER
 // =====================================================
 
+
 const getToken = () => {
-  return localStorage.getItem("token");
+  return sessionStorage.getItem("token");
 };
+
 
 const getHeaders = () => {
   const token = getToken();

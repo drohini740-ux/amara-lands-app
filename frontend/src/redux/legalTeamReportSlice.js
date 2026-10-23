@@ -1,8 +1,6 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // FETCH LEGAL TEAM REPORTS
@@ -12,19 +10,14 @@ export const fetchLegalReports = createAsyncThunk(
   "legalTeamReport/fetchLegalReports",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/legal-team/reports`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get("/legal-team/reports");
       return response.data;
     } catch (error) {
+      console.error(
+        "Fetch Legal Team Reports Error:",
+        error.response?.data || error.message
+      );
+
       return rejectWithValue(
         error.response?.data?.message ||
           "Failed to fetch Legal Team reports."
@@ -54,40 +47,24 @@ const legalTeamReportSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+      .addCase(fetchLegalReports.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
 
-      // FETCH REPORTS
-      .addCase(
-        fetchLegalReports.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
+      .addCase(fetchLegalReports.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload?.data || null;
+      })
 
-      .addCase(
-        fetchLegalReports.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.data =
-            action.payload?.data || null;
-        }
-      )
-
-      .addCase(
-        fetchLegalReports.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error =
-            action.payload ||
-            "Failed to fetch reports.";
-        }
-      );
+      .addCase(fetchLegalReports.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Failed to fetch reports.";
+      });
   },
 });
 
-export const {
-  clearLegalReportError,
-} = legalTeamReportSlice.actions;
+export const { clearLegalReportError } = legalTeamReportSlice.actions;
 
 export default legalTeamReportSlice.reducer;
-

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -10,7 +10,7 @@ import {
   FaKey,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminRoles = () => {
   const navigate = useNavigate();
@@ -19,38 +19,28 @@ const SuperAdminRoles = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchRoles = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchRoles = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get("/super-admin/roles");
 
-      const response = await axios.get(
-        `${API_URL}/super-admin/roles`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data?.success) {
-        setRoles(response.data.roles || []);
-      } else {
-        setError(
-          response.data?.message || "Failed to fetch roles."
-        );
-      }
-    } catch (err) {
+    if (response.data?.success) {
+      setRoles(response.data.roles || []);
+    } else {
       setError(
-        err.response?.data?.message ||
-          "Unable to load roles."
+        response.data?.message || "Failed to fetch roles."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    setError(
+      err.response?.data?.message || "Unable to load roles."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchRoles();

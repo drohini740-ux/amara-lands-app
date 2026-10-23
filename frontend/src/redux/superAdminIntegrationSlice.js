@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL =
-  "http://localhost:4000/api/v1/super-admin/integrations";
+const API_URL = "/super-admin/integrations";
 
 // =====================================================
 // GET ALL INTEGRATIONS
@@ -12,14 +11,7 @@ export const fetchIntegrations = createAsyncThunk(
   "superAdminIntegration/fetchIntegrations",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(API_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await API.get(API_URL);
       return response.data.data || [];
     } catch (error) {
       return rejectWithValue(
@@ -38,17 +30,7 @@ export const fetchIntegrationById = createAsyncThunk(
   "superAdminIntegration/fetchIntegrationById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(`${API_URL}/${id}`);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -67,19 +49,7 @@ export const createIntegration = createAsyncThunk(
   "superAdminIntegration/createIntegration",
   async (integrationData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        API_URL,
-        integrationData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await API.post(API_URL, integrationData);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -96,24 +66,12 @@ export const createIntegration = createAsyncThunk(
 
 export const updateIntegration = createAsyncThunk(
   "superAdminIntegration/updateIntegration",
-  async (
-    { id, integrationData },
-    { rejectWithValue }
-  ) => {
+  async ({ id, integrationData }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}`,
-        integrationData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        integrationData
       );
-
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -128,71 +86,45 @@ export const updateIntegration = createAsyncThunk(
 // UPDATE STATUS
 // =====================================================
 
-export const updateIntegrationStatus =
-  createAsyncThunk(
-    "superAdminIntegration/updateIntegrationStatus",
-    async (
-      { id, status },
-      { rejectWithValue }
-    ) => {
-      try {
-        const token =
-          localStorage.getItem("token");
-
-        const response = await axios.put(
-          `${API_URL}/${id}/status`,
-          {
-            status,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        return response.data.data;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Failed to update integration status."
-        );
-      }
+export const updateIntegrationStatus = createAsyncThunk(
+  "superAdminIntegration/updateIntegrationStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await API.put(
+        `${API_URL}/${id}/status`,
+        { status }
+      );
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update integration status."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // TOGGLE ENABLE / DISABLE
 // =====================================================
 
-export const toggleIntegration =
-  createAsyncThunk(
-    "superAdminIntegration/toggleIntegration",
-    async (id, { rejectWithValue }) => {
-      try {
-        const token =
-          localStorage.getItem("token");
-
-        const response = await axios.put(
-          `${API_URL}/${id}/toggle`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data.data;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Failed to toggle integration."
-        );
-      }
+export const toggleIntegration = createAsyncThunk(
+  "superAdminIntegration/toggleIntegration",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await API.put(
+        `${API_URL}/${id}/toggle`,
+        {}
+      );
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to toggle integration."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // TEST INTEGRATION
@@ -202,18 +134,10 @@ export const testIntegration = createAsyncThunk(
   "superAdminIntegration/testIntegration",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}/test`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        {}
       );
-
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -232,17 +156,7 @@ export const deleteIntegration = createAsyncThunk(
   "superAdminIntegration/deleteIntegration",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.delete(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      await API.delete(`${API_URL}/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(
@@ -269,337 +183,253 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const superAdminIntegrationSlice =
-  createSlice({
-    name: "superAdminIntegration",
-    initialState,
+const superAdminIntegrationSlice = createSlice({
+  name: "superAdminIntegration",
+  initialState,
 
-    reducers: {
-      clearSelectedIntegration: (state) => {
-        state.selectedIntegration = null;
-      },
+  reducers: {
+    clearSelectedIntegration: (state) => {
+      state.selectedIntegration = null;
+    },
 
-      clearIntegrationError: (state) => {
+    clearIntegrationError: (state) => {
+      state.error = null;
+    },
+  },
+
+  extraReducers: (builder) => {
+    builder
+
+      // =========================================
+      // FETCH ALL
+      // =========================================
+
+      .addCase(fetchIntegrations.pending, (state) => {
+        state.loading = true;
         state.error = null;
-      },
-    },
+      })
 
-    extraReducers: (builder) => {
-      builder
+      .addCase(fetchIntegrations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.integrations = action.payload;
+      })
 
-        // =========================================
-        // FETCH ALL
-        // =========================================
+      .addCase(fetchIntegrations.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-        .addCase(
-          fetchIntegrations.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+      // =========================================
+      // FETCH BY ID
+      // =========================================
 
-        .addCase(
-          fetchIntegrations.fulfilled,
-          (state, action) => {
-            state.loading = false;
-            state.integrations =
-              action.payload;
-          }
-        )
+      .addCase(fetchIntegrationById.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
 
-        .addCase(
-          fetchIntegrations.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload;
-          }
-        )
+      .addCase(fetchIntegrationById.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        state.selectedIntegration = action.payload;
+      })
 
-        // =========================================
-        // FETCH BY ID
-        // =========================================
+      .addCase(fetchIntegrationById.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
 
-        .addCase(
-          fetchIntegrationById.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
+      // =========================================
+      // CREATE
+      // =========================================
 
-        .addCase(
-          fetchIntegrationById.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-            state.selectedIntegration =
-              action.payload;
-          }
-        )
+      .addCase(createIntegration.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
 
-        .addCase(
-          fetchIntegrationById.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
-        )
+      .addCase(createIntegration.fulfilled, (state, action) => {
+        state.actionLoading = false;
 
-        // =========================================
-        // CREATE
-        // =========================================
+        if (action.payload) {
+          state.integrations.unshift(action.payload);
+        }
+      })
 
-        .addCase(
-          createIntegration.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
+      .addCase(createIntegration.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
 
-        .addCase(
-          createIntegration.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
+      // =========================================
+      // UPDATE
+      // =========================================
 
-            state.integrations.unshift(
-              action.payload
-            );
-          }
-        )
+      .addCase(updateIntegration.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
 
-        .addCase(
-          createIntegration.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
-        )
+      .addCase(updateIntegration.fulfilled, (state, action) => {
+        state.actionLoading = false;
 
-        // =========================================
-        // UPDATE
-        // =========================================
+        const updatedIntegration = action.payload;
+        if (!updatedIntegration) return;
 
-        .addCase(
-          updateIntegration.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          updateIntegration.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-
-            const index =
-              state.integrations.findIndex(
-                (item) =>
-                  item.id ===
-                  action.payload.id
-              );
-
-            if (index !== -1) {
-              state.integrations[index] =
-                action.payload;
-            }
-
-            state.selectedIntegration =
-              action.payload;
-          }
-        )
-
-        .addCase(
-          updateIntegration.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
-        )
-
-        // =========================================
-        // STATUS
-        // =========================================
-
-        .addCase(
-          updateIntegrationStatus.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          updateIntegrationStatus.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-
-            const index =
-              state.integrations.findIndex(
-                (item) =>
-                  item.id ===
-                  action.payload.id
-              );
-
-            if (index !== -1) {
-              state.integrations[index] =
-                action.payload;
-            }
-
-            state.selectedIntegration =
-              action.payload;
-          }
-        )
-
-        .addCase(
-          updateIntegrationStatus.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
-        )
-
-        // =========================================
-        // TOGGLE
-        // =========================================
-
-        .addCase(
-          toggleIntegration.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          toggleIntegration.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-
-            const index =
-              state.integrations.findIndex(
-                (item) =>
-                  item.id ===
-                  action.payload.id
-              );
-
-            if (index !== -1) {
-              state.integrations[index] =
-                action.payload;
-            }
-
-            state.selectedIntegration =
-              action.payload;
-          }
-        )
-
-        .addCase(
-          toggleIntegration.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
-        )
-
-        // =========================================
-        // TEST
-        // =========================================
-
-        .addCase(
-          testIntegration.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          testIntegration.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-
-            const index =
-              state.integrations.findIndex(
-                (item) =>
-                  item.id ===
-                  action.payload.id
-              );
-
-            if (index !== -1) {
-              state.integrations[index] =
-                action.payload;
-            }
-
-            state.selectedIntegration =
-              action.payload;
-          }
-        )
-
-        .addCase(
-          testIntegration.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
-        )
-
-        // =========================================
-        // DELETE
-        // =========================================
-
-        .addCase(
-          deleteIntegration.pending,
-          (state) => {
-            state.actionLoading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          deleteIntegration.fulfilled,
-          (state, action) => {
-            state.actionLoading = false;
-
-            state.integrations =
-              state.integrations.filter(
-                (item) =>
-                  item.id !==
-                  action.payload
-              );
-
-            if (
-              state.selectedIntegration
-                ?.id === action.payload
-            ) {
-              state.selectedIntegration =
-                null;
-            }
-          }
-        )
-
-        .addCase(
-          deleteIntegration.rejected,
-          (state, action) => {
-            state.actionLoading = false;
-            state.error =
-              action.payload;
-          }
+        const index = state.integrations.findIndex(
+          (item) => item.id === updatedIntegration.id
         );
-    },
-  });
+
+        if (index !== -1) {
+          state.integrations[index] = {
+            ...state.integrations[index],
+            ...updatedIntegration,
+          };
+        }
+
+        state.selectedIntegration = updatedIntegration;
+      })
+
+      .addCase(updateIntegration.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
+
+      // =========================================
+      // STATUS
+      // =========================================
+
+      .addCase(updateIntegrationStatus.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+
+      .addCase(updateIntegrationStatus.fulfilled, (state, action) => {
+        state.actionLoading = false;
+
+        const updatedIntegration = action.payload;
+        if (!updatedIntegration) return;
+
+        const index = state.integrations.findIndex(
+          (item) => item.id === updatedIntegration.id
+        );
+
+        if (index !== -1) {
+          state.integrations[index] = {
+            ...state.integrations[index],
+            ...updatedIntegration,
+          };
+        }
+
+        state.selectedIntegration = updatedIntegration;
+      })
+
+      .addCase(updateIntegrationStatus.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
+
+      // =========================================
+      // TOGGLE
+      // =========================================
+
+      .addCase(toggleIntegration.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+
+      .addCase(toggleIntegration.fulfilled, (state, action) => {
+        state.actionLoading = false;
+
+        const updatedIntegration = action.payload;
+        if (!updatedIntegration) return;
+
+        const index = state.integrations.findIndex(
+          (item) => item.id === updatedIntegration.id
+        );
+
+        if (index !== -1) {
+          state.integrations[index] = {
+            ...state.integrations[index],
+            ...updatedIntegration,
+          };
+        }
+
+        state.selectedIntegration = updatedIntegration;
+      })
+
+      .addCase(toggleIntegration.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
+
+      // =========================================
+      // TEST
+      // =========================================
+
+      .addCase(testIntegration.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+
+      .addCase(testIntegration.fulfilled, (state, action) => {
+        state.actionLoading = false;
+
+        const updatedIntegration = action.payload;
+        if (!updatedIntegration) return;
+
+        const index = state.integrations.findIndex(
+          (item) => item.id === updatedIntegration.id
+        );
+
+        if (index !== -1) {
+          state.integrations[index] = {
+            ...state.integrations[index],
+            ...updatedIntegration,
+          };
+        }
+
+        state.selectedIntegration = updatedIntegration;
+      })
+
+      .addCase(testIntegration.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
+
+      // =========================================
+      // DELETE
+      // =========================================
+
+      .addCase(deleteIntegration.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+
+      .addCase(deleteIntegration.fulfilled, (state, action) => {
+        state.actionLoading = false;
+
+        state.integrations = state.integrations.filter(
+          (item) => Number(item.id) !== Number(action.payload)
+        );
+
+        if (
+          Number(state.selectedIntegration?.id) ===
+          Number(action.payload)
+        ) {
+          state.selectedIntegration = null;
+        }
+      })
+
+      .addCase(deleteIntegration.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      });
+  },
+});
 
 export const {
   clearSelectedIntegration,
   clearIntegrationError,
-} =
-  superAdminIntegrationSlice.actions;
+} = superAdminIntegrationSlice.actions;
 
 export default superAdminIntegrationSlice.reducer;

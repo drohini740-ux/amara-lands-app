@@ -5,7 +5,7 @@ import React, {
   useState,
 } from "react";
 import { io } from "socket.io-client";
-import axios from "axios";
+import API from "../../services/api";
 
 import {
   FaMapMarkerAlt,
@@ -19,8 +19,8 @@ import {
   FaCrosshairs,
 } from "react-icons/fa";
 
-const API_URL =
-  "http://localhost:4000/api/v1";
+//const API_URL =
+ // "http://localhost:4000/api/v1";
 
 const SOCKET_URL =
   "http://localhost:4000";
@@ -40,48 +40,38 @@ const SuperAdminLiveLocation = () => {
   // FETCH LIVE LOCATIONS
   // =====================================================
 
-  const fetchLocations = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchLocations = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token =
-        localStorage.getItem("token");
+    const response = await API.get(
+      "/live-location-monitor"
+    );
 
-      const response = await axios.get(
-        `${API_URL}/live-location-monitor`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data?.success) {
-        setLocations(
-          response.data.locations || []
-        );
-      } else {
-        setLocations([]);
-        setError(
-          response.data?.message ||
-            "Unable to fetch live locations."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Super Admin Live Location Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setLocations(response.data.locations || []);
+    } else {
+      setLocations([]);
       setError(
-        err.response?.data?.message ||
+        response.data?.message ||
           "Unable to fetch live locations."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Super Admin Live Location Error:",
+      err.response?.data || err.message
+    );
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to fetch live locations."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // INITIAL LOAD

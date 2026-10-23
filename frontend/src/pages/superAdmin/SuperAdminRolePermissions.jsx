@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -9,7 +9,7 @@ import {
   FaKey,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminRolePermissions = () => {
   const navigate = useNavigate();
@@ -26,30 +26,19 @@ const SuperAdminRolePermissions = () => {
 
   // FETCH ALL PERMISSIONS
   const fetchPermissions = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const response = await API.get("/super-admin/permissions");
 
-      const response = await axios.get(
-        `${API_URL}/super-admin/permissions`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data?.success) {
-        setPermissions(
-          response.data.permissions || []
-        );
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Failed to load permissions."
-      );
+    if (response.data?.success) {
+      setPermissions(response.data.permissions || []);
     }
-  };
+  } catch (err) {
+    setError(
+      err.response?.data?.message ||
+        "Failed to load permissions."
+    );
+  }
+};
 
   // FETCH ROLE PERMISSIONS
   const fetchRolePermissions = async () => {

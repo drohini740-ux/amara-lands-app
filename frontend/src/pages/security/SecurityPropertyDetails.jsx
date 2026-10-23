@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -15,7 +15,7 @@ import {
   FaExternalLinkAlt,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SecurityPropertyDetails = () => {
   const { id } = useParams();
@@ -29,44 +29,33 @@ const SecurityPropertyDetails = () => {
   // FETCH ASSIGNED PROPERTY DETAILS
   // =========================================
 
-  const fetchPropertyDetails = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchPropertyDetails = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(`/security/properties/${id}`);
 
-      const response = await axios.get(
-        `${API_URL}/security/properties/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data?.success) {
-        setProperty(response.data.property);
-      } else {
-        setError(
-          response.data?.message ||
-            "Unable to load property details."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Security Property Details Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setProperty(response.data.property);
+    } else {
       setError(
-        err.response?.data?.message ||
-          "Unable to load property details."
+        response.data?.message || "Unable to load property details."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Security Property Details Error:",
+      err.response?.data || err.message
+    );
+
+    setError(
+      err.response?.data?.message || "Unable to load property details."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchPropertyDetails();

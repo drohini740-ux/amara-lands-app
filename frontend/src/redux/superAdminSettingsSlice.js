@@ -1,18 +1,7 @@
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL = "http://localhost:4000/api/v1";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
+const API_URL = "/super-admin/settings";
 
 // =====================================================
 // FETCH ALL SETTINGS
@@ -22,11 +11,7 @@ export const fetchSettings = createAsyncThunk(
   "superAdminSettings/fetchSettings",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/super-admin/settings`,
-        getAuthHeaders()
-      );
-
+      const response = await API.get(API_URL);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -45,11 +30,7 @@ export const fetchSettingById = createAsyncThunk(
   "superAdminSettings/fetchSettingById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/super-admin/settings/${id}`,
-        getAuthHeaders()
-      );
-
+      const response = await API.get(`${API_URL}/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -68,12 +49,7 @@ export const createSetting = createAsyncThunk(
   "superAdminSettings/createSetting",
   async (settingData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${API_URL}/super-admin/settings`,
-        settingData,
-        getAuthHeaders()
-      );
-
+      const response = await API.post(API_URL, settingData);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -92,12 +68,10 @@ export const updateSetting = createAsyncThunk(
   "superAdminSettings/updateSetting",
   async ({ id, settingData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${API_URL}/super-admin/settings/${id}`,
-        settingData,
-        getAuthHeaders()
+      const response = await API.put(
+        `${API_URL}/${id}`,
+        settingData
       );
-
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -116,12 +90,10 @@ export const deleteSetting = createAsyncThunk(
   "superAdminSettings/deleteSetting",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(
-        `${API_URL}/super-admin/settings/${id}`,
-        getAuthHeaders()
-      );
+      const response = await API.delete(`${API_URL}/${id}`);
 
-      return response.data;
+      // Return the ID so Redux can remove the correct setting.
+      return { id, response: response.data };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -161,57 +133,47 @@ const superAdminSettingsSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // =================================================
     // FETCH ALL
-    // =================================================
 
     builder
       .addCase(fetchSettings.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(fetchSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.settings = action.payload?.data || [];
       })
-
       .addCase(fetchSettings.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || "Failed to fetch system settings.";
       });
 
-    // =================================================
     // FETCH BY ID
-    // =================================================
 
     builder
       .addCase(fetchSettingById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(fetchSettingById.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedSetting =
-          action.payload?.data || null;
+        state.selectedSetting = action.payload?.data || null;
       })
-
       .addCase(fetchSettingById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || "Failed to fetch system setting.";
       });
 
-    // =================================================
     // CREATE
-    // =================================================
 
     builder
       .addCase(createSetting.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(createSetting.fulfilled, (state, action) => {
         state.loading = false;
 
@@ -219,77 +181,76 @@ const superAdminSettingsSlice = createSlice({
           state.settings.push(action.payload.data);
         }
       })
-
       .addCase(createSetting.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || "Failed to create system setting.";
       });
 
-    // =================================================
     // UPDATE
-    // =================================================
 
     builder
       .addCase(updateSetting.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(updateSetting.fulfilled, (state, action) => {
         state.loading = false;
 
         const updatedSetting = action.payload?.data;
 
-        if (updatedSetting) {
-          const index = state.settings.findIndex(
-            (setting) =>
-              setting.id === updatedSetting.id
-          );
+        if (!updatedSetting) return;
 
-          if (index !== -1) {
-            state.settings[index] = updatedSetting;
-          }
+        const index = state.settings.findIndex(
+          (setting) => setting.id === updatedSetting.id
+        );
 
-          state.selectedSetting = updatedSetting;
+        if (index !== -1) {
+          state.settings[index] = {
+            ...state.settings[index],
+            ...updatedSetting,
+          };
         }
-      })
 
+        state.selectedSetting = updatedSetting;
+      })
       .addCase(updateSetting.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || "Failed to update system setting.";
       });
 
-    // =================================================
     // DELETE
-    // =================================================
 
     builder
       .addCase(deleteSetting.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(deleteSetting.fulfilled, (state, action) => {
         state.loading = false;
 
-        const deletedSetting = action.payload?.data;
+        const deletedId = action.payload?.id;
 
-        if (deletedSetting) {
-          state.settings = state.settings.filter(
-            (setting) =>
-              setting.id !== deletedSetting.id
-          );
+        state.settings = state.settings.filter(
+          (setting) => setting.id !== deletedId
+        );
+
+        if (state.selectedSetting?.id === deletedId) {
+          state.selectedSetting = null;
         }
-
-        state.selectedSetting = null;
       })
-
       .addCase(deleteSetting.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || "Failed to delete system setting.";
       });
   },
 });
+
+// =====================================================
+// EXPORT
+// =====================================================
 
 export const {
   clearSelectedSetting,

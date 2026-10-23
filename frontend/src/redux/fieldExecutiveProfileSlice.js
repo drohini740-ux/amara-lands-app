@@ -1,8 +1,8 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 // =====================================================
 // FETCH MY PROFILE
@@ -12,25 +12,15 @@ export const fetchFieldExecutiveProfile =
   createAsyncThunk(
     "fieldExecutiveProfile/fetchProfile",
     async (_, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await axios.get(
-          `${API_URL}/field/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Failed to fetch profile."
-        );
-      }
+     try {
+  const response = await API.get("/field/profile");
+  return response.data;
+} catch (error) {
+  return rejectWithValue(
+    error.response?.data?.message ||
+      "Failed to fetch profile."
+  );
+}
     }
   );
 
@@ -42,26 +32,19 @@ export const updateFieldExecutiveProfile =
   createAsyncThunk(
     "fieldExecutiveProfile/updateProfile",
     async (profileData, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem("token");
+     try {
+  const response = await API.put(
+    "/field/profile",
+    profileData
+  );
 
-        const response = await axios.put(
-          `${API_URL}/field/profile`,
-          profileData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        return response.data;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Failed to update profile."
-        );
-      }
+  return response.data;
+} catch (error) {
+  return rejectWithValue(
+    error.response?.data?.message ||
+      "Failed to update profile."
+  );
+}
     }
   );
 

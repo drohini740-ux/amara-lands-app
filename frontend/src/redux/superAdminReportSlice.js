@@ -1,8 +1,11 @@
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL = "http://localhost:4000/api/v1";
+// =====================================================
+// API ENDPOINT
+// =====================================================
+
+const API_URL = "/super-admin/reports";
 
 // =====================================================
 // FETCH SUPER ADMIN REPORTS
@@ -12,16 +15,7 @@ export const fetchSuperAdminReports = createAsyncThunk(
   "superAdminReport/fetchSuperAdminReports",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/super-admin/reports`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await API.get(API_URL);
 
       return response.data;
     } catch (error) {
@@ -54,7 +48,6 @@ const initialState = {
 
 const superAdminReportSlice = createSlice({
   name: "superAdminReport",
-
   initialState,
 
   reducers: {
@@ -70,52 +63,34 @@ const superAdminReportSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
-      // -------------------------------------------------
       // FETCH REPORTS - PENDING
-      // -------------------------------------------------
+      .addCase(fetchSuperAdminReports.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
 
-      .addCase(
-        fetchSuperAdminReports.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-
-      // -------------------------------------------------
       // FETCH REPORTS - SUCCESS
-      // -------------------------------------------------
+      .addCase(fetchSuperAdminReports.fulfilled, (state, action) => {
+        state.loading = false;
 
-      .addCase(
-        fetchSuperAdminReports.fulfilled,
-        (state, action) => {
-          state.loading = false;
-
-          if (action.payload?.success) {
-            state.data = action.payload.data || null;
-          } else {
-            state.data = null;
-            state.error =
-              action.payload?.message ||
-              "Failed to fetch reports.";
-          }
-        }
-      )
-
-      // -------------------------------------------------
-      // FETCH REPORTS - FAILED
-      // -------------------------------------------------
-
-      .addCase(
-        fetchSuperAdminReports.rejected,
-        (state, action) => {
-          state.loading = false;
+        if (action.payload?.success) {
+          state.data = action.payload.data || null;
+          state.error = null;
+        } else {
+          state.data = null;
           state.error =
-            action.payload ||
+            action.payload?.message ||
             "Failed to fetch reports.";
         }
-      );
+      })
+
+      // FETCH REPORTS - FAILED
+      .addCase(fetchSuperAdminReports.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload ||
+          "Failed to fetch reports.";
+      });
   },
 });
 

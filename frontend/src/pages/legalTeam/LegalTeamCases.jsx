@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -29,52 +29,37 @@ const LegalTeamCases = () => {
   // FETCH LEGAL CASES
   // =====================================================
 
-  const fetchCases = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchCases = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get("/legal-team/cases");
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/cases`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log("Legal Team Cases Response:", response.data);
 
-      console.log(
-        "Legal Team Cases Response:",
-        response.data
-      );
-
-      if (response.data?.success) {
-        setCases(response.data.cases || []);
-      } else {
-        setCases([]);
-
-        setError(
-          response.data?.message ||
-            "Unable to fetch legal cases."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Team Cases Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setCases(response.data.cases || []);
+    } else {
+      setCases([]);
       setError(
-        err.response?.data?.message ||
-          "Unable to load legal cases."
+        response.data?.message || "Unable to fetch legal cases."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Team Cases Error:",
+      err.response?.data || err.message
+    );
 
+    setError(
+      err.response?.data?.message ||
+        "Unable to load legal cases."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   // =====================================================
   // LOAD CASES
   // =====================================================

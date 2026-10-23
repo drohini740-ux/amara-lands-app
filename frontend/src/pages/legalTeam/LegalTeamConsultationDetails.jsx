@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -17,7 +17,7 @@ import {
   FaVideo,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 const LegalTeamConsultationDetails = () => {
   const navigate = useNavigate();
@@ -32,53 +32,44 @@ const LegalTeamConsultationDetails = () => {
   // =====================================================
   // FETCH CONSULTATION DETAILS
   // =====================================================
+const fetchConsultationDetails = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-  const fetchConsultationDetails = async () => {
-    try {
-      setLoading(true);
-      setError("");
+    const response = await API.get(
+      `/legal-team/consultations/${id}`
+    );
 
-      const token = localStorage.getItem("token");
+    console.log(
+      "Legal Consultation Details Response:",
+      response.data
+    );
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/consultations/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log(
-        "Legal Consultation Details Response:",
-        response.data
-      );
-
-      if (response.data?.success) {
-        setConsultation(
-          response.data.consultation
-        );
-      } else {
-        setError(
-          response.data?.message ||
-            "Unable to load consultation details."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Consultation Details Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setConsultation(response.data.consultation);
+    } else {
+      setConsultation(null);
       setError(
-        err.response?.data?.message ||
+        response.data?.message ||
           "Unable to load consultation details."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Consultation Details Error:",
+      err.response?.data || err.message
+    );
 
+    setConsultation(null);
+    setError(
+      err.response?.data?.message ||
+        "Unable to load consultation details."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   // =====================================================
   // LOAD DATA
   // =====================================================

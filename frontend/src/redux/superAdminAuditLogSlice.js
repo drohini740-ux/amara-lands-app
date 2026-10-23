@@ -1,8 +1,5 @@
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = "http://localhost:4000/api/v1";
+import API from "../services/api";
 
 // =====================================================
 // FETCH ALL AUDIT LOGS
@@ -12,17 +9,7 @@ export const fetchAuditLogs = createAsyncThunk(
   "superAdminAuditLog/fetchAuditLogs",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/super-admin/audit-logs`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get("/super-admin/audit-logs");
       return response.data;
     } catch (error) {
       console.error(
@@ -46,17 +33,9 @@ export const fetchAuditLogById = createAsyncThunk(
   "superAdminAuditLog/fetchAuditLogById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/super-admin/audit-logs/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await API.get(
+        `/super-admin/audit-logs/${id}`
       );
-
       return response.data;
     } catch (error) {
       console.error(
@@ -80,18 +59,10 @@ export const createAuditLog = createAsyncThunk(
   "superAdminAuditLog/createAuditLog",
   async (auditData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        `${API_URL}/super-admin/audit-logs`,
-        auditData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await API.post(
+        "/super-admin/audit-logs",
+        auditData
       );
-
       return response.data;
     } catch (error) {
       console.error(
@@ -115,15 +86,8 @@ export const deleteAuditLog = createAsyncThunk(
   "superAdminAuditLog/deleteAuditLog",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.delete(
-        `${API_URL}/super-admin/audit-logs/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await API.delete(
+        `/super-admin/audit-logs/${id}`
       );
 
       return {
@@ -180,122 +144,91 @@ const superAdminAuditLogSlice = createSlice({
       // FETCH ALL
       // =================================================
 
-      .addCase(
-        fetchAuditLogs.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
+      .addCase(fetchAuditLogs.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
 
-      .addCase(
-        fetchAuditLogs.fulfilled,
-        (state, action) => {
-          state.loading = false;
+      .addCase(fetchAuditLogs.fulfilled, (state, action) => {
+        state.loading = false;
 
-          if (action.payload?.success) {
-            state.logs =
-              action.payload.data || [];
-          } else {
-            state.logs = [];
-            state.error =
-              action.payload?.message ||
-              "Failed to fetch audit logs.";
-          }
-        }
-      )
-
-      .addCase(
-        fetchAuditLogs.rejected,
-        (state, action) => {
-          state.loading = false;
+        if (action.payload?.success) {
+          state.logs = action.payload.data || [];
+        } else {
+          state.logs = [];
           state.error =
-            action.payload ||
+            action.payload?.message ||
             "Failed to fetch audit logs.";
         }
-      )
+      })
+
+      .addCase(fetchAuditLogs.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload ||
+          "Failed to fetch audit logs.";
+      })
 
       // =================================================
       // FETCH BY ID
       // =================================================
 
-      .addCase(
-        fetchAuditLogById.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
+      .addCase(fetchAuditLogById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
 
-      .addCase(
-        fetchAuditLogById.fulfilled,
-        (state, action) => {
-          state.loading = false;
+      .addCase(fetchAuditLogById.fulfilled, (state, action) => {
+        state.loading = false;
 
-          if (action.payload?.success) {
-            state.selectedLog =
-              action.payload.data || null;
-          } else {
-            state.selectedLog = null;
-            state.error =
-              action.payload?.message ||
-              "Failed to fetch audit log.";
-          }
-        }
-      )
-
-      .addCase(
-        fetchAuditLogById.rejected,
-        (state, action) => {
-          state.loading = false;
+        if (action.payload?.success) {
+          state.selectedLog = action.payload.data || null;
+        } else {
+          state.selectedLog = null;
           state.error =
-            action.payload ||
+            action.payload?.message ||
             "Failed to fetch audit log.";
         }
-      )
+      })
+
+      .addCase(fetchAuditLogById.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload ||
+          "Failed to fetch audit log.";
+      })
 
       // =================================================
       // CREATE
       // =================================================
 
-      .addCase(
-        createAuditLog.fulfilled,
-        (state, action) => {
-          if (
-            action.payload?.success &&
-            action.payload?.data
-          ) {
-            state.logs.unshift(
-              action.payload.data
-            );
-          }
+      .addCase(createAuditLog.fulfilled, (state, action) => {
+        if (
+          action.payload?.success &&
+          action.payload?.data
+        ) {
+          state.logs.unshift(action.payload.data);
         }
-      )
+      })
 
       // =================================================
       // DELETE
       // =================================================
 
-      .addCase(
-        deleteAuditLog.fulfilled,
-        (state, action) => {
-          if (action.payload?.success) {
-            state.logs =
-              state.logs.filter(
-                (log) =>
-                  log.id !==
-                  Number(action.payload.id)
-              );
+      .addCase(deleteAuditLog.fulfilled, (state, action) => {
+        if (action.payload?.success) {
+          state.logs = state.logs.filter(
+            (log) => log.id !== Number(action.payload.id)
+          );
 
-            if (
-              state.selectedLog?.id ===
-              Number(action.payload.id)
-            ) {
-              state.selectedLog = null;
-            }
+          if (
+            state.selectedLog?.id ===
+            Number(action.payload.id)
+          ) {
+            state.selectedLog = null;
           }
         }
-      );
+      });
   },
 });
 
@@ -305,4 +238,3 @@ export const {
 } = superAdminAuditLogSlice.actions;
 
 export default superAdminAuditLogSlice.reducer;
-

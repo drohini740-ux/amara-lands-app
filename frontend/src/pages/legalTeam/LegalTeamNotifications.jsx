@@ -1,6 +1,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -11,7 +11,7 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 const LegalTeamNotifications = () => {
   const navigate = useNavigate();
@@ -28,73 +28,53 @@ const LegalTeamNotifications = () => {
   // FETCH NOTIFICATIONS
   // =====================================================
 
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      setError("");
+const fetchNotifications = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(
+      "/legal-team/notifications"
+    );
 
-      if (!token) {
-        setError("Authentication token not found.");
-        setNotifications([]);
-        return;
-      }
+    console.log(
+      "LEGAL TEAM NOTIFICATIONS RESPONSE:",
+      response.data
+    );
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/notifications`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+    if (response.data?.success) {
+      const notificationData =
+        response.data.notifications ||
+        response.data.data ||
+        [];
+
+      setNotifications(
+        Array.isArray(notificationData)
+          ? notificationData
+          : []
       );
-
-      console.log(
-        "LEGAL TEAM NOTIFICATIONS RESPONSE:",
-        response.data
-      );
-
-      if (response.data?.success) {
-        const notificationData =
-          response.data.notifications ||
-          response.data.data ||
-          [];
-
-        console.log(
-          "LEGAL TEAM NOTIFICATIONS ARRAY:",
-          notificationData
-        );
-
-        setNotifications(
-          Array.isArray(notificationData)
-            ? notificationData
-            : []
-        );
-      } else {
-        setNotifications([]);
-
-        setError(
-          response.data?.message ||
-            "Failed to fetch notifications."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "LEGAL TEAM NOTIFICATIONS ERROR:",
-        err.response?.data || err.message
-      );
-
+    } else {
       setNotifications([]);
-
       setError(
-        err.response?.data?.message ||
-          "Unable to load notifications."
+        response.data?.message ||
+          "Failed to fetch notifications."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "LEGAL TEAM NOTIFICATIONS ERROR:",
+      err.response?.data || err.message
+    );
+
+    setNotifications([]);
+    setError(
+      err.response?.data?.message ||
+        "Unable to load notifications."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // LOAD NOTIFICATIONS

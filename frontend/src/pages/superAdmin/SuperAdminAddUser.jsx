@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../services/api";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminAddUser = () => {
   const navigate = useNavigate();
@@ -30,54 +30,51 @@ const SuperAdminAddUser = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setError("");
+  setError("");
 
-    if (
-      !formData.full_name ||
-      !formData.mobile ||
-      !formData.email ||
-      !formData.password ||
-      !formData.role
-    ) {
-      setError("Please fill all required fields.");
+  if (
+    !formData.full_name.trim() ||
+    !formData.mobile.trim() ||
+    !formData.email.trim() ||
+    !formData.password ||
+    !formData.role
+  ) {
+    setError("Please fill all required fields.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await API.post(
+      "/super-admin/users",
+      formData
+    );
+
+    console.log("Add User Response:", response.data);
+
+    if (response.data?.success === false) {
+      setError(response.data?.message || "Failed to add user.");
       return;
     }
 
-    try {
-      setLoading(true);
+    alert("User added successfully.");
+    navigate("/super-admin/users");
+  } catch (err) {
+    console.error(
+      "ADD USER ERROR:",
+      err.response?.data || err.message
+    );
 
-      const token = localStorage.getItem("token");
-
-      await axios.post(
-        `${API_URL}/super-admin/users`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      alert("User added successfully.");
-
-      navigate("/super-admin/users");
-    } catch (err) {
-      console.error(
-        "ADD USER ERROR:",
-        err.response?.data || err.message
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to add user."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    setError(
+      err.response?.data?.message || "Failed to add user."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div>

@@ -1,71 +1,39 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL = "http://localhost:4000/api/v1";
-
-// =====================================================
-// FETCH MY PROFILE
-// =====================================================
-
+// FETCH LEGAL TEAM PROFILE
 export const fetchLegalTeamProfile = createAsyncThunk(
   "legalTeamProfile/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/legal-team/profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get("/legal-team/profile");
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to fetch profile."
+        error.response?.data?.message || "Failed to fetch profile."
       );
     }
   }
 );
 
-// =====================================================
-// UPDATE MY PROFILE
-// =====================================================
-
+// UPDATE LEGAL TEAM PROFILE
 export const updateLegalTeamProfile = createAsyncThunk(
   "legalTeamProfile/updateProfile",
   async (profileData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
-        `${API_URL}/legal-team/profile`,
-        profileData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await API.put(
+        "/legal-team/profile",
+        profileData
       );
-
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to update profile."
+        error.response?.data?.message || "Failed to update profile."
       );
     }
   }
 );
-
-// =====================================================
-// SLICE
-// =====================================================
 
 const legalTeamProfileSlice = createSlice({
   name: "legalTeamProfile",
@@ -82,7 +50,6 @@ const legalTeamProfileSlice = createSlice({
     clearProfileError: (state) => {
       state.error = null;
     },
-
     clearProfileUpdateSuccess: (state) => {
       state.updateSuccess = false;
     },
@@ -90,74 +57,35 @@ const legalTeamProfileSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
-      // =================================================
-      // FETCH PROFILE
-      // =================================================
-
-      .addCase(
-        fetchLegalTeamProfile.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-
-      .addCase(
-        fetchLegalTeamProfile.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.profile =
-            action.payload?.data || null;
-        }
-      )
-
-      .addCase(
-        fetchLegalTeamProfile.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error =
-            action.payload ||
-            "Failed to fetch profile.";
-        }
-      )
-
-      // =================================================
-      // UPDATE PROFILE
-      // =================================================
-
-      .addCase(
-        updateLegalTeamProfile.pending,
-        (state) => {
-          state.updateLoading = true;
-          state.error = null;
-          state.updateSuccess = false;
-        }
-      )
-
-      .addCase(
-        updateLegalTeamProfile.fulfilled,
-        (state, action) => {
-          state.updateLoading = false;
-
-          state.profile =
-            action.payload?.data ||
-            state.profile;
-
-          state.updateSuccess = true;
-        }
-      )
-
-      .addCase(
-        updateLegalTeamProfile.rejected,
-        (state, action) => {
-          state.updateLoading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to update profile.";
-        }
-      );
+      .addCase(fetchLegalTeamProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchLegalTeamProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload?.data || action.payload?.profile || null;
+      })
+      .addCase(fetchLegalTeamProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch profile.";
+      })
+      .addCase(updateLegalTeamProfile.pending, (state) => {
+        state.updateLoading = true;
+        state.error = null;
+        state.updateSuccess = false;
+      })
+      .addCase(updateLegalTeamProfile.fulfilled, (state, action) => {
+        state.updateLoading = false;
+        state.profile =
+          action.payload?.data ||
+          action.payload?.profile ||
+          state.profile;
+        state.updateSuccess = true;
+      })
+      .addCase(updateLegalTeamProfile.rejected, (state, action) => {
+        state.updateLoading = false;
+        state.error = action.payload || "Failed to update profile.";
+      });
   },
 });
 
@@ -167,4 +95,3 @@ export const {
 } = legalTeamProfileSlice.actions;
 
 export default legalTeamProfileSlice.reducer;
-

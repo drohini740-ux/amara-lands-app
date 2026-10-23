@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -16,7 +16,7 @@ import {
   FaSync,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+
 
 const LegalTeamDocuments = () => {
   const navigate = useNavigate();
@@ -33,47 +33,40 @@ const LegalTeamDocuments = () => {
   // FETCH DOCUMENTS
   // =====================================================
 
-  const fetchDocuments = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchDocuments = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get("/legal-team/documents");
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/documents`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(
+      "Legal Team Documents Response:",
+      response.data
+    );
 
-      if (response.data?.success) {
-        setDocuments(
-          response.data.documents || []
-        );
-      } else {
-        setDocuments([]);
-        setError(
-          response.data?.message ||
-            "Unable to load documents."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Team Documents Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setDocuments(response.data.documents || []);
+    } else {
+      setDocuments([]);
       setError(
-        err.response?.data?.message ||
-          "Unable to load documents."
+        response.data?.message || "Unable to load documents."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Team Documents Error:",
+      err.response?.data || err.message
+    );
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to load documents."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // LOAD DOCUMENTS

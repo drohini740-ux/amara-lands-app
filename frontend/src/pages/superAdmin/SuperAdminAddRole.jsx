@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../services/api";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 
 const SuperAdminAddRole = () => {
   const navigate = useNavigate();
@@ -13,62 +13,43 @@ const SuperAdminAddRole = () => {
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setError("");
+  setError("");
 
-    if (!roleName.trim()) {
-      setError("Please enter a role name.");
-      return;
+  if (!roleName.trim()) {
+    setError("Please enter a role name.");
+    return;
+  }
+
+  try {
+    setSaving(true);
+
+    const response = await API.post("/super-admin/roles", {
+      role_name: roleName.trim(),
+    });
+
+    console.log("Create Role Response:", response.data);
+
+    if (response.data?.success) {
+      alert("Role created successfully.");
+      navigate("/super-admin/roles");
+    } else {
+      setError(response.data?.message || "Failed to create role.");
     }
+  } catch (err) {
+    console.error(
+      "CREATE ROLE ERROR:",
+      err.response?.data || err.message
+    );
 
-    try {
-      setSaving(true);
-
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        `${API_URL}/super-admin/roles`,
-        {
-          role_name: roleName.trim(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log(
-        "Create Role Response:",
-        response.data
-      );
-
-      if (response.data?.success) {
-        alert("Role created successfully.");
-
-        navigate("/super-admin/roles");
-      } else {
-        setError(
-          response.data?.message ||
-            "Failed to create role."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "CREATE ROLE ERROR:",
-        err.response?.data || err.message
-      );
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to create role."
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+    setError(
+      err.response?.data?.message || "Failed to create role."
+    );
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <div>

@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL =
-  "http://localhost:4000/api/v1/super-admin/payments";
+const API_URL = "/super-admin/payments";
 
 // ==========================================
 // GET ALL PAYMENTS
@@ -11,14 +10,7 @@ export const fetchSuperAdminPayments = createAsyncThunk(
   "superAdminPayment/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(API_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await API.get(API_URL);
       return response.data.payments || [];
     } catch (error) {
       return rejectWithValue(
@@ -36,14 +28,7 @@ export const fetchSuperAdminPaymentById = createAsyncThunk(
   "superAdminPayment/fetchById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(`${API_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await API.get(`${API_URL}/${id}`);
       return response.data.payment;
     } catch (error) {
       return rejectWithValue(
@@ -61,18 +46,9 @@ export const updateSuperAdminPaymentStatus = createAsyncThunk(
   "superAdminPayment/updateStatus",
   async ({ id, payment_status }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}/status`,
-        {
-          payment_status,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { payment_status }
       );
 
       return response.data.payment;
@@ -92,18 +68,9 @@ export const updateSuperAdminRefundStatus = createAsyncThunk(
   "superAdminPayment/updateRefundStatus",
   async ({ id, refund_status }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}/refund-status`,
-        {
-          refund_status,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { refund_status }
       );
 
       return response.data.payment;
@@ -122,10 +89,8 @@ export const updateSuperAdminRefundStatus = createAsyncThunk(
 const initialState = {
   payments: [],
   selectedPayment: null,
-
   loading: false,
   updateLoading: false,
-
   error: null,
 };
 
@@ -151,80 +116,54 @@ const superAdminPaymentSlice = createSlice({
     // GET ALL PAYMENTS
     // ======================================
     builder
-      .addCase(
-        fetchSuperAdminPayments.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminPayments.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.payments = action.payload;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminPayments.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload;
-        }
-      );
+      .addCase(fetchSuperAdminPayments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSuperAdminPayments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.payments = action.payload;
+      })
+      .addCase(fetchSuperAdminPayments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
     // ======================================
     // GET PAYMENT BY ID
     // ======================================
     builder
-      .addCase(
-        fetchSuperAdminPaymentById.pending,
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminPaymentById.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.selectedPayment = action.payload;
-        }
-      )
-
-      .addCase(
-        fetchSuperAdminPaymentById.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload;
-        }
-      );
+      .addCase(fetchSuperAdminPaymentById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSuperAdminPaymentById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedPayment = action.payload;
+      })
+      .addCase(fetchSuperAdminPaymentById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
     // ======================================
     // UPDATE PAYMENT STATUS
     // ======================================
     builder
-      .addCase(
-        updateSuperAdminPaymentStatus.pending,
-        (state) => {
-          state.updateLoading = true;
-          state.error = null;
-        }
-      )
-
+      .addCase(updateSuperAdminPaymentStatus.pending, (state) => {
+        state.updateLoading = true;
+        state.error = null;
+      })
       .addCase(
         updateSuperAdminPaymentStatus.fulfilled,
         (state, action) => {
           state.updateLoading = false;
 
           const updatedPayment = action.payload;
+          if (!updatedPayment) return;
 
           const index = state.payments.findIndex(
-            (payment) =>
-              payment.id === updatedPayment.id
+            (payment) => payment.id === updatedPayment.id
           );
 
           if (index !== -1) {
@@ -234,10 +173,7 @@ const superAdminPaymentSlice = createSlice({
             };
           }
 
-          if (
-            state.selectedPayment?.id ===
-            updatedPayment.id
-          ) {
+          if (state.selectedPayment?.id === updatedPayment.id) {
             state.selectedPayment = {
               ...state.selectedPayment,
               ...updatedPayment,
@@ -245,37 +181,29 @@ const superAdminPaymentSlice = createSlice({
           }
         }
       )
-
-      .addCase(
-        updateSuperAdminPaymentStatus.rejected,
-        (state, action) => {
-          state.updateLoading = false;
-          state.error = action.payload;
-        }
-      );
+      .addCase(updateSuperAdminPaymentStatus.rejected, (state, action) => {
+        state.updateLoading = false;
+        state.error = action.payload;
+      });
 
     // ======================================
     // UPDATE REFUND STATUS
     // ======================================
     builder
-      .addCase(
-        updateSuperAdminRefundStatus.pending,
-        (state) => {
-          state.updateLoading = true;
-          state.error = null;
-        }
-      )
-
+      .addCase(updateSuperAdminRefundStatus.pending, (state) => {
+        state.updateLoading = true;
+        state.error = null;
+      })
       .addCase(
         updateSuperAdminRefundStatus.fulfilled,
         (state, action) => {
           state.updateLoading = false;
 
           const updatedPayment = action.payload;
+          if (!updatedPayment) return;
 
           const index = state.payments.findIndex(
-            (payment) =>
-              payment.id === updatedPayment.id
+            (payment) => payment.id === updatedPayment.id
           );
 
           if (index !== -1) {
@@ -285,10 +213,7 @@ const superAdminPaymentSlice = createSlice({
             };
           }
 
-          if (
-            state.selectedPayment?.id ===
-            updatedPayment.id
-          ) {
+          if (state.selectedPayment?.id === updatedPayment.id) {
             state.selectedPayment = {
               ...state.selectedPayment,
               ...updatedPayment,
@@ -296,14 +221,10 @@ const superAdminPaymentSlice = createSlice({
           }
         }
       )
-
-      .addCase(
-        updateSuperAdminRefundStatus.rejected,
-        (state, action) => {
-          state.updateLoading = false;
-          state.error = action.payload;
-        }
-      );
+      .addCase(updateSuperAdminRefundStatus.rejected, (state, action) => {
+        state.updateLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 

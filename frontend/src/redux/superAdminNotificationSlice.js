@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import API from "../services/api";
 
-const API_URL =
-  "http://localhost:4000/api/v1/super-admin/notifications";
+const API_URL = "/super-admin/notifications";
 
 // =====================================================
 // GET ALL NOTIFICATIONS
@@ -12,17 +11,7 @@ export const fetchNotifications = createAsyncThunk(
   "superAdminNotification/fetchNotifications",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        API_URL,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(API_URL);
       return response.data.notifications || [];
     } catch (error) {
       return rejectWithValue(
@@ -41,17 +30,7 @@ export const fetchNotificationById = createAsyncThunk(
   "superAdminNotification/fetchNotificationById",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await API.get(`${API_URL}/${id}`);
       return response.data.notification;
     } catch (error) {
       return rejectWithValue(
@@ -70,19 +49,7 @@ export const createNotification = createAsyncThunk(
   "superAdminNotification/createNotification",
   async (notificationData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        API_URL,
-        notificationData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await API.post(API_URL, notificationData);
       return response.data.notification;
     } catch (error) {
       return rejectWithValue(
@@ -99,22 +66,11 @@ export const createNotification = createAsyncThunk(
 
 export const updateNotification = createAsyncThunk(
   "superAdminNotification/updateNotification",
-  async (
-    { id, notificationData },
-    { rejectWithValue }
-  ) => {
+  async ({ id, notificationData }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
+      const response = await API.put(
         `${API_URL}/${id}`,
-        notificationData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        notificationData
       );
 
       return response.data.notification;
@@ -131,39 +87,24 @@ export const updateNotification = createAsyncThunk(
 // UPDATE READ STATUS
 // =====================================================
 
-export const updateNotificationReadStatus =
-  createAsyncThunk(
-    "superAdminNotification/updateNotificationReadStatus",
-    async (
-      { id, is_read },
-      { rejectWithValue }
-    ) => {
-      try {
-        const token =
-          localStorage.getItem("token");
+export const updateNotificationReadStatus = createAsyncThunk(
+  "superAdminNotification/updateNotificationReadStatus",
+  async ({ id, is_read }, { rejectWithValue }) => {
+    try {
+      const response = await API.put(
+        `${API_URL}/${id}/read-status`,
+        { is_read }
+      );
 
-        const response = await axios.put(
-          `${API_URL}/${id}/read-status`,
-          {
-            is_read,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        return response.data.notification;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data?.message ||
-            "Failed to update notification read status."
-        );
-      }
+      return response.data.notification;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update notification read status."
+      );
     }
-  );
+  }
+);
 
 // =====================================================
 // DELETE NOTIFICATION
@@ -173,18 +114,8 @@ export const deleteNotification = createAsyncThunk(
   "superAdminNotification/deleteNotification",
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.delete(
-        `${API_URL}/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      return response.data.notification;
+      await API.delete(`${API_URL}/${id}`);
+      return id;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -209,234 +140,163 @@ const initialState = {
 // SLICE
 // =====================================================
 
-const superAdminNotificationSlice =
-  createSlice({
-    name: "superAdminNotification",
-    initialState,
+const superAdminNotificationSlice = createSlice({
+  name: "superAdminNotification",
+  initialState,
 
-    reducers: {
-      clearNotificationError: (state) => {
+  reducers: {
+    clearNotificationError: (state) => {
+      state.error = null;
+    },
+
+    clearSelectedNotification: (state) => {
+      state.selectedNotification = null;
+    },
+  },
+
+  extraReducers: (builder) => {
+    // FETCH ALL
+
+    builder
+      .addCase(fetchNotifications.pending, (state) => {
+        state.loading = true;
         state.error = null;
-      },
+      })
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        state.loading = false;
+        state.notifications = action.payload;
+      })
+      .addCase(fetchNotifications.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
-      clearSelectedNotification: (state) => {
-        state.selectedNotification = null;
-      },
-    },
+    // FETCH BY ID
 
-    extraReducers: (builder) => {
-      // =================================================
-      // FETCH ALL
-      // =================================================
+    builder
+      .addCase(fetchNotificationById.fulfilled, (state, action) => {
+        state.selectedNotification = action.payload;
+      })
+      .addCase(fetchNotificationById.rejected, (state, action) => {
+        state.error = action.payload;
+      });
 
-      builder
-        .addCase(
-          fetchNotifications.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
+    // CREATE
 
-        .addCase(
-          fetchNotifications.fulfilled,
-          (state, action) => {
-            state.loading = false;
-            state.notifications =
-              action.payload;
-          }
-        )
+    builder
+      .addCase(createNotification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createNotification.fulfilled, (state, action) => {
+        state.loading = false;
 
-        .addCase(
-          fetchNotifications.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload;
-          }
+        if (action.payload) {
+          state.notifications.unshift(action.payload);
+        }
+      })
+      .addCase(createNotification.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // UPDATE
+
+    builder
+      .addCase(updateNotification.fulfilled, (state, action) => {
+        const updatedNotification = action.payload;
+
+        if (!updatedNotification) return;
+
+        const index = state.notifications.findIndex(
+          (notification) =>
+            notification.id === updatedNotification.id
         );
 
-      // =================================================
-      // FETCH BY ID
-      // =================================================
+        if (index !== -1) {
+          state.notifications[index] = {
+            ...state.notifications[index],
+            ...updatedNotification,
+          };
+        }
 
-      builder
-        .addCase(
-          fetchNotificationById.fulfilled,
-          (state, action) => {
-            state.selectedNotification =
-              action.payload;
-          }
-        )
+        if (
+          state.selectedNotification?.id ===
+          updatedNotification.id
+        ) {
+          state.selectedNotification = {
+            ...state.selectedNotification,
+            ...updatedNotification,
+          };
+        }
+      })
+      .addCase(updateNotification.rejected, (state, action) => {
+        state.error = action.payload;
+      });
 
-        .addCase(
-          fetchNotificationById.rejected,
-          (state, action) => {
-            state.error =
-              action.payload;
+    // READ / UNREAD
+
+    builder
+      .addCase(
+        updateNotificationReadStatus.fulfilled,
+        (state, action) => {
+          const updatedNotification = action.payload;
+
+          if (!updatedNotification) return;
+
+          const index = state.notifications.findIndex(
+            (notification) =>
+              notification.id === updatedNotification.id
+          );
+
+          if (index !== -1) {
+            state.notifications[index] = {
+              ...state.notifications[index],
+              ...updatedNotification,
+            };
           }
+
+          if (
+            state.selectedNotification?.id ===
+            updatedNotification.id
+          ) {
+            state.selectedNotification = {
+              ...state.selectedNotification,
+              ...updatedNotification,
+            };
+          }
+        }
+      )
+      .addCase(
+        updateNotificationReadStatus.rejected,
+        (state, action) => {
+          state.error = action.payload;
+        }
+      );
+
+    // DELETE
+
+    builder
+      .addCase(deleteNotification.fulfilled, (state, action) => {
+        const deletedId = action.payload;
+
+        state.notifications = state.notifications.filter(
+          (notification) => notification.id !== deletedId
         );
 
-      // =================================================
-      // CREATE
-      // =================================================
-
-      builder
-        .addCase(
-          createNotification.pending,
-          (state) => {
-            state.loading = true;
-            state.error = null;
-          }
-        )
-
-        .addCase(
-          createNotification.fulfilled,
-          (state, action) => {
-            state.loading = false;
-
-            state.notifications.unshift(
-              action.payload
-            );
-          }
-        )
-
-        .addCase(
-          createNotification.rejected,
-          (state, action) => {
-            state.loading = false;
-            state.error =
-              action.payload;
-          }
-        );
-
-      // =================================================
-      // UPDATE
-      // =================================================
-
-      builder
-        .addCase(
-          updateNotification.fulfilled,
-          (state, action) => {
-            const index =
-              state.notifications.findIndex(
-                (notification) =>
-                  notification.id ===
-                  action.payload.id
-              );
-
-            if (index !== -1) {
-              state.notifications[index] =
-                {
-                  ...state.notifications[index],
-                  ...action.payload,
-                };
-            }
-
-            if (
-              state.selectedNotification?.id ===
-              action.payload.id
-            ) {
-              state.selectedNotification =
-                {
-                  ...state.selectedNotification,
-                  ...action.payload,
-                };
-            }
-          }
-        )
-
-        .addCase(
-          updateNotification.rejected,
-          (state, action) => {
-            state.error =
-              action.payload;
-          }
-        );
-
-      // =================================================
-      // READ / UNREAD
-      // =================================================
-
-      builder
-        .addCase(
-          updateNotificationReadStatus.fulfilled,
-          (state, action) => {
-            const index =
-              state.notifications.findIndex(
-                (notification) =>
-                  notification.id ===
-                  action.payload.id
-              );
-
-            if (index !== -1) {
-              state.notifications[index] =
-                {
-                  ...state.notifications[index],
-                  ...action.payload,
-                };
-            }
-
-            if (
-              state.selectedNotification?.id ===
-              action.payload.id
-            ) {
-              state.selectedNotification =
-                {
-                  ...state.selectedNotification,
-                  ...action.payload,
-                };
-            }
-          }
-        )
-
-        .addCase(
-          updateNotificationReadStatus.rejected,
-          (state, action) => {
-            state.error =
-              action.payload;
-          }
-        );
-
-      // =================================================
-      // DELETE
-      // =================================================
-
-      builder
-        .addCase(
-          deleteNotification.fulfilled,
-          (state, action) => {
-            state.notifications =
-              state.notifications.filter(
-                (notification) =>
-                  notification.id !==
-                  action.payload.id
-              );
-
-            if (
-              state.selectedNotification?.id ===
-              action.payload.id
-            ) {
-              state.selectedNotification =
-                null;
-            }
-          }
-        )
-
-        .addCase(
-          deleteNotification.rejected,
-          (state, action) => {
-            state.error =
-              action.payload;
-          }
-        );
-    },
-  });
+        if (state.selectedNotification?.id === deletedId) {
+          state.selectedNotification = null;
+        }
+      })
+      .addCase(deleteNotification.rejected, (state, action) => {
+        state.error = action.payload;
+      });
+  },
+});
 
 export const {
   clearNotificationError,
   clearSelectedNotification,
-} =
-  superAdminNotificationSlice.actions;
+} = superAdminNotificationSlice.actions;
 
 export default superAdminNotificationSlice.reducer;

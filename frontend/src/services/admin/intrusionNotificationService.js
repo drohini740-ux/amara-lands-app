@@ -1,28 +1,13 @@
-import axios from "axios";
 
-const API_URL =
-  "http://localhost:4000/api/v1/intrusion-notifications";
+import API from "../api";
 
-// Get token
-const getAuthConfig = () => {
-  const token = localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
+const API_URL = "/intrusion-notifications";
 
 // ======================================================
 // GET ALL INTRUSION NOTIFICATIONS
 // ======================================================
 export const getIntrusionNotifications = async () => {
-  const response = await axios.get(
-    API_URL,
-    getAuthConfig()
-  );
-
+  const response = await API.get(API_URL);
   return response.data;
 };
 
@@ -30,85 +15,54 @@ export const getIntrusionNotifications = async () => {
 // GET SINGLE INTRUSION NOTIFICATION
 // ======================================================
 export const getIntrusionNotification = async (id) => {
-  const response = await axios.get(
-    `${API_URL}/${id}`,
-    getAuthConfig()
-  );
-
+  const response = await API.get(`${API_URL}/${id}`);
   return response.data;
 };
 
 // ======================================================
 // CREATE INTRUSION NOTIFICATION
 // ======================================================
-export const createIntrusionNotification = async (
-  data
-) => {
-  const response = await axios.post(
-    API_URL,
-    data,
-    getAuthConfig()
-  );
-
+export const createIntrusionNotification = async (data) => {
+  const response = await API.post(API_URL, data);
   return response.data;
 };
 
 // ======================================================
 // UPDATE INTRUSION NOTIFICATION
 // ======================================================
-export const updateIntrusionNotification = async (
-  id,
-  data
-) => {
-  const response = await axios.put(
-    `${API_URL}/${id}`,
-    data,
-    getAuthConfig()
-  );
-
+export const updateIntrusionNotification = async (id, data) => {
+  const response = await API.put(`${API_URL}/${id}`, data);
   return response.data;
 };
 
 // ======================================================
-// ACKNOWLEDGE
+// ACKNOWLEDGE INTRUSION NOTIFICATION
 // ======================================================
-export const acknowledgeIntrusionNotification = async (
-  id
-) => {
-  const response = await axios.put(
+export const acknowledgeIntrusionNotification = async (id) => {
+  const response = await API.put(
     `${API_URL}/${id}/acknowledge`,
-    {},
-    getAuthConfig()
+    {}
   );
 
   return response.data;
 };
 
 // ======================================================
-// RESOLVE
+// RESOLVE INTRUSION NOTIFICATION
 // ======================================================
-export const resolveIntrusionNotification = async (
-  id
-) => {
-  const response = await axios.patch(
+export const resolveIntrusionNotification = async (id) => {
+  const response = await API.patch(
     `${API_URL}/${id}/resolve`,
-    {},
-    getAuthConfig()
+    {}
   );
 
   return response.data;
 };
 
 // ======================================================
-// DELETE
+// DELETE INTRUSION NOTIFICATION
 // ======================================================
-export const deleteIntrusionNotification = async (
-  id
-) => {
-  const response = await axios.delete(
-    `${API_URL}/${id}`,
-    getAuthConfig()
-  );
-
+export const deleteIntrusionNotification = async (id) => {
+  const response = await API.delete(`${API_URL}/${id}`);
   return response.data;
 };

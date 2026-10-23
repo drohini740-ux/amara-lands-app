@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import API from "../../services/api";
 
 import {
   FaArrowLeft,
@@ -15,7 +15,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:4000/api/v1";
+//const API_URL = "http://localhost:4000/api/v1";
 const BACKEND_URL = "http://localhost:4000";
 
 const LegalTeamDocumentDetails = () => {
@@ -30,44 +30,44 @@ const LegalTeamDocumentDetails = () => {
   // FETCH DOCUMENT
   // =====================================================
 
-  const fetchDocument = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchDocument = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const token = localStorage.getItem("token");
+    const response = await API.get(
+      `/legal-team/documents/${id}`
+    );
 
-      const response = await axios.get(
-        `${API_URL}/legal-team/documents/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(
+      "Legal Team Document Details Response:",
+      response.data
+    );
 
-      if (response.data?.success) {
-        setDocument(response.data.document);
-      } else {
-        setError(
-          response.data?.message ||
-            "Failed to fetch document."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Legal Team Document Details Error:",
-        err.response?.data || err.message
-      );
-
+    if (response.data?.success) {
+      setDocument(response.data.document);
+    } else {
+      setDocument(null);
       setError(
-        err.response?.data?.message ||
-          "Unable to load document."
+        response.data?.message ||
+          "Failed to fetch document."
       );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Legal Team Document Details Error:",
+      err.response?.data || err.message
+    );
+
+    setDocument(null);
+    setError(
+      err.response?.data?.message ||
+        "Unable to load document."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchDocument();
