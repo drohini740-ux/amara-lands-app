@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Outlet } from "react-router-dom";
 
@@ -19,13 +18,17 @@ const FieldExecutiveLayout = () => {
         style={{
           marginLeft: "250px",
           minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <FieldExecutiveNavbar />
 
         <main
           style={{
-            padding: "30px",
+            flex: 1,
+            minWidth: 0,
+            padding: "24px",
           }}
         >
           <Outlet />
@@ -36,4 +39,3 @@ const FieldExecutiveLayout = () => {
 };
 
 export default FieldExecutiveLayout;
-

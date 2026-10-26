@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
@@ -13,34 +12,41 @@ const {
 } = require("../../controllers/superAdmin/superAdminAuditLogController");
 
 // =====================================================
-// AUTHENTICATION
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
 // =====================================================
 
-router.use(authMiddleware);
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
 
 // =====================================================
 // AUDIT LOG ROUTES
 // =====================================================
 
-router.get(
-  "/",
-  getAllAuditLogs
-);
+// Get all audit logs
+router.get("/", getAllAuditLogs);
 
-router.post(
-  "/",
-  createAuditLog
-);
+// Create audit log
+router.post("/", createAuditLog);
 
-router.get(
-  "/:id",
-  getAuditLogById
-);
+// Get audit log by ID
+router.get("/:id", getAuditLogById);
 
-router.delete(
-  "/:id",
-  deleteAuditLog
-);
+// Delete audit log
+router.delete("/:id", deleteAuditLog);
 
 module.exports = router;
-

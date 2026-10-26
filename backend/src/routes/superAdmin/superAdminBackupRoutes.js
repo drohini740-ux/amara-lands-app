@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
@@ -13,10 +13,26 @@ const {
 } = require("../../controllers/superAdmin/superAdminBackupController");
 
 // =====================================================
-// AUTHENTICATION
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
 // =====================================================
 
-router.use(authMiddleware);
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
 
 // =====================================================
 // BACKUP ROUTES

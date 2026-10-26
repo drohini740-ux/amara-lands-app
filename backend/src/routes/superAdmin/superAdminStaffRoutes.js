@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
@@ -13,9 +13,32 @@ const {
   updateAssignmentStatus,
 } = require("../../controllers/superAdmin/superAdminStaffController");
 
-router.use(authMiddleware);
+// =====================================================
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
+// =====================================================
 
-// Staff
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
+
+// =====================================================
+// STAFF MANAGEMENT
+// =====================================================
+
 router.get("/", getAllStaff);
 
 router.get("/:id", getStaffById);
@@ -24,12 +47,12 @@ router.put("/:id/status", updateStaffStatus);
 
 router.put("/:id/role", updateStaffRole);
 
-// Staff assignments
+// =====================================================
+// STAFF ASSIGNMENTS
+// =====================================================
+
 router.get("/assignments/all", getStaffAssignments);
 
-router.put(
-  "/assignments/:id/status",
-  updateAssignmentStatus
-);
+router.put("/assignments/:id/status", updateAssignmentStatus);
 
 module.exports = router;

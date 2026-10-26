@@ -9,8 +9,27 @@ const {
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// All profile routes require authentication.
-router.use(authMiddleware);
+// =====================================================
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
+// =====================================================
+
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
 
 // GET logged-in Super Admin profile
 router.get("/", getMyProfile);

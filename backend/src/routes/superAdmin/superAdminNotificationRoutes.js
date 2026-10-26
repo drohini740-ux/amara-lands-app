@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
@@ -14,63 +14,47 @@ const {
 } = require("../../controllers/superAdmin/superAdminNotificationController");
 
 // =====================================================
-// AUTHENTICATION
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
 // =====================================================
 
-router.use(authMiddleware);
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
 
 // =====================================================
-// GET ALL NOTIFICATIONS
+// NOTIFICATION ROUTES
 // =====================================================
 
-router.get(
-  "/",
-  getAllNotifications
-);
+// Get all notifications
+router.get("/", getAllNotifications);
 
-// =====================================================
-// CREATE NOTIFICATION
-// =====================================================
+// Create notification
+router.post("/", createNotification);
 
-router.post(
-  "/",
-  createNotification
-);
+// Get notification by ID
+router.get("/:id", getNotificationById);
 
-// =====================================================
-// GET NOTIFICATION BY ID
-// =====================================================
+// Update notification
+router.put("/:id", updateNotification);
 
-router.get(
-  "/:id",
-  getNotificationById
-);
+// Update read / unread status
+router.put("/:id/read-status", updateNotificationReadStatus);
 
-// =====================================================
-// UPDATE NOTIFICATION
-// =====================================================
-
-router.put(
-  "/:id",
-  updateNotification
-);
-
-// =====================================================
-// UPDATE READ / UNREAD STATUS
-// =====================================================
-
-router.put(
-  "/:id/read-status",
-  updateNotificationReadStatus
-);
-
-// =====================================================
-// DELETE NOTIFICATION
-// =====================================================
-
-router.delete(
-  "/:id",
-  deleteNotification
-);
+// Delete notification
+router.delete("/:id", deleteNotification);
 
 module.exports = router;

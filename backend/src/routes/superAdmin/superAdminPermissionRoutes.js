@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -10,7 +11,31 @@ const {
   removePermission,
 } = require("../../controllers/superAdmin/superAdminPermissionController");
 
-router.use(authMiddleware);
+// =====================================================
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
+// =====================================================
+
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
+
+// =====================================================
+// PERMISSION ROUTES
+// =====================================================
 
 // Get all permissions
 router.get("/", getAllPermissions);

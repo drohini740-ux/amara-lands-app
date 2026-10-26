@@ -1,8 +1,9 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/authorizeRoles");
 
 const {
   getAllUsers,
@@ -16,46 +17,39 @@ const {
 } = require("../../controllers/superAdmin/superAdminUserController");
 
 // =====================================================
-// AUTHENTICATION
+// AUTHENTICATION + DATABASE-VERIFIED SUPER ADMIN ACCESS
 // =====================================================
 
-router.use(authMiddleware);
+// Verify JWT, then verify the user's current role and status
+// against the database.
+router.use(authMiddleware, authorizeRoles("super_admin"));
 
 // =====================================================
-// USER MANAGEMENT
+// SUPER ADMIN USER MANAGEMENT
 // =====================================================
 
 // Get all users
 router.get("/", getAllUsers);
 
-// Add user
+// Create a user
 router.post("/", addUser);
 
-// Get user by ID
+// Get a user by ID
 router.get("/:id", getUserById);
 
-// Update user
+// Update a user
 router.put("/:id", updateUser);
 
-// Delete user
+// Delete a user
 router.delete("/:id", deleteUser);
 
 // Update user status
-router.put(
-  "/:id/status",
-  updateUserStatus
-);
+router.put("/:id/status", updateUserStatus);
 
 // Update user role
-router.put(
-  "/:id/role",
-  updateUserRole
-);
+router.put("/:id/role", updateUserRole);
 
-// Reset password
-router.put(
-  "/:id/reset-password",
-  resetUserPassword
-);
+// Reset user password
+router.put("/:id/reset-password", resetUserPassword);
 
 module.exports = router;

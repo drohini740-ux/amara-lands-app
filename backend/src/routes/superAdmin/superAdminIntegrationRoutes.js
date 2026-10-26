@@ -1,6 +1,8 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
+
+const authMiddleware = require("../../middleware/authMiddleware");
 
 const {
   getAllIntegrations,
@@ -13,84 +15,54 @@ const {
   testIntegration,
 } = require("../../controllers/superAdmin/superAdminIntegrationController");
 
-const authMiddleware = require("../../middleware/authMiddleware");
-
 // =====================================================
-// AUTHENTICATION
+// AUTHENTICATION + SUPER ADMIN AUTHORIZATION
 // =====================================================
 
-router.use(authMiddleware);
+const requireSuperAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireSuperAdmin);
 
 // =====================================================
-// GET ALL INTEGRATIONS
+// INTEGRATION ROUTES
 // =====================================================
 
-router.get(
-  "/",
-  getAllIntegrations
-);
+// Get all integrations
+router.get("/", getAllIntegrations);
 
-// =====================================================
-// CREATE INTEGRATION
-// =====================================================
+// Create integration
+router.post("/", createIntegration);
 
-router.post(
-  "/",
-  createIntegration
-);
+// Get integration by ID
+router.get("/:id", getIntegrationById);
 
-// =====================================================
-// GET INTEGRATION BY ID
-// =====================================================
+// Update integration
+router.put("/:id", updateIntegration);
 
-router.get(
-  "/:id",
-  getIntegrationById
-);
+// Update integration status
+router.put("/:id/status", updateIntegrationStatus);
 
-// =====================================================
-// UPDATE INTEGRATION
-// =====================================================
+// Enable / disable integration
+router.put("/:id/toggle", toggleIntegration);
 
-router.put(
-  "/:id",
-  updateIntegration
-);
+// Test integration
+router.put("/:id/test", testIntegration);
 
-// =====================================================
-// UPDATE STATUS
-// =====================================================
-
-router.put(
-  "/:id/status",
-  updateIntegrationStatus
-);
-
-// =====================================================
-// ENABLE / DISABLE
-// =====================================================
-
-router.put(
-  "/:id/toggle",
-  toggleIntegration
-);
-
-// =====================================================
-// TEST INTEGRATION
-// =====================================================
-
-router.put(
-  "/:id/test",
-  testIntegration
-);
-
-// =====================================================
-// DELETE INTEGRATION
-// =====================================================
-
-router.delete(
-  "/:id",
-  deleteIntegration
-);
+// Delete integration
+router.delete("/:id", deleteIntegration);
 
 module.exports = router;

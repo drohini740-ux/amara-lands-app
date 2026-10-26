@@ -1,4 +1,3 @@
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import API from "../services/api";
 
@@ -19,9 +18,16 @@ export const fetchFieldExecutiveDashboard = createAsyncThunk(
         );
       }
 
-      // Support both { success: true, data: {...} }
-      // and a direct dashboard response.
-      return result?.data ?? result;
+      // Support common backend response formats.
+      const data = result?.data ?? result;
+
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        return rejectWithValue(
+          "Invalid dashboard response received from the server."
+        );
+      }
+
+      return data;
     } catch (error) {
       console.error(
         "Field Executive Dashboard Error:",
@@ -80,43 +86,41 @@ const fieldExecutiveDashboardSlice = createSlice({
         state.error = null;
       })
 
-      .addCase(
-        fetchFieldExecutiveDashboard.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.error = null;
+      .addCase(fetchFieldExecutiveDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
 
-          const data = action.payload || {};
+        const data = action.payload || {};
 
-          state.overview = {
-            ...initialState.overview,
-            ...(data.overview || {}),
-          };
+        state.overview = {
+          ...initialState.overview,
+          ...(data.overview &&
+          typeof data.overview === "object" &&
+          !Array.isArray(data.overview)
+            ? data.overview
+            : {}),
+        };
 
-          state.upcoming_visits = Array.isArray(data.upcoming_visits)
-            ? data.upcoming_visits
-            : [];
+        state.upcoming_visits = Array.isArray(data.upcoming_visits)
+          ? data.upcoming_visits
+          : [];
 
-          state.recent_visits = Array.isArray(data.recent_visits)
-            ? data.recent_visits
-            : [];
+        state.recent_visits = Array.isArray(data.recent_visits)
+          ? data.recent_visits
+          : [];
 
-          state.assigned_properties = Array.isArray(
-            data.assigned_properties
-          )
-            ? data.assigned_properties
-            : [];
-        }
-      )
+        state.assigned_properties = Array.isArray(
+          data.assigned_properties
+        )
+          ? data.assigned_properties
+          : [];
+      })
 
-      .addCase(
-        fetchFieldExecutiveDashboard.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error =
-            action.payload || "Unable to load dashboard.";
-        }
-      );
+      .addCase(fetchFieldExecutiveDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Unable to load dashboard.";
+      });
   },
 });
 

@@ -1,75 +1,72 @@
-
 import React from "react";
-
-import {
-  FaBell,
-  FaUserCircle,
-} from "react-icons/fa";
+import { FaBell, FaUserCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const FieldExecutiveNavbar = () => {
-  const userData = localStorage.getItem("user");
+  const navigate = useNavigate();
 
-  let user = null;
+  const getUser = () => {
+    try {
+      const userData =
+        sessionStorage.getItem("user") ||
+        localStorage.getItem("user");
 
-  try {
-    user = userData
-      ? JSON.parse(userData)
-      : null;
-  } catch (error) {
-    console.error(
-      "Invalid user data:",
-      error
-    );
-  }
+      return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.error("Invalid user data:", error);
+      return null;
+    }
+  };
+
+  const user = getUser();
 
   return (
     <nav
       style={{
-        height: "70px",
+        minHeight: "70px",
         backgroundColor: "#111111",
         color: "#FFFFFF",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 30px",
-        borderBottom:
-          "2px solid #C9A227",
+        gap: "16px",
+        padding: "12px 24px",
+        borderBottom: "2px solid #C9A227",
       }}
     >
-      {/* ============================================= */}
-      {/* TITLE */}
-      {/* ============================================= */}
-
       <div>
         <h5
-          className="mb-1"
           style={{
-            fontWeight: "700",
+            margin: 0,
+            fontWeight: 700,
             color: "#FFFFFF",
           }}
         >
           Field Executive Portal
         </h5>
 
-        <small
-          style={{
-            color: "#C9A227",
-          }}
-        >
+        <small style={{ color: "#C9A227" }}>
           Amara Lands
         </small>
       </div>
 
-      {/* ============================================= */}
-      {/* RIGHT SIDE */}
-      {/* ============================================= */}
-
-      <div className="d-flex align-items-center gap-4">
-        {/* NOTIFICATIONS */}
-
-        <div
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "24px",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate("/field/notifications")}
+          aria-label="Open notifications"
+          title="Notifications"
           style={{
+            border: "none",
+            background: "transparent",
             cursor: "pointer",
+            padding: "6px",
           }}
         >
           <FaBell
@@ -78,11 +75,15 @@ const FieldExecutiveNavbar = () => {
               color: "#C9A227",
             }}
           />
-        </div>
+        </button>
 
-        {/* USER */}
-
-        <div className="d-flex align-items-center gap-2">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
           <FaUserCircle
             style={{
               fontSize: "30px",
@@ -94,19 +95,16 @@ const FieldExecutiveNavbar = () => {
             <div
               style={{
                 fontSize: "14px",
-                fontWeight: "600",
+                fontWeight: 600,
               }}
             >
               {user?.full_name ||
                 user?.name ||
+                user?.email ||
                 "Field Executive"}
             </div>
 
-            <small
-              style={{
-                color: "#CCCCCC",
-              }}
-            >
+            <small style={{ color: "#CCCCCC" }}>
               Field Executive
             </small>
           </div>
@@ -117,4 +115,3 @@ const FieldExecutiveNavbar = () => {
 };
 
 export default FieldExecutiveNavbar;
-

@@ -19,7 +19,19 @@ export const fetchFieldExecutiveProperties = createAsyncThunk(
         );
       }
 
-      return result?.data ?? result;
+      const data = result?.data ?? result;
+
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      if (Array.isArray(data?.properties)) {
+        return data.properties;
+      }
+
+      return rejectWithValue(
+        "The properties API returned an unexpected response format."
+      );
     } catch (error) {
       console.error(
         "Fetch Field Executive Properties Error:",
@@ -49,6 +61,7 @@ export const fetchFieldExecutivePropertyById = createAsyncThunk(
       const response = await API.get(
         `/field/properties/${encodeURIComponent(id)}`
       );
+
       const result = response.data;
 
       if (result?.success === false) {
@@ -57,7 +70,16 @@ export const fetchFieldExecutivePropertyById = createAsyncThunk(
         );
       }
 
-      return result?.data ?? result;
+      const data = result?.data ?? result;
+      const property = data?.property ?? data;
+
+      if (!property || typeof property !== "object" || Array.isArray(property)) {
+        return rejectWithValue(
+          "The property details API returned an unexpected response."
+        );
+      }
+
+      return property;
     } catch (error) {
       console.error(
         "Fetch Field Executive Property Details Error:",
@@ -79,10 +101,8 @@ export const fetchFieldExecutivePropertyById = createAsyncThunk(
 const initialState = {
   properties: [],
   selectedProperty: null,
-
   loading: false,
   detailsLoading: false,
-
   error: null,
   detailsError: null,
 };
@@ -109,67 +129,37 @@ const fieldExecutivePropertySlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // FETCH ALL ASSIGNED PROPERTIES
+      // FETCH ASSIGNED PROPERTIES
       .addCase(fetchFieldExecutiveProperties.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
-      .addCase(
-        fetchFieldExecutiveProperties.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.error = null;
-
-          const payload = action.payload;
-
-          state.properties = Array.isArray(payload)
-            ? payload
-            : Array.isArray(payload?.properties)
-              ? payload.properties
-              : [];
-        }
-      )
-
-      .addCase(
-        fetchFieldExecutiveProperties.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error =
-            action.payload || "Unable to fetch assigned properties.";
-        }
-      )
+      .addCase(fetchFieldExecutiveProperties.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.properties = action.payload;
+      })
+      .addCase(fetchFieldExecutiveProperties.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload || "Unable to fetch assigned properties.";
+      })
 
       // FETCH PROPERTY DETAILS
       .addCase(fetchFieldExecutivePropertyById.pending, (state) => {
         state.detailsLoading = true;
         state.detailsError = null;
       })
-
-      .addCase(
-        fetchFieldExecutivePropertyById.fulfilled,
-        (state, action) => {
-          state.detailsLoading = false;
-          state.detailsError = null;
-
-          const payload = action.payload;
-
-          state.selectedProperty =
-            payload?.property ??
-            payload?.properties ??
-            payload ??
-            null;
-        }
-      )
-
-      .addCase(
-        fetchFieldExecutivePropertyById.rejected,
-        (state, action) => {
-          state.detailsLoading = false;
-          state.detailsError =
-            action.payload || "Unable to fetch property details.";
-        }
-      );
+      .addCase(fetchFieldExecutivePropertyById.fulfilled, (state, action) => {
+        state.detailsLoading = false;
+        state.detailsError = null;
+        state.selectedProperty = action.payload;
+      })
+      .addCase(fetchFieldExecutivePropertyById.rejected, (state, action) => {
+        state.detailsLoading = false;
+        state.detailsError =
+          action.payload || "Unable to fetch property details.";
+      });
   },
 });
 
