@@ -1,11 +1,9 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
+const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
 const {
   getMySecurityReports,
@@ -16,47 +14,19 @@ const {
   "../../controllers/fieldExecutive/fieldExecutiveSecurityReportController"
 );
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET MY SECURITY REPORTS
-// =====================================================
+router.get("/", getMySecurityReports);
 
-router.get(
-  "/",
-  getMySecurityReports
-);
-
-// =====================================================
 // CREATE SECURITY REPORT
-// =====================================================
+router.post("/", createSecurityReport);
 
-router.post(
-  "/",
-  createSecurityReport
-);
-
-// =====================================================
 // GET SECURITY REPORT BY ID
-// =====================================================
+router.get("/:id", getSecurityReportById);
 
-router.get(
-  "/:id",
-  getSecurityReportById
-);
-
-// =====================================================
 // UPDATE SECURITY REPORT
-// =====================================================
-
-router.put(
-  "/:id",
-  updateSecurityReport
-);
+router.put("/:id", updateSecurityReport);
 
 module.exports = router;
-

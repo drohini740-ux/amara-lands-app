@@ -339,7 +339,7 @@ const SecurityReports = () => {
           <button
             type="button"
             className="btn"
-            onClick={() => dispatch(fetchSecurityReports())}
+            onClick={() => dispatch(fetchSecurityPortalReports())}
             disabled={loading}
             style={{
               color: "#C9A227",

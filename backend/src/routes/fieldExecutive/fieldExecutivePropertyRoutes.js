@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -9,24 +8,15 @@ const {
 } = require("../../controllers/fieldExecutive/fieldExecutivePropertyController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
-// MY PROPERTIES
-// =====================================================
-
+// MY ASSIGNED PROPERTIES
 router.get("/", getMyProperties);
 
-// =====================================================
 // PROPERTY DETAILS
-// =====================================================
-
 router.get("/:id", getMyPropertyById);
 
 module.exports = router;
-

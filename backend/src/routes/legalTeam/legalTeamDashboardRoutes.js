@@ -7,9 +7,10 @@ const {
 } = require("../../controllers/legalTeam/legalTeamDashboardController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// All dashboard routes require authentication.
-router.use(authMiddleware);
+// Require authentication and Legal Team authorization.
+router.use(authMiddleware, authorizeRoles("legal"));
 
 // GET /api/v1/legal-team/dashboard
 router.get("/", getLegalTeamDashboard);

@@ -431,7 +431,7 @@ app.use(
   "/api/v1/surveillance-cameras",
   securitySurveillanceCameraRoutes
 );
-app.use("/api/v1/notifications", securityNotificationRoutes);
+app.use("/api/v1/security/notifications", securityNotificationRoutes);
 app.use("/api/v1/legal-team/dashboard", legalTeamDashboardRoutes);
 /* ------------------------- 404 Handler ------------------------- */
 

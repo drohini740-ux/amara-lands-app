@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
@@ -17,85 +17,38 @@ const {
   getPaymentReceipt,
   downloadPaymentReceipt,
 } = require("../../controllers/admin/paymentController");
-// ==========================================
-// ADMIN PAYMENT ROUTES
-// ==========================================
+
+// Protect all Admin payment routes.
+router.use(authMiddleware, adminMiddleware);
+
 // Dashboard statistics
-router.get(
-  "/stats/dashboard",
-  authMiddleware,
-  adminMiddleware,
-  getPaymentStats
-);
+router.get("/stats/dashboard", getPaymentStats);
 
 // Monthly revenue
-router.get(
-  "/stats/monthly-revenue",
-  authMiddleware,
-  adminMiddleware,
-  getMonthlyRevenue
-);
+router.get("/stats/monthly-revenue", getMonthlyRevenue);
 
 // Payment method statistics
-router.get(
-  "/stats/methods",
-  authMiddleware,
-  adminMiddleware,
-  getPaymentMethodStats
-);
+router.get("/stats/methods", getPaymentMethodStats);
 
 // Recent payments
-router.get(
-  "/recent",
-  authMiddleware,
-  adminMiddleware,
-  getRecentPayments
-);
+router.get("/recent", getRecentPayments);
 
-// Download receipt
-router.get(
-  "/receipt/:id",
-  authMiddleware,
-  adminMiddleware,
-  getPaymentReceipt
-);
+// View payment receipt
+router.get("/receipt/:id", getPaymentReceipt);
+
+// Download payment receipt
+router.get("/receipt/:id/download", downloadPaymentReceipt);
 
 // Get all payments
-router.get(
-  "/",
-  authMiddleware,
-  adminMiddleware,
-  getAllPayments
-);
+router.get("/", getAllPayments);
 
 // Get single payment
-router.get(
-  "/:id",
-  authMiddleware,
-  adminMiddleware,
-  getPaymentById
-);
+router.get("/:id", getPaymentById);
 
 // Update payment
-router.put(
-  "/:id",
-  authMiddleware,
-  adminMiddleware,
-  updatePayment
-);
+router.put("/:id", updatePayment);
 
 // Delete payment
-router.delete(
-  "/:id",
-  authMiddleware,
-  adminMiddleware,
-  deletePayment
-);
-// Download Payment Receipt
-router.get(
-  "/receipt/:id",
-  authMiddleware,
-  adminMiddleware,
-  downloadPaymentReceipt
-);
+router.delete("/:id", deletePayment);
+
 module.exports = router;

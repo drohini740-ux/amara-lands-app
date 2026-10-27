@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
@@ -11,40 +11,27 @@ const {
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// ======================================================
-// GET ALL SNAPSHOTS
-// ======================================================
-router.get(
-  "/",
-  authMiddleware,
-  getLiveSnapshots
-);
+const requireAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 
-// ======================================================
-// GET SINGLE SNAPSHOT
-// ======================================================
-router.get(
-  "/:id",
-  authMiddleware,
-  getLiveSnapshot
-);
+  if (role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Admin role required.",
+    });
+  }
 
-// ======================================================
-// CREATE SNAPSHOT
-// ======================================================
-router.post(
-  "/",
-  authMiddleware,
-  createLiveSnapshot
-);
+  return next();
+};
 
-// ======================================================
-// DELETE SNAPSHOT
-// ======================================================
-router.delete(
-  "/:id",
-  authMiddleware,
-  deleteLiveSnapshot
-);
+router.use(authMiddleware, requireAdmin);
+
+router.get("/", getLiveSnapshots);
+router.get("/:id", getLiveSnapshot);
+router.post("/", createLiveSnapshot);
+router.delete("/:id", deleteLiveSnapshot);
 
 module.exports = router;

@@ -1,9 +1,9 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
 const {
   getSecurityReports,
@@ -11,31 +11,19 @@ const {
   createSecurityReport,
 } = require("../../controllers/security/securityReportController");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Security role.
+router.use(authMiddleware, authorizeRoles("security"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET ALL INCIDENT REPORTS
 // GET /api/v1/security/reports
-// =====================================================
-
 router.get("/", getSecurityReports);
 
-// =====================================================
 // CREATE INCIDENT REPORT
 // POST /api/v1/security/reports
-// =====================================================
-
 router.post("/", createSecurityReport);
 
-// =====================================================
 // GET INCIDENT REPORT DETAILS
 // GET /api/v1/security/reports/:id
-// =====================================================
-
 router.get("/:id", getSecurityReportById);
 
 module.exports = router;

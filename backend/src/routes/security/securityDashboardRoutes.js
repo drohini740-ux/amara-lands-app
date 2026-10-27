@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -8,18 +7,12 @@ const {
 } = require("../../controllers/security/securityDashboardController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Security role.
+router.use(authMiddleware, authorizeRoles("security"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET SECURITY DASHBOARD
-// =====================================================
-
 router.get("/", getDashboardStats);
 
 module.exports = router;
-

@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
@@ -14,53 +14,30 @@ const {
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// GET all
-router.get(
-  "/",
-  authMiddleware,
-  getIntrusionNotifications
-);
+const requireAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 
-// GET single
-router.get(
-  "/:id",
-  authMiddleware,
-  getIntrusionNotification
-);
+  if (role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Admin role required.",
+    });
+  }
 
-// CREATE
-router.post(
-  "/",
-  authMiddleware,
-  createIntrusionNotification
-);
+  next();
+};
 
-// UPDATE
-router.put(
-  "/:id",
-  authMiddleware,
-  updateIntrusionNotification
-);
+router.use(authMiddleware, requireAdmin);
 
-// ACKNOWLEDGE
-router.put(
-  "/:id/acknowledge",
-  authMiddleware,
-  acknowledgeIntrusionNotification
-);
-
-// RESOLVE
-router.patch(
-  "/:id/resolve",
-  authMiddleware,
-  resolveIntrusionNotification
-);
-
-// DELETE
-router.delete(
-  "/:id",
-  authMiddleware,
-  deleteIntrusionNotification
-);
+router.get("/", getIntrusionNotifications);
+router.get("/:id", getIntrusionNotification);
+router.post("/", createIntrusionNotification);
+router.put("/:id", updateIntrusionNotification);
+router.put("/:id/acknowledge", acknowledgeIntrusionNotification);
+router.patch("/:id/resolve", resolveIntrusionNotification);
+router.delete("/:id", deleteIntrusionNotification);
 
 module.exports = router;

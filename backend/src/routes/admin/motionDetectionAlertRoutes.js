@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
@@ -14,67 +14,31 @@ const {
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// ======================================================
-// GET ALL MOTION DETECTION ALERTS
-// ======================================================
-router.get(
-  "/",
-  authMiddleware,
-  getMotionDetectionAlerts
-);
+const requireAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 
-// ======================================================
-// GET SINGLE MOTION DETECTION ALERT
-// ======================================================
-router.get(
-  "/:id",
-  authMiddleware,
-  getMotionDetectionAlert
-);
+  if (role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Admin role required.",
+    });
+  }
 
-// ======================================================
-// CREATE MOTION DETECTION ALERT
-// ======================================================
-router.post(
-  "/",
-  authMiddleware,
-  addMotionDetectionAlert
-);
+  return next();
+};
 
-// ======================================================
-// UPDATE MOTION DETECTION ALERT
-// ======================================================
-router.put(
-  "/:id",
-  authMiddleware,
-  updateMotionDetectionAlert
-);
+// Authenticate and authorize every endpoint.
+router.use(authMiddleware, requireAdmin);
 
-// ======================================================
-// DELETE MOTION DETECTION ALERT
-// ======================================================
-router.delete(
-  "/:id",
-  authMiddleware,
-  deleteMotionDetectionAlert
-);
-
-// ======================================================
-// ACKNOWLEDGE MOTION DETECTION ALERT
-// ======================================================
-router.put(
-  "/:id/acknowledge",
-  authMiddleware,
-  acknowledgeMotionDetectionAlert
-);
-
-// ======================================================
-// RESOLVE MOTION DETECTION ALERT
-// ======================================================
-router.put(
-  "/:id/resolve",
-  authMiddleware,
-  resolveMotionDetectionAlert
-);
+router.get("/", getMotionDetectionAlerts);
+router.get("/:id", getMotionDetectionAlert);
+router.post("/", addMotionDetectionAlert);
+router.put("/:id", updateMotionDetectionAlert);
+router.delete("/:id", deleteMotionDetectionAlert);
+router.put("/:id/acknowledge", acknowledgeMotionDetectionAlert);
+router.put("/:id/resolve", resolveMotionDetectionAlert);
 
 module.exports = router;

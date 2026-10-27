@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -10,30 +9,18 @@ const {
 } = require("../../controllers/legalTeam/legalTeamNotificationController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Legal Team authorization.
+router.use(authMiddleware, authorizeRoles("legal"));
 
-router.use(authMiddleware);
-
-// =====================================================
-// GET ALL NOTIFICATIONS
-// =====================================================
-
+// Get all notifications
 router.get("/", getAllNotifications);
 
-// =====================================================
-// GET NOTIFICATION BY ID
-// =====================================================
-
+// Get notification by ID
 router.get("/:id", getNotificationById);
 
-// =====================================================
-// MARK NOTIFICATION AS READ
-// =====================================================
-
+// Mark notification as read
 router.put("/:id/read", markNotificationAsRead);
 
 module.exports = router;
-

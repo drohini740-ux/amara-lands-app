@@ -1,58 +1,32 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
+const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-const fieldVisitMediaUpload =
-  require(
-    "../../middleware/fieldVisitMediaUpload"
-  );
+const fieldVisitMediaUpload = require("../../middleware/fieldVisitMediaUpload");
 
 const {
   getMyVisitMedia,
   uploadVisitMedia,
   deleteVisitMedia,
-} = require(
-  "../../controllers/fieldExecutive/fieldExecutiveMediaController"
-);
+} = require("../../controllers/fieldExecutive/fieldExecutiveMediaController");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET MEDIA FOR VISIT
-// =====================================================
+router.get("/visit/:visitId", getMyVisitMedia);
 
-router.get(
-  "/visit/:visitId",
-  getMyVisitMedia
-);
-
-// =====================================================
 // UPLOAD MEDIA
-// =====================================================
-
 router.post(
   "/visit/:visitId",
   fieldVisitMediaUpload.single("file"),
   uploadVisitMedia
 );
 
-// =====================================================
 // DELETE MEDIA
-// =====================================================
-
-router.delete(
-  "/:id",
-  deleteVisitMedia
-);
+router.delete("/:id", deleteVisitMedia);
 
 module.exports = router;
-

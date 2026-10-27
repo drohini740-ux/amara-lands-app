@@ -1,11 +1,9 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
+const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
 const {
   getMyNotifications,
@@ -13,60 +11,24 @@ const {
   createNotification,
   updateNotificationReadStatus,
   deleteNotification,
-} = require(
-  "../../controllers/fieldExecutive/fieldExecutiveNotificationController"
-);
+} = require("../../controllers/fieldExecutive/fieldExecutiveNotificationController");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET MY NOTIFICATIONS
-// =====================================================
+router.get("/", getMyNotifications);
 
-router.get(
-  "/",
-  getMyNotifications
-);
-
-// =====================================================
 // CREATE NOTIFICATION
-// =====================================================
+router.post("/", createNotification);
 
-router.post(
-  "/",
-  createNotification
-);
-
-// =====================================================
 // GET NOTIFICATION BY ID
-// =====================================================
+router.get("/:id", getNotificationById);
 
-router.get(
-  "/:id",
-  getNotificationById
-);
-
-// =====================================================
 // MARK READ / UNREAD
-// =====================================================
+router.put("/:id/read", updateNotificationReadStatus);
 
-router.put(
-  "/:id/read",
-  updateNotificationReadStatus
-);
-
-// =====================================================
 // DELETE NOTIFICATION
-// =====================================================
-
-router.delete(
-  "/:id",
-  deleteNotification
-);
+router.delete("/:id", deleteNotification);
 
 module.exports = router;
-

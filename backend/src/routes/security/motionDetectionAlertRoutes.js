@@ -10,16 +10,22 @@ const {
 } = require("../../controllers/security/motionDetectionAlertController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// GET all motion detection alerts
+// Require authentication and Security role.
+router.use(authMiddleware, authorizeRoles("security"));
+
+// Get all motion detection alerts
 // Optional filters: status, severity, property_id
-router.get("/", authMiddleware, getMotionDetectionAlerts);
-router.post("/", authMiddleware, createMotionDetectionAlert);
+router.get("/", getMotionDetectionAlerts);
 
-// GET one motion detection alert by ID
-router.get("/:id", authMiddleware, getMotionDetectionAlertById);
+// Create motion detection alert
+router.post("/", createMotionDetectionAlert);
 
-// UPDATE alert status or remarks
-router.patch("/:id", authMiddleware, updateMotionDetectionAlert);
+// Get one motion detection alert by ID
+router.get("/:id", getMotionDetectionAlertById);
+
+// Update alert status or remarks
+router.patch("/:id", updateMotionDetectionAlert);
 
 module.exports = router;

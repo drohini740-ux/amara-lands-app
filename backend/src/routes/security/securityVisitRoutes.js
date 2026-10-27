@@ -1,21 +1,17 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
+const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
 const {
   getSecurityVisits,
   getSecurityVisitById,
-} = require(
-  "../../controllers/security/securityVisitController"
-);
+} = require("../../controllers/security/securityVisitController");
 
-// Require authentication for every route
-router.use(authMiddleware);
+// Require authentication and Security role.
+router.use(authMiddleware, authorizeRoles("security"));
 
 // GET /api/v1/security/visits
 router.get("/", getSecurityVisits);
@@ -24,4 +20,3 @@ router.get("/", getSecurityVisits);
 router.get("/:id", getSecurityVisitById);
 
 module.exports = router;
-

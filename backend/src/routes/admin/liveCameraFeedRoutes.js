@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
@@ -9,22 +9,25 @@ const {
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// ======================================================
-// GET ALL LIVE CAMERA FEEDS
-// ======================================================
-router.get(
-  "/",
-  authMiddleware,
-  getLiveCameraFeeds
-);
+const requireAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 
-// ======================================================
-// GET SINGLE CAMERA
-// ======================================================
-router.get(
-  "/:id",
-  authMiddleware,
-  getLiveCameraFeed
-);
+  if (role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Admin role required.",
+    });
+  }
+
+  return next();
+};
+
+router.use(authMiddleware, requireAdmin);
+
+router.get("/", getLiveCameraFeeds);
+router.get("/:id", getLiveCameraFeed);
 
 module.exports = router;

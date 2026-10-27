@@ -1,38 +1,26 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
-    getAdminProfile,
-    updateAdminProfile,
-    changeAdminPassword,
+  getAdminProfile,
+  updateAdminProfile,
+  changeAdminPassword,
 } = require("../../controllers/admin/settingsController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const adminMiddleware = require("../../middleware/adminMiddleware");
 
-// ==========================================
-// ADMIN SETTINGS ROUTES
-// ==========================================
+// Protect all Admin settings routes.
+router.use(authMiddleware, adminMiddleware);
 
 // Get Admin Profile
-router.get(
-    "/profile",
-    authMiddleware,
-    getAdminProfile
-);
+router.get("/profile", getAdminProfile);
 
 // Update Admin Profile
-router.put(
-    "/profile",
-    authMiddleware,
-    updateAdminProfile
-);
+router.put("/profile", updateAdminProfile);
 
 // Change Admin Password
-router.put(
-    "/password",
-    authMiddleware,
-    changeAdminPassword
-);
+router.put("/password", changeAdminPassword);
 
 module.exports = router;

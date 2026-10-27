@@ -1,52 +1,26 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
+const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
 const {
   getMyAppointments,
   getAppointmentById,
   updateAppointmentStatus,
-} = require(
-  "../../controllers/fieldExecutive/fieldExecutiveAppointmentController"
-);
+} = require("../../controllers/fieldExecutive/fieldExecutiveAppointmentController");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET MY APPOINTMENTS
-// =====================================================
+router.get("/", getMyAppointments);
 
-router.get(
-  "/",
-  getMyAppointments
-);
-
-// =====================================================
 // GET APPOINTMENT BY ID
-// =====================================================
+router.get("/:id", getAppointmentById);
 
-router.get(
-  "/:id",
-  getAppointmentById
-);
-
-// =====================================================
-// UPDATE STATUS
-// =====================================================
-
-router.put(
-  "/:id/status",
-  updateAppointmentStatus
-);
+// UPDATE APPOINTMENT STATUS
+router.put("/:id/status", updateAppointmentStatus);
 
 module.exports = router;
-

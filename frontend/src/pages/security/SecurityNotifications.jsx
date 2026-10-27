@@ -18,7 +18,7 @@ const SecurityNotifications = () => {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/notifications");
+      const response = await api.get("/security/notifications");
       const body = response.data;
 
       const list = Array.isArray(body?.notifications)
@@ -145,7 +145,7 @@ const SecurityNotifications = () => {
     if (isRead(item)) return;
 
     await runAction(`read-${item.id}`, async () => {
-      await api.put(`/notifications/${item.id}/read`);
+      await api.patch(`/security/notifications/${item.id}/read`);
 
       setNotifications((previous) =>
         previous.map((notification) =>

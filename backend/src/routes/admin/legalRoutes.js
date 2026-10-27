@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
@@ -13,53 +13,30 @@ const {
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// ==========================================
-// GET ALL LEGAL CASES - ADMIN
-// ==========================================
+const requireAdmin = (req, res, next) => {
+  const role = String(req.user?.role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 
-router.get(
-  "/",
-  authMiddleware,
-  getAllLegalCases
-);
+  if (role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Admin role required.",
+    });
+  }
 
+  return next();
+};
 
-// ==========================================
-// GET SINGLE LEGAL CASE - ADMIN
-// ==========================================
-
-router.get(
-  "/:id",
-  authMiddleware,
-  getLegalCaseById
-);
-router.put(
-  "/:id/assign-advocate",
-  authMiddleware,
-  assignAdvocate
-);
-
-
-// ==========================================
-// UPDATE LEGAL CASE - ADMIN
-// ==========================================
-
-router.put(
-  "/:id",
-  authMiddleware,
-  updateLegalCase
-);
+// Protect every endpoint in this router.
+router.use(authMiddleware, requireAdmin);
 
 router.get("/tracking", getCaseTracking);
-// ==========================================
-// DELETE LEGAL CASE - ADMIN
-// ==========================================
-
-router.delete(
-  "/:id",
-  authMiddleware,
-  deleteLegalCase
-);
-
+router.get("/", getAllLegalCases);
+router.get("/:id", getLegalCaseById);
+router.put("/:id/assign-advocate", assignAdvocate);
+router.put("/:id", updateLegalCase);
+router.delete("/:id", deleteLegalCase);
 
 module.exports = router;

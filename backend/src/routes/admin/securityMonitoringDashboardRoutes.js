@@ -1,5 +1,5 @@
-const express = require("express");
 
+const express = require("express");
 const router = express.Router();
 
 const {
@@ -7,10 +7,13 @@ const {
 } = require("../../controllers/admin/securityMonitoringDashboardController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const adminMiddleware = require("../../middleware/adminMiddleware");
 
+// Admin-only security monitoring dashboard
 router.get(
   "/",
   authMiddleware,
+  adminMiddleware,
   getSecurityMonitoringDashboard
 );
 

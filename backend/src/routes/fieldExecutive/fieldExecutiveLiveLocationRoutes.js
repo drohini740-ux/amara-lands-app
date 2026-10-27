@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -10,30 +9,18 @@ const {
 } = require("../../controllers/fieldExecutive/fieldExecutiveLiveLocationController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // UPDATE LIVE LOCATION
-// =====================================================
-
 router.post("/", updateLiveLocation);
 
-// =====================================================
 // GET MY LIVE LOCATION
-// =====================================================
-
 router.get("/", getMyLiveLocation);
 
-// =====================================================
 // STOP LIVE LOCATION
-// =====================================================
-
 router.put("/stop", stopLiveLocation);
 
 module.exports = router;
-

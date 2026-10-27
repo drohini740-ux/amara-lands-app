@@ -14,7 +14,7 @@ const getSecurityNotifications = async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT id, user_id, title, message, type, is_read, created_at
+      `SELECT id, user_id, title, message, is_read, created_at
        FROM notifications
        WHERE user_id = $1 OR user_id IS NULL
        ORDER BY created_at DESC`,
@@ -54,7 +54,7 @@ const markSecurityNotificationRead = async (req, res) => {
        SET is_read = TRUE
        WHERE id = $1
          AND (user_id = $2 OR user_id IS NULL)
-       RETURNING id, title, message, type, is_read, created_at`,
+       RETURNING id, title, message, is_read, created_at`,
       [id, userId]
     );
 

@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -9,9 +8,10 @@ const {
 } = require("../../controllers/legalTeam/legalTeamPropertyController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// Authentication required
-router.use(authMiddleware);
+// Require authentication and Legal Team authorization.
+router.use(authMiddleware, authorizeRoles("legal"));
 
 // Get all properties
 router.get("/", getAllProperties);
@@ -20,4 +20,3 @@ router.get("/", getAllProperties);
 router.get("/:id", getPropertyById);
 
 module.exports = router;
-

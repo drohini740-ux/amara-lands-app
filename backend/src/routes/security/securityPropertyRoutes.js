@@ -1,61 +1,27 @@
 
 const express = require("express");
-
 const router = express.Router();
 
-// =====================================================
-// MIDDLEWARE
-// =====================================================
-
-const authMiddleware = require(
-  "../../middleware/authMiddleware"
-);
-
-// =====================================================
-// CONTROLLERS
-// =====================================================
+const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
 const {
   getAssignedProperties,
-} = require(
-  "../../controllers/security/securityPropertyController"
-);
+} = require("../../controllers/security/securityPropertyController");
 
 const {
   getAssignedPropertyById,
-} = require(
-  "../../controllers/security/securityPropertyDetailsController"
-);
+} = require("../../controllers/security/securityPropertyDetailsController");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Security role.
+router.use(authMiddleware, authorizeRoles("security"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET ALL ASSIGNED PROPERTIES
 // GET /api/v1/security/properties
-// =====================================================
+router.get("/", getAssignedProperties);
 
-router.get(
-  "/",
-  getAssignedProperties
-);
-
-// =====================================================
 // GET ASSIGNED PROPERTY BY ID
 // GET /api/v1/security/properties/:id
-// =====================================================
-
-router.get(
-  "/:id",
-  getAssignedPropertyById
-);
-
-// =====================================================
-// EXPORT ROUTER
-// =====================================================
+router.get("/:id", getAssignedPropertyById);
 
 module.exports = router;
-

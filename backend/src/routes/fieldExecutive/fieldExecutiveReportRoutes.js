@@ -1,6 +1,5 @@
 
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -8,18 +7,12 @@ const {
 } = require("../../controllers/fieldExecutive/fieldExecutiveReportController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
 
-// =====================================================
-// AUTHENTICATION
-// =====================================================
+// Require authentication and Field Executive role.
+router.use(authMiddleware, authorizeRoles("field_executive"));
 
-router.use(authMiddleware);
-
-// =====================================================
 // GET FIELD EXECUTIVE REPORTS
-// =====================================================
-
 router.get("/", getFieldExecutiveReports);
 
 module.exports = router;
-
